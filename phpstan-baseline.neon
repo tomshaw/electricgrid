@@ -346,11 +346,6 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Call to function is_null\\(\\) with array will always evaluate to false\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:__construct\\(\\) has parameter \\$query with generic class Illuminate\\\\Database\\\\Eloquent\\\\Builder but does not specify its types\\: TModelClass$#"
 			count: 1
 			path: src/DataSource.php

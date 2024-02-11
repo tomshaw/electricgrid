@@ -69,7 +69,11 @@ class DataSource
                 return [$this->resolveTableNames($key) => $value];
             })->toArray();
 
-            if (is_null($values)) {
+            $emptyKeys = array_filter(array_keys($values), function ($key) {
+                return empty($key);
+            });
+
+            if (! empty($emptyKeys)) {
                 continue;
             }
 
