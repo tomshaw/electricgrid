@@ -11,8 +11,7 @@
             <path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
           </svg>
         </span>
-        <input type="text" wire:model.live.debounce.600ms="searchTerm" 
-        class="form-input ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md ps-10" placeholder="{{ __('Search') }}">
+        <input type="text" wire:model.live.debounce.600ms="searchTerm" class="form-input ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md ps-10" placeholder="{{ __('Search') }}">
       </div>
       @endif
       <div wire:loading class="hidden">
@@ -46,21 +45,25 @@
 
   <div class="w-full">
     <div class="overflow-x-auto">
-      <table class="bg-white border-collapse table-auto w-full text-sm">
+      <table class="border-collapse table-auto w-full text-sm">
         <thead>
-
+          @if($showTableInfo || count($letterSearchColumns))
           <tr>
             <td class="border p-2" rowspan="1" colspan="{{$this->colspan}}">
               <div class="flex items-center justify-between">
-                <p class="font-medium text-gray-600 leading-5">
-                  <span>{!! __('Showing') !!}</span>
-                  <span>{{ $page->firstItem }}</span>
-                  <span>{!! __('to') !!}</span>
-                  <span>{{ $page->lastItem }}</span>
-                  <span>{!! __('of') !!}</span>
-                  <span>{{ $page->total }}</span>
-                  <span>{!! __('results') !!}.</span>
-                </p>
+                <div>
+                  @if($showTableInfo)
+                  <p class="font-medium text-gray-600 leading-5">
+                    <span>{!! __('Showing') !!}</span>
+                    <span>{{ $page->firstItem }}</span>
+                    <span>{!! __('to') !!}</span>
+                    <span>{{ $page->lastItem }}</span>
+                    <span>{!! __('of') !!}</span>
+                    <span>{{ $page->total }}</span>
+                    <span>{!! __('results') !!}.</span>
+                  </p>
+                  @endif
+                </div>
                 @if(count($letterSearchColumns))
                 <div class="flex items-center justify-center gap-x-1">
                   @foreach(range('A', 'Z') as $value)
@@ -71,7 +74,7 @@
               </div>
             </td>
           </tr>
-
+          @endif
           <tr class="headers">
             @if($showCheckbox)
             <th class="border px-2 py-3 w-[50px] min-w-[50px] max-w-[50px]" rowspan="1" colspan="1">
