@@ -5,6 +5,7 @@ namespace TomShaw\ElectricGrid;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use TomShaw\ElectricGrid\Exceptions\InvalidFilterHandler;
 
 class DataSource
@@ -64,6 +65,10 @@ class DataSource
     public function filter(array $filters): void
     {
         foreach ($filters as $type => $values) {
+            $values = collect($values)->mapWithKeys(function ($value, $key) {
+                return [$this->resolveTableNames($key) => $value];
+            })->toArray();
+
             match ($type) {
                 'text' => $this->handleText($values),
                 'number' => $this->handleNumber($values),
@@ -79,6 +84,27 @@ class DataSource
         }
     }
 
+    private function resolveTableNames($columnName): string
+    {
+        $baseTable = $this->query->getModel()->getTable();
+
+        if (Schema::hasColumn($baseTable, $columnName)) {
+            return $baseTable.'.'.$columnName;
+        }
+
+        $joins = $this->query->getQuery()->joins;
+
+        if ($joins) {
+            foreach ($joins as $join) {
+                if (Schema::hasColumn($join->table, $columnName)) {
+                    return $join->table.'.'.$columnName;
+                }
+            }
+        }
+
+        return $this->query->from.'.'.$columnName;
+    }
+
     private function handleText(array $values): void
     {
         foreach ($values as $key => $value) {
@@ -90,11 +116,11 @@ class DataSource
     {
         foreach ($values as $key => $value) {
             if (isset($value['start']) && ! isset($value['end'])) {
-                $this->query->where($this->query->from.'.'.$key, '>', $value['start']);
+                $this->query->where($key, '>', $value['start']);
             } elseif (! isset($value['start']) && isset($value['end'])) {
-                $this->query->where($this->query->from.'.'.$key, '<', $value['end']);
+                $this->query->where($key, '<', $value['end']);
             } elseif (isset($value['start']) && isset($value['end'])) {
-                $this->query->where($this->query->from.'.'.$key, '>', $value['start'])->where($this->query->from.'.'.$key, '<=', $value['end']);
+                $this->query->where($key, '>', $value['start'])->where($key, '<=', $value['end']);
             }
         }
     }

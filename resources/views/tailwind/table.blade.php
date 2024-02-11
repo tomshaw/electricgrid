@@ -223,11 +223,9 @@
   </div>
 
   <div class="flex justify-between items-center py-4">
-
     @if($showPagination && method_exists($data, 'links'))
     {!! $data->links('electricgrid::tailwind.pagination') !!}
     @endif
-
     @if($showPerPage)
     <select class="form-select ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live="perPage">
       <option value="0">{{ __('View All') }}</option>
@@ -236,7 +234,6 @@
       @endforeach
     </select>
     @endif
-
   </div>
 
 </div>

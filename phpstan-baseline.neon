@@ -337,7 +337,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Builder\\:\\:\\$from\\.$#"
-			count: 4
+			count: 1
 			path: src/DataSource.php
 
 		-
@@ -416,6 +416,11 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:resolveTableNames\\(\\) has parameter \\$columnName with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:search\\(\\) has parameter \\$searchColumns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
@@ -457,6 +462,16 @@ parameters:
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transformColumns\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Unable to resolve the template type TKey in call to function collect$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Unable to resolve the template type TValue in call to function collect$#"
 			count: 1
 			path: src/DataSource.php
 
