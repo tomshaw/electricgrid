@@ -336,17 +336,17 @@ parameters:
 			path: src/DataExport.php
 
 		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Builder\\:\\:\\$from\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
 			message: "#^Call to an undefined method Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator\\:\\:getCollection\\(\\)\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
 			message: "#^Call to an undefined method Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator\\:\\:setCollection\\(\\)\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Call to function is_null\\(\\) with array will always evaluate to false\\.$#"
 			count: 1
 			path: src/DataSource.php
 

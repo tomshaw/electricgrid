@@ -69,6 +69,10 @@ class DataSource
                 return [$this->resolveTableNames($key) => $value];
             })->toArray();
 
+            if (is_null($values)) {
+                continue;
+            }
+
             match ($type) {
                 'text' => $this->handleText($values),
                 'number' => $this->handleNumber($values),
@@ -84,7 +88,7 @@ class DataSource
         }
     }
 
-    private function resolveTableNames($columnName): string
+    private function resolveTableNames($columnName): ?string
     {
         $baseTable = $this->query->getModel()->getTable();
 
@@ -102,7 +106,7 @@ class DataSource
             }
         }
 
-        return $this->query->from.'.'.$columnName;
+        return null;
     }
 
     private function handleText(array $values): void
