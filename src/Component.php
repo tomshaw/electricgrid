@@ -24,6 +24,8 @@ class Component extends BaseComponent
 
     public bool $showPagination = true;
 
+    public bool $showTableInfo = true;
+
     public bool $showPerPage = true;
 
     public array $searchTermColumns = [];
@@ -100,6 +102,16 @@ class Component extends BaseComponent
     public function getFiltersProperty(): array
     {
         return $this->filters();
+    }
+
+    public function updatedSearchTerm()
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSearchLetter()
+    {
+        $this->resetPage();
     }
 
     public function getActionsProperty(): array
