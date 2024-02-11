@@ -1,0 +1,521 @@
+parameters:
+	ignoreErrors:
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:__call\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:columnWidths\\(\\) has parameter \\$columnWidths with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:groupBy\\(\\) has parameter \\$actions with no type specified\\.$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:styles\\(\\) has parameter \\$styles with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Action\\:\\:\\$columnWidths type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Action\\:\\:\\$styles type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Unable to resolve the template type TKey in call to function collect$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Unable to resolve the template type TValue in call to function collect$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Action.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Column.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Builder\\:\\:\\$from\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Access to an undefined property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$builder\\.$#"
+			count: 2
+			path: src/Component.php
+
+		-
+			message: "#^Access to an undefined property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$columns\\.$#"
+			count: 2
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:actions\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:addInlineAction\\(\\) has parameter \\$routeName with no type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:addInlineAction\\(\\) has parameter \\$routeParams with no type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:addInlineAction\\(\\) has parameter \\$text with no type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:builder\\(\\) return type with generic class Illuminate\\\\Database\\\\Eloquent\\\\Builder does not specify its types\\: TModelClass$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:columns\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:export\\(\\) has parameter \\$action with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:export\\(\\) has parameter \\$collection with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:filters\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:getActionsProperty\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:getBuilderProperty\\(\\) return type with generic class Illuminate\\\\Database\\\\Eloquent\\\\Builder does not specify its types\\: TModelClass$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:getColumnsProperty\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:getFiltersProperty\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSelectedLetter\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSelectedLetter\\(\\) has parameter \\$selectedLetter with no type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSortOrder\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSortOrder\\(\\) has parameter \\$field with no type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSortOrder\\(\\) has parameter \\$sortable with no type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:mount\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:render\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:validateColumns\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$checkboxValues type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$columnNames type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$filter type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$inlineActions type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$letterSearchColumns type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$orderDirValues type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$perPageValues type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$searchTermColumns type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Unable to resolve the template type TKey in call to function collect$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Unable to resolve the template type TValue in call to function collect$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Console\\\\Commands\\\\InstallCommand\\:\\:buildAssets\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Console/Commands/InstallCommand.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Console\\\\Commands\\\\InstallCommand\\:\\:handle\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Console/Commands/InstallCommand.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Console\\\\Commands\\\\UpdateCommand\\:\\:buildAssets\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Console/Commands/UpdateCommand.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Console\\\\Commands\\\\UpdateCommand\\:\\:handle\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Console/Commands/UpdateCommand.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:__construct\\(\\) has parameter \\$collection with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:collection\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:columnWidths\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:download\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:getColumnWidths\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:getStyles\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:headings\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setColumnWidths\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setColumnWidths\\(\\) has parameter \\$columnWidths with no type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setFileName\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setFileName\\(\\) has parameter \\$fileName with no type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setStyles\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setStyles\\(\\) has parameter \\$styles with no type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:styles\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$columnWidths has no type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$fileName has no type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$styles has no type specified\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
+			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Builder\\:\\:\\$from\\.$#"
+			count: 4
+			path: src/DataSource.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator\\:\\:getCollection\\(\\)\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Call to an undefined method Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator\\:\\:setCollection\\(\\)\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:__construct\\(\\) has parameter \\$query with generic class Illuminate\\\\Database\\\\Eloquent\\\\Builder but does not specify its types\\: TModelClass$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:filter\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBoolean\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDatePicker\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDateTimePicker\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleMultiSelect\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleNumber\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleSelect\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleSelectLetter\\(\\) has parameter \\$values with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleText\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleTimePicker\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:make\\(\\) has parameter \\$query with generic class Illuminate\\\\Database\\\\Eloquent\\\\Builder but does not specify its types\\: TModelClass$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:paginate\\(\\) return type with generic interface Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator does not specify its types\\: TItem$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:search\\(\\) has parameter \\$searchColumns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transform\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transform\\(\\) has parameter \\$paginator with generic interface Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator but does not specify its types\\: TItem$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transform\\(\\) return type with generic interface Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator does not specify its types\\: TItem$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transformCollection\\(\\) has parameter \\$columns with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transformCollection\\(\\) has parameter \\$results with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transformCollection\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transformColumns\\(\\) has parameter \\$columns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transformColumns\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Exceptions\\\\DuplicateActionsHandler\\:\\:make\\(\\) has parameter \\$duplicateMassActions with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Exceptions/DuplicateActionsHandler.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Exceptions/DuplicateActionsHandler.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Exceptions/InvalidFilterHandler.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Exceptions\\\\RequiredColumnsHandler\\:\\:make\\(\\) has parameter \\$missingColumns with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Exceptions/RequiredColumnsHandler.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Exceptions/RequiredColumnsHandler.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Exceptions/RequiredMethodHandler.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterBase\\:\\:\\$attributes type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterBase.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterBoolean\\:\\:\\$options type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterBoolean.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterMultiSelect\\:\\:options\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterMultiSelect.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterMultiSelect\\:\\:\\$options type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterMultiSelect.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterNumber\\:\\:\\$placeholders type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterNumber.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterSelect\\:\\:options\\(\\) has parameter \\$options with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterSelect.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterSelect\\:\\:\\$options type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterSelect.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Filters\\\\FilterText\\:\\:\\$placeholders type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Filters/FilterText.php
