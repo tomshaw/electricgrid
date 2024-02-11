@@ -166,6 +166,16 @@ parameters:
 			path: src/Component.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:updatedSearchLetter\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:updatedSearchTerm\\(\\) has no return type specified\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:validateColumns\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Component.php
