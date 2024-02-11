@@ -92,7 +92,9 @@ class OrdersTable extends Component
 
 ### Adding Columns.
 
-Use Columns to present data in your grid. Columns will appear in the order they are created. Columns support being `sortable`, `styleable`, `exportable`, `visible` and `callable` and accept a boolean value.
+Use Columns to present data in your grid. Columns support being `sortable`, `styleable`, `exportable`, `visible`, `callable` and appear in the order created.
+
+> Column helper methods accept a toggleable boolean. 
 
 ```php
 use TomShaw\ElectricGrid\{Component, Column};
