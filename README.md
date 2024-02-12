@@ -156,7 +156,7 @@ Filters allow you to filter data displayed in the grid.
 
 > Available filters include `text`, `number`, `select`, `multiselect`, `boolean`, `timepicker`, `datepicker` and `datetimepicker`.
 
-Filter should used with their corresponding MySQL field types.
+Filter should used with their corresponding MySQL column types.
 
 - `text`: VARCHAR or TEXT
 - `number`: INT, FLOAT, DOUBLE, or DECIMAL
