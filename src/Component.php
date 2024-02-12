@@ -58,9 +58,9 @@ class Component extends BaseComponent
 
         $this->columnNames = collect($this->columns)->filter->visible->pluck('field')->toArray();
 
-        $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->columnNames);
+        // $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->columnNames);
 
-        $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->columnNames);
+        // $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->columnNames);
 
         $this->validateColumns();
     }
@@ -194,6 +194,18 @@ class Component extends BaseComponent
         $selectedColumns = array_map(function ($column) {
             return substr($column, strpos($column, '.') + 1);
         }, $selectedColumns);
+
+        // Include columns from eager loaded tables
+        $eagerLoads = $this->builder->getEagerLoads();
+        foreach ($eagerLoads as $relation => $constraint) {
+            $relationModel = $this->builder->getModel()->$relation()->getRelated();
+            $relationTable = $relationModel->getTable();
+            $relationColumns = $relationModel->getConnection()->getSchemaBuilder()->getColumnListing($relationTable);
+            $relationColumns = array_map(function ($column) use ($relation) {
+                return $relation.'.'.$column;
+            }, $relationColumns);
+            $selectedColumns = array_merge($selectedColumns, $relationColumns);
+        }
 
         $missingColumns = array_diff($this->columnNames, $selectedColumns);
 

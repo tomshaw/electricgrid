@@ -74,18 +74,22 @@ Add the component to your blade template where you plan to use it.
 
 ### The Builder Method.
 
-Populating your table is done by using the `builder` method. For optimal performance only specify what columns you plan to use.
+Populating your table is done by using the `builder` method and supports eager loading out of the box.
+
+> The builder method must return an instance of `Illuminate\Database\Eloquent\Builder`.
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
 use TomShaw\ElectricGrid\Component;
+use App\Models\Order;
 
 class OrdersTable extends Component
 {
     public function builder(): Builder
     {
-        return Order::select('orders.id', 'orders.status', 'orders.total', 'orders.invoiced', 'orders.created_at', 'users.name')
-            ->join('users', 'orders.user_id', '=', 'users.id');
+        return Order::with(['user' => function ($query) {
+            $query->select('id', 'name', 'email');
+        }])->select('orders.id', 'orders.user_id', 'orders.status', 'orders.total', 'orders.invoiced', 'orders.created_at', 'orders.updated_at');
     }
 }
 ```
