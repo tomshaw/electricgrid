@@ -1,6 +1,6 @@
-# Electric Grid 🔌⚡
+# Electric Grid 🔌
 
-A super fast and efficient Livewire data table designed to be easy to use and theme. A great choice for projects that require a data table solution.
+A fast and efficient Livewire data table. A great choice for projects that require a data table solution.
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tomshaw/electricgrid/run-tests.yml?branch=master&style=flat-square&label=tests)
 ![issues](https://img.shields.io/github/issues/tomshaw/electricgrid?style=flat&logo=appveyor)
