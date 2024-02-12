@@ -161,7 +161,7 @@ Filter should used with their corresponding MySQL field types.
 - `text`: VARCHAR or TEXT
 - `number`: INT, FLOAT, DOUBLE, or DECIMAL
 - `select`: Any type, as long as the value is in the set of options
-- `multiselect`: Typically normalized into a separate table due to the many-to-many relationship
+- `multiselect`: Any type, as long as the value is in the set of options
 - `boolean`: TINYINT(1), where 0 is false and 1 is true
 - `timepicker`: TIME
 - `datepicker`: DATE
