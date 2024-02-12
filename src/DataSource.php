@@ -121,13 +121,10 @@ class DataSource
 
     public function transform(LengthAwarePaginator $paginator, array $columns): LengthAwarePaginator
     {
-        // Applies callbacks to each column where users can format the values.
         $transformedColumns = $this->transformColumns($columns);
 
-        // Replace collection with transformed collection
         $transformedCollection = $this->transformCollection($paginator->getCollection(), $transformedColumns);
 
-        // Replace collection with transformed collection
         return $paginator->setCollection($transformedCollection);
     }
 

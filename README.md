@@ -152,9 +152,16 @@ class OrdersTable extends Component
 
 ### Column Filters.
 
-Filters allow you to filter data displayed in the grid. 
+Filters allow you to filter data displayed in the grid. Available filters include `text`, `number`, `select`, `multiselect`, `boolean`, `timepicker`, `datepicker` and `datetimepicker` and be used with their corresponding MySQL field type:
 
-> Available filters include `text`, `number`, `select`, `multiselect`, `boolean`, `timepicker`, `datepicker` and `datetimepicker`. 
+- `text`: VARCHAR or TEXT
+- `number`: INT, FLOAT, DOUBLE, or DECIMAL
+- `select`: Any type, as long as the value is in the set of options
+- `multiselect`: Typically normalized into a separate table due to the many-to-many relationship
+- `boolean`: TINYINT(1), where 0 is false and 1 is true
+- `timepicker`: TIME
+- `datepicker`: DATE
+- `datetimepicker`: DATETIME
 
 > Data attributes can be added using the `addDataAttribute` helper method.
 
