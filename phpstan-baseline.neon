@@ -406,12 +406,12 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:normalizeDateValues\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:normalizeDateTimeValues\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:normalizeDateValues\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:normalizeDateTimeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -477,6 +477,16 @@ parameters:
 
 		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelTables has no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Result of && is always false\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Variable \\$value in isset\\(\\) is never defined\\.$#"
 			count: 1
 			path: src/DataSource.php
 

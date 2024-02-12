@@ -187,7 +187,7 @@ class Component extends BaseComponent
     {
         $selectedColumns = $this->builder->getQuery()->columns;
 
-        if (in_array('*', $selectedColumns)) {
+        if ($selectedColumns === null || in_array('*', $selectedColumns)) {
             return;
         }
 

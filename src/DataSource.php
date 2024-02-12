@@ -2,10 +2,13 @@
 
 namespace TomShaw\ElectricGrid;
 
+use DateTime;
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Schema;
+use InvalidArgumentException;
 use TomShaw\ElectricGrid\Exceptions\InvalidFilterHandler;
 
 class DataSource
@@ -76,13 +79,15 @@ class DataSource
             return $this;
         }
 
-        foreach ($searchColumns as $column) {
-            if ($relation = $this->getRelationForColumn($column)) {
-                $this->query->whereHas($relation, function ($query) use ($column, $searchTerm) {
-                    $query->where($column, 'like', '%'.$searchTerm.'%');
+        foreach ($searchColumns as $columnName) {
+            $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
+                    $query->where($columnName, 'like', '%'.$searchTerm.'%');
                 });
             } else {
-                $this->query->where($column, 'like', '%'.$searchTerm.'%');
+                $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
             }
         }
 
@@ -102,7 +107,7 @@ class DataSource
                     $this->query->join($tableName, $foreignKey, '=', "$tableName.$ownerKey")
                         ->orderBy("$tableName.$columnName", $sortDirection);
                 } else {
-                    throw new \Exception("The method '$relation' does not exist on the model.");
+                    throw new Exception("The method '$relation' does not exist on the model.");
                 }
 
                 return $this;
@@ -149,28 +154,30 @@ class DataSource
         return fn ($model) => $model->$field;
     }
 
-    private function normalizeDateValues(array $values, string $type): array
+    private function normalizeDateTimeValues(array $values, string $type): array
     {
         $normalizedValues = [];
         foreach ($values as $key => $value) {
-            $date = date_create_from_format('Y-m-d H:i', $value);
+            switch ($type) {
+                case 'time':
+                    $date = DateTime::createFromFormat('H:i', $value);
+                    $format = 'H:i:s';
+                    break;
+                case 'date':
+                    $date = DateTime::createFromFormat('Y-m-d', $value);
+                    $format = 'Y-m-d';
+                    break;
+                case 'datetime-local':
+                    $date = DateTime::createFromFormat('Y-m-d\TH:i', $value);
+                    $format = 'Y-m-d H:i:s';
+                    break;
+                default:
+                    throw new InvalidArgumentException("Invalid type: $type");
+            }
             if ($date !== false) {
-                switch ($type) {
-                    case 'datetime':
-                        $normalizedValues[$key] = $date->format('Y-m-d H:i:s');
-                        break;
-                    case 'date':
-                        $normalizedValues[$key] = $date->format('Y-m-d');
-                        break;
-                    case 'time':
-                        $normalizedValues[$key] = $date->format('H:i:s');
-                        break;
-                    default:
-                        throw new \InvalidArgumentException("Invalid MySQL type: $type");
-                }
+                $normalizedValues[$key] = $date->format($format);
             } else {
-                // Handle invalid date format
-                throw new \InvalidArgumentException("Invalid date format for $key: $value");
+                throw new InvalidArgumentException("Invalid date format for $key: $value");
             }
         }
 
@@ -199,12 +206,13 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
                     $query->where($columnName, 'like', '%'.$value.'%');
                 });
             } else {
-                $this->query->where($columnName, 'like', '%'.$value.'%');
+                $this->query->where($qualifiedColumnName, 'like', '%'.$value.'%');
             }
         }
     }
@@ -213,22 +221,22 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
                     if (isset($value['start']) && ! isset($value['end'])) {
-                        $query->where($columnName, '>', $value['start']);
+                        $query->where($columnName, '>=', $value['start']);
                     } elseif (! isset($value['start']) && isset($value['end'])) {
-                        $query->where($columnName, '<', $value['end']);
+                        $query->where($columnName, '=<', $value['end']);
                     } elseif (isset($value['start']) && isset($value['end'])) {
                         $query->whereBetween($columnName, [$value['start'], $value['end']]);
                     }
                 });
             } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if (isset($value['start']) && ! isset($value['end'])) {
-                    $this->query->where($qualifiedColumnName, '>', $value['start']);
+                    $this->query->where($qualifiedColumnName, '>=', $value['start']);
                 } elseif (! isset($value['start']) && isset($value['end'])) {
-                    $this->query->where($qualifiedColumnName, '<', $value['end']);
+                    $this->query->where($qualifiedColumnName, '=<', $value['end']);
                 } elseif (isset($value['start']) && isset($value['end'])) {
                     $this->query->whereBetween($qualifiedColumnName, [$value['start'], $value['end']]);
                 }
@@ -239,14 +247,15 @@ class DataSource
     private function handleSelect(array $values): void
     {
         foreach ($values as $columnName => $value) {
+            $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($value !== '-1') {
-                $relation = $this->getRelationForColumn($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
                         $query->where($columnName, $value);
                     });
                 } else {
-                    $this->query->where($columnName, $value);
+                    $this->query->where($qualifiedColumnName, $value);
                 }
             }
         }
@@ -255,14 +264,15 @@ class DataSource
     private function handleMultiSelect(array $values): void
     {
         foreach ($values as $columnName => $value) {
+            $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if (! in_array('-1', $value)) {
-                $relation = $this->getRelationForColumn($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
                         $query->whereIn($columnName, $value);
                     });
                 } else {
-                    $this->query->whereIn($columnName, $value);
+                    $this->query->whereIn($qualifiedColumnName, $value);
                 }
             }
         }
@@ -271,14 +281,15 @@ class DataSource
     private function handleBoolean(array $values): void
     {
         foreach ($values as $columnName => $value) {
+            $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($value === 'true' || $value === 'false') {
-                $relation = $this->getRelationForColumn($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
                         $query->where($columnName, $value === 'true' ? 1 : 0);
                     });
                 } else {
-                    $this->query->where($columnName, $value === 'true' ? 1 : 0);
+                    $this->query->where($qualifiedColumnName, $value === 'true' ? 1 : 0);
                 }
             }
         }
@@ -286,27 +297,27 @@ class DataSource
 
     private function handleTimePicker(array $values): void
     {
-        foreach ($values as $columnName => $value) {
+        foreach ($values as $columnName => $filter) {
+            $values = $this->normalizeDateTimeValues($filter, 'time');
             $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                    if (isset($value['start']) && ! isset($value['end'])) {
-                        $query->whereTime($columnName, '>=', $value['start']);
-                    } elseif (! isset($value['start']) && isset($value['end'])) {
-                        $query->whereTime($columnName, '<=', $value['end']);
-                    } elseif (isset($value['start']) && isset($value['end'])) {
-                        $query->whereTime($columnName, '>=', $value['start'])->whereTime($columnName, '<=', $value['end']);
+                $this->query->whereHas($relation, function ($query) use ($columnName, $values) {
+                    if (isset($values['start']) && ! isset($values['end'])) {
+                        $query->whereTime($columnName, '>=', $values['start']);
+                    } elseif (! isset($values['start']) && isset($values['end'])) {
+                        $query->whereTime($columnName, '<=', $values['end']);
+                    } elseif (isset($values['start']) && isset($values['end'])) {
+                        $query->whereTime($columnName, '>=', $values['start'])->whereTime($columnName, '<=', $values['end']);
                     }
                 });
             } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                $value = $this->normalizeDateValues($values, 'date');
-                if (isset($value['start']) && ! isset($value['end'])) {
-                    $this->query->whereTime($qualifiedColumnName, '>=', $value['start']);
-                } elseif (! isset($value['start']) && isset($value['end'])) {
-                    $this->query->whereTime($qualifiedColumnName, '<=', $value['end']);
-                } elseif (isset($value['start']) && isset($value['end'])) {
-                    $this->query->whereTime($qualifiedColumnName, '>=', $value['start'])->whereTime($qualifiedColumnName, '<=', $value['end']);
+                if (isset($values['start']) && ! isset($values['end'])) {
+                    $this->query->whereTime($qualifiedColumnName, '>=', $values['start']);
+                } elseif (! isset($values['start']) && isset($values['end'])) {
+                    $this->query->whereTime($qualifiedColumnName, '<=', $values['end']);
+                } elseif (isset($values['start']) && isset($values['end'])) {
+                    $this->query->whereTime($qualifiedColumnName, '>=', $values['start'])->whereTime($qualifiedColumnName, '<=', $values['end']);
                 }
             }
         }
@@ -314,27 +325,27 @@ class DataSource
 
     private function handleDatePicker(array $values): void
     {
-        foreach ($values as $columnName => $value) {
+        foreach ($values as $columnName => $filter) {
+            $values = $this->normalizeDateTimeValues($filter, 'date');
             $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                    if (isset($value['start']) && ! isset($value['end'])) {
-                        $query->whereDate($columnName, '>=', $value['start']);
-                    } elseif (! isset($value['start']) && isset($value['end'])) {
-                        $query->whereDate($columnName, '<=', $value['end']);
-                    } elseif (isset($value['start']) && isset($value['end'])) {
-                        $query->whereBetween($columnName, [$value['start'], $value['end']]);
+                $this->query->whereHas($relation, function ($query) use ($columnName, $values) {
+                    if (isset($values['start']) && ! isset($values['end'])) {
+                        $query->whereDate($columnName, '>=', $values['start']);
+                    } elseif (! isset($values['start']) && isset($values['end'])) {
+                        $query->whereDate($columnName, '<=', $values['end']);
+                    } elseif (isset($values['start']) && isset($values['end'])) {
+                        $query->whereBetween($columnName, [$values['start'], $values['end']]);
                     }
                 });
             } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                $value = $this->normalizeDateValues($values, 'date');
-                if (isset($value['start']) && ! isset($value['end'])) {
-                    $this->query->whereDate($qualifiedColumnName, '>=', $value['start']);
-                } elseif (! isset($value['start']) && isset($value['end'])) {
-                    $this->query->whereDate($qualifiedColumnName, '<=', $value['end']);
-                } elseif (isset($value['start']) && isset($value['end'])) {
-                    $this->query->whereBetween($qualifiedColumnName, [$value['start'], $value['end']]);
+                if (isset($values['start']) && ! isset($values['end'])) {
+                    $this->query->whereDate($qualifiedColumnName, '>=', $values['start']);
+                } elseif (! isset($values['start']) && isset($values['end'])) {
+                    $this->query->whereDate($qualifiedColumnName, '<=', $values['end']);
+                } elseif (isset($values['start']) && isset($values['end'])) {
+                    $this->query->whereBetween($qualifiedColumnName, [$values['start'], $values['end']]);
                 }
             }
         }
@@ -342,27 +353,27 @@ class DataSource
 
     private function handleDateTimePicker(array $values): void
     {
-        foreach ($values as $columnName => $value) {
+        foreach ($values as $columnName => $filter) {
+            $values = $this->normalizeDateTimeValues($filter, 'datetime');
             $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                    if (isset($value['start']) && ! isset($value['end'])) {
-                        $query->where($columnName, '>=', $value['start']);
-                    } elseif (! isset($value['start']) && isset($value['end'])) {
-                        $query->where($columnName, '<=', $value['end']);
-                    } elseif (isset($value['start']) && isset($value['end'])) {
-                        $query->whereBetween($columnName, [$value['start'], $value['end']]);
+                $this->query->whereHas($relation, function ($query) use ($columnName, $values) {
+                    if (isset($values['start']) && ! isset($values['end'])) {
+                        $query->where($columnName, '>=', $values['start']);
+                    } elseif (! isset($values['start']) && isset($values['end'])) {
+                        $query->where($columnName, '<=', $values['end']);
+                    } elseif (isset($values['start']) && isset($values['end'])) {
+                        $query->whereBetween($columnName, [$values['start'], $values['end']]);
                     }
                 });
             } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                $value = $this->normalizeDateValues($values, 'datetime');
-                if (isset($value['start']) && ! isset($value['end'])) {
-                    $this->query->where($qualifiedColumnName, '>=', $value['start']);
-                } elseif (! isset($value['start']) && isset($value['end'])) {
-                    $this->query->where($qualifiedColumnName, '<=', $value['end']);
-                } elseif (isset($value['start']) && isset($value['end'])) {
-                    $this->query->whereBetween($qualifiedColumnName, [$value['start'], $value['end']]);
+                if (isset($values['start']) && ! isset($values['end'])) {
+                    $this->query->where($qualifiedColumnName, '>=', $values['start']);
+                } elseif (! isset($values['start']) && isset($value['end'])) {
+                    $this->query->where($qualifiedColumnName, '<=', $values['end']);
+                } elseif (isset($values['start']) && isset($values['end'])) {
+                    $this->query->whereBetween($qualifiedColumnName, [$values['start'], $values['end']]);
                 }
             }
         }
@@ -372,12 +383,13 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             $relation = $this->getRelationForColumn($columnName);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
                     $query->where($columnName, 'like', $value.'%');
                 });
             } else {
-                $this->query->where($columnName, 'like', $value.'%');
+                $this->query->where($qualifiedColumnName, 'like', $value.'%');
             }
         }
     }
