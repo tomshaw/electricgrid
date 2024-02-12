@@ -207,6 +207,18 @@ class Component extends BaseComponent
             $selectedColumns = array_merge($selectedColumns, $relationColumns);
         }
 
+        // Treat columns selected in subqueries for relations as if they were selected in the main query
+        foreach ($this->builder->getEagerLoads() as $relation => $constraint) {
+            if ($constraint instanceof \Closure) {
+                $relationQuery = $this->builder->getModel()->$relation()->getRelated()->newQuery();
+                $constraint($relationQuery);
+                $relationColumns = $relationQuery->getQuery()->columns;
+                if ($relationColumns !== null) {
+                    $selectedColumns = array_merge($selectedColumns, $relationColumns);
+                }
+            }
+        }
+
         $missingColumns = array_diff($this->columnNames, $selectedColumns);
 
         if (! empty($missingColumns)) {
