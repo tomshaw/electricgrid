@@ -356,6 +356,31 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelFields\\(\\) has parameter \\$relationships with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelFields\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelTables\\(\\) has parameter \\$relationships with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelTables\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getRelationships\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBoolean\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php

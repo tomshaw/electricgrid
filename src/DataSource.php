@@ -20,25 +20,45 @@ class DataSource
     public function __construct(
         public Builder $query,
     ) {
-        $eagerLoad = $this->query->getEagerLoads();
-        $relationships = array_keys($eagerLoad);
-        $modelInstance = $this->query->getModel();
-
-        $modelTables = [];
-        $modelFields = [];
-        foreach ($relationships as $relationship) {
-            $relatedModel = $modelInstance->$relationship()->getRelated();
-            $modelTables[$relationship] = $relatedModel->getTable();
-            $modelFields[$relationship] = $relatedModel->getFillable();
-        }
-
-        $this->modelTables = $modelTables;
-        $this->modelFields = $modelFields;
+        $relationships = $this->getRelationships();
+        $this->modelTables = $this->getModelTables($relationships);
+        $this->modelFields = $this->getModelFields($relationships);
     }
 
     public static function make(Builder $query): self
     {
         return new self($query);
+    }
+
+    private function getRelationships(): array
+    {
+        $eagerLoad = $this->query->getEagerLoads();
+
+        return array_keys($eagerLoad);
+    }
+
+    private function getModelTables(array $relationships): array
+    {
+        $modelInstance = $this->query->getModel();
+        $modelTables = [];
+        foreach ($relationships as $relationship) {
+            $relatedModel = $modelInstance->$relationship()->getRelated();
+            $modelTables[$relationship] = $relatedModel->getTable();
+        }
+
+        return $modelTables;
+    }
+
+    private function getModelFields(array $relationships): array
+    {
+        $modelInstance = $this->query->getModel();
+        $modelFields = [];
+        foreach ($relationships as $relationship) {
+            $relatedModel = $modelInstance->$relationship()->getRelated();
+            $modelFields[$relationship] = $relatedModel->getFillable();
+        }
+
+        return $modelFields;
     }
 
     private function getRelationForColumn(string $column): ?string
