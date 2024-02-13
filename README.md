@@ -154,20 +154,7 @@ class OrdersTable extends Component
 
 Filters allow you to filter data displayed in the grid. 
 
-> Available filters include `text`, `number`, `select`, `multiselect`, `boolean`, `timepicker`, `datepicker` and `datetimepicker`.
-
-Filter should used with their corresponding MySQL column types.
-
-- `text`: VARCHAR or TEXT
-- `number`: INT, FLOAT, DOUBLE, or DECIMAL
-- `select`: Any type, as long as the value is a set of options
-- `multiselect`: Any type, as long as the value is a set of options
-- `boolean`: TINYINT(1), where 0 is false and 1 is true
-- `timepicker`: TIME
-- `datepicker`: DATE
-- `datetimepicker`: DATETIME
-
-> Data attributes can be added using the `addDataAttribute` helper method.
+> Note: Data attributes can be added to any filter using the `addDataAttribute` helper method.
 
 ```php
 use TomShaw\ElectricGrid\{Component, Column, Filter};
@@ -189,6 +176,59 @@ class OrdersTable extends Component
     }
 }
 ```
+
+#### Filter::number('id')
+
+This creates a number filter for the 'id' field.
+
+- `placeholders('Min', 'Max')`: Sets the placeholder text for the minimum and maximum input fields.
+
+#### Filter::text('name')
+
+This creates a text filter for the 'name' field.
+
+- `placeholder('Customer')`: Sets the placeholder text for the input field.
+
+#### Filter::select('status')
+
+This creates a select filter for the 'status' field.
+
+- `options(OrderStatus::toOptions())`: Sets the options for the select field using the `toOptions` method of the `OrderStatus` class.
+
+#### Filter::number('total')
+
+This creates a number filter for the 'total' field.
+
+- `placeholders('Min Total', 'Max Total')`: Sets the placeholder text for the minimum and maximum input fields.
+
+#### Filter::boolean('invoiced')
+
+This creates a boolean filter for the 'invoiced' field.
+
+- `labels('Yes', 'No')`: Sets the labels for the true and false values.
+
+#### Filter::datepicker('created_at')
+
+This creates a date picker filter for the 'created_at' field.
+
+- `addDataAttribute('format', 'H:i')`: Sets a data attribute for the date picker. In this case, it's used to set the date format.
+
+#### Filter::datetimepicker('updated_at')
+
+This creates a datetime picker filter for the 'updated_at' field. The datetime picker uses the user's local date and time format.
+
+#### Filter Column Types
+
+Filters should be used with the appropriate database column types.
+
+- `text`: VARCHAR or TEXT
+- `number`: INT, FLOAT, DOUBLE, or DECIMAL
+- `select`: Any type, as long as the value is a set of options
+- `multiselect`: Any type, as long as the value is a set of options
+- `boolean`: TINYINT(1), where 0 is false and 1 is true
+- `timepicker`: TIME
+- `datepicker`: DATE
+- `datetimepicker`: DATETIME
 
 ### Mass Actions.
 

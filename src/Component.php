@@ -58,9 +58,9 @@ class Component extends BaseComponent
 
         $this->columnNames = collect($this->columns)->filter->visible->pluck('field')->toArray();
 
-        // $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->columnNames);
+        $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->columnNames);
 
-        // $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->columnNames);
+        $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->columnNames);
 
         $this->validateColumns();
     }

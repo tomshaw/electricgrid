@@ -167,7 +167,7 @@ class DataSource
                     $date = DateTime::createFromFormat('Y-m-d', $value);
                     $format = 'Y-m-d';
                     break;
-                case 'datetime-local':
+                case 'datetime':
                     $date = DateTime::createFromFormat('Y-m-d\TH:i', $value);
                     $format = 'Y-m-d H:i:s';
                     break;
