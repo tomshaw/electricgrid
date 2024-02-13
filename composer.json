@@ -1,6 +1,6 @@
 {
     "name": "tomshaw/electricgrid",
-    "description": "A lightning fast Livewire data table designed to be easy to use and theme.",
+    "description": "A fast and efficient Livewire data table. A great choice for projects that require a data table solution.",
     "keywords": [
         "laravel",
         "livewire",
