@@ -74,7 +74,7 @@ Add the component to your blade template where you plan to use it.
 
 ### The Builder Method.
 
-Populating your table is done by using the `builder` method and supports eager loading out of the box.
+Populating your table is done by using the `builder` method.
 
 > The builder method must return an instance of `Illuminate\Database\Eloquent\Builder`.
 
