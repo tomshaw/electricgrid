@@ -245,18 +245,15 @@ class OrdersTable extends Component
     public function actions(): array
     {
         return [
-            Action::make('approved')
-                ->label('Mark Approved')
+            Action::make('approved', 'Mark Approved')
                 ->group('Status Options')
                 ->callback(fn ($status, $selected) => $this->updateStatusHandler($status, $selected)),
 
-            Action::make('completed')
-                ->label('Mark Completed')
+            Action::make('completed', 'Mark Completed')
                 ->group('Status Options')
                 ->callback(fn ($status, $selected) => $this->updateStatusHandler($status, $selected)),
 
-            Action::make('cancelled')
-                ->label('Mark Canceled')
+            Action::make('cancelled', 'Mark Canceled')
                 ->group('Status Options')
                 ->callback(fn ($status, $selected) => $this->updateStatusHandler($status, $selected)),
         ];
@@ -290,10 +287,10 @@ class OrdersTable extends Component
         return [
             Action::groupBy('Export Options', function () {
                 return [
-                    Action::make('csv')->label('Export CSV')->export('SalesOrders.csv'),
-                    Action::make('pdf')->label('Export PDF')->export('SalesOrders.pdf'),
-                    Action::make('html')->label('Export HTML')->export('SalesOrders.html'),
-                    Action::make('xlsx')->label('Export XLSX')->export('SalesOrders.xlsx'),
+                    Action::make('csv', 'Export CSV')->export('SalesOrders.csv'),
+                    Action::make('pdf', 'Export PDF')->export('SalesOrders.pdf'),
+                    Action::make('html', 'Export HTML')->export('SalesOrders.html'),
+                    Action::make('xlsx', 'Export XLSX')->export('SalesOrders.xlsx'),
                 ];
             }),
         ];

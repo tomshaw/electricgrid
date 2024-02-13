@@ -1,11 +1,6 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:__call\\(\\) has parameter \\$args with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Action.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:columnWidths\\(\\) has parameter \\$columnWidths with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Action.php

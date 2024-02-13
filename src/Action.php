@@ -6,10 +6,6 @@ use InvalidArgumentException;
 
 class Action
 {
-    public string $field = '';
-
-    public string $label = '';
-
     public string $group = '';
 
     public string $fileName = '';
@@ -22,21 +18,15 @@ class Action
 
     public \Closure $callable;
 
-    public function __call(string $method, array $args): mixed
-    {
-        if (is_callable([$this, $method])) {
-            return call_user_func_array($this->$method, $args);
-        }
-
-        return $this;
+    public function __construct(
+        public string $field,
+        public string $label,
+    ) {
     }
 
-    public static function make(string $field): self
+    public static function make(string $field, string $title): self
     {
-        $action = new static;
-        $action->field = $field;
-
-        return $action;
+        return new static($field, $title);
     }
 
     public function label(string $label): self
