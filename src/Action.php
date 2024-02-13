@@ -29,13 +29,6 @@ class Action
         return new static($field, $title);
     }
 
-    public function label(string $label): self
-    {
-        $this->label = $label;
-
-        return $this;
-    }
-
     public function group(string $group): self
     {
         $this->group = $group;
