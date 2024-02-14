@@ -19,6 +19,8 @@ class DataSource
 
     public $modelColumns = [];
 
+    public array $eloquentRelationshipTypes = ['HasOne', 'BelongsTo', 'HasMany', 'BelongsToMany', 'HasOneThrough', 'HasManyThrough', 'MorphOne', 'MorphMany', 'MorphTo', 'MorphToMany', 'MorphedByMany'];
+
     public array $relationTypes = [];
 
     public function __construct(
@@ -85,13 +87,14 @@ class DataSource
 
     public function setRelationTypes(): void
     {
-        $this->relationTypes = [];
+        $relationTypes = [];
         foreach ($this->modelFields as $relation => $fields) {
             $relationType = (new \ReflectionClass($this->query->getModel()->$relation()))->getShortName();
-            if (in_array($relationType, ['HasOne', 'BelongsTo', 'HasMany', 'BelongsToMany', 'HasOneThrough', 'HasManyThrough', 'MorphOne', 'MorphMany', 'MorphTo', 'MorphToMany', 'MorphedByMany'])) {
-                $this->relationTypes[$relation] = $relationType;
+            if (in_array($relationType, $this->eloquentRelationshipTypes)) {
+                $relationTypes[$relation] = $relationType;
             }
         }
+        $this->relationTypes = $relationTypes;
     }
 
     private function resolveTableNames($columnName): ?string
@@ -145,14 +148,20 @@ class DataSource
             $column = $parts[1];
             foreach ($this->modelColumns as $relation => $fields) {
                 if (in_array($column, $fields)) {
+                    $tableName = $this->query->getModel()->getTable();
                     $pivotTable = $this->query->getModel()->$relation()->getTable();
                     $relatedTable = $this->modelTables[$relation];
                     $foreignKey = $this->query->getModel()->$relation()->getQualifiedForeignPivotKeyName();
                     $relatedKey = $this->query->getModel()->$relation()->getRelatedPivotKeyName();
 
+                    // Added to not modify the result set
+                    $this->query->select("$tableName.*");
                     $this->query->join($pivotTable, $this->query->getModel()->getTable().'.id', '=', $foreignKey)
-                        //->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
-                        ->orderBy("$pivotTable.$relatedKey", $sortDirection);
+                        ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
+                        ->orderBy("$relatedTable.$column", $sortDirection);
+
+                    // $this->query->join($pivotTable, $this->query->getModel()->getTable().'.id', '=', $foreignKey)
+                    //     ->orderBy("$pivotTable.$relatedKey", $sortDirection);
 
                     return $this;
                 }

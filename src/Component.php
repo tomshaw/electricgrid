@@ -167,6 +167,8 @@ class Component extends BaseComponent
             return;
         }
 
+        $this->resetPage();
+
         $this->orderDir = $this->orderDir === 'ASC' ? 'DESC' : 'ASC';
 
         $this->orderBy = $field;
