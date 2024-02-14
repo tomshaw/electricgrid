@@ -152,7 +152,7 @@ class DataSource
 
                     $this->query->join($pivotTable, $this->query->getModel()->getTable().'.id', '=', $foreignKey)
                         //->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
-                        ->orderBy($column, $sortDirection);
+                        ->orderBy("$pivotTable.$relatedKey", $sortDirection);
 
                     return $this;
                 }
