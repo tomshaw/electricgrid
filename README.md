@@ -96,7 +96,9 @@ class OrdersTable extends Component
 
 ### Adding Columns.
 
-Use Columns to present data in your grid. Columns support being `sortable`, `styleable`, `exportable`, `visible`, `callable` and appear in the order created.
+Use Columns to present data in your grid. 
+
+> Columns support being `sortable`, `styleable`, `exportable`, `visible`, `callable` and appear in the order created.
 
 > Column helper methods accept a toggleable boolean. 
 

@@ -2,8 +2,6 @@
 
 namespace TomShaw\ElectricGrid;
 
-use InvalidArgumentException;
-
 class Action
 {
     public string $group = '';
@@ -36,32 +34,16 @@ class Action
         return $this;
     }
 
-    public static function groupBy(string $group, $actions): mixed
+    public static function groupBy(string $group, \Closure $actions): mixed
     {
-        if (! ($actions instanceof \Closure)) {
-            throw new InvalidArgumentException('The $actions argument must be an instance of \Closure');
-        }
-
-        $collection = collect($actions());
-
-        $collection->each(function ($item) use ($group) {
-            $item->group = $group;
-        });
-
-        return $collection;
+        return collect($actions())->each(fn ($item) => $item->group = $group);
     }
 
     public function export(string $fileName): self
     {
+        $this->isExport = true;
+
         $this->fileName = $fileName;
-        $this->isExport();
-
-        return $this;
-    }
-
-    public function isExport(bool $isExport = true): self
-    {
-        $this->isExport = $isExport;
 
         return $this;
     }

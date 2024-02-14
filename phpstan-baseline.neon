@@ -6,11 +6,6 @@ parameters:
 			path: src/Action.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:groupBy\\(\\) has parameter \\$actions with no type specified\\.$#"
-			count: 1
-			path: src/Action.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\Action\\:\\:styles\\(\\) has parameter \\$styles with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Action.php
@@ -351,26 +346,6 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelFields\\(\\) has parameter \\$relationships with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelFields\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelTables\\(\\) has parameter \\$relationships with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getModelTables\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getRelationships\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
@@ -491,12 +466,27 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Parameter \\#2 \\$haystack of function in_array expects array, mixed given\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelColumns has no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelFields has no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelTables has no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$relationTypes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 

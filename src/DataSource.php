@@ -5,9 +5,9 @@ namespace TomShaw\ElectricGrid;
 use DateTime;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\{DB, Schema};
 use InvalidArgumentException;
 use TomShaw\ElectricGrid\Exceptions\InvalidFilterHandler;
 
@@ -17,17 +17,41 @@ class DataSource
 
     public $modelFields = [];
 
+    public $modelColumns = [];
+
+    public array $relationTypes = [];
+
     public function __construct(
         public Builder $query,
     ) {
         $relationships = $this->getRelationships();
-        $this->modelTables = $this->getModelTables($relationships);
-        $this->modelFields = $this->getModelFields($relationships);
+        $modelInstance = $this->getModelInstance();
+        $modelTables = [];
+        $modelFields = [];
+        $modelColumns = [];
+        foreach ($relationships as $relationship) {
+            $relatedModel = $modelInstance->$relationship()->getRelated();
+            $tableName = $relatedModel->getTable();
+            $modelTables[$relationship] = $tableName;
+            $modelFields[$relationship] = $relatedModel->getFillable();
+            $modelColumns[$relationship] = DB::getSchemaBuilder()->getColumnListing($tableName);
+        }
+
+        $this->modelTables = $modelTables;
+        $this->modelFields = $modelFields;
+        $this->modelColumns = $modelColumns;
+
+        $this->setRelationTypes();
     }
 
     public static function make(Builder $query): self
     {
         return new self($query);
+    }
+
+    private function getModelInstance(): Model
+    {
+        return $this->query->getModel();
     }
 
     private function getRelationships(): array
@@ -37,31 +61,7 @@ class DataSource
         return array_keys($eagerLoad);
     }
 
-    private function getModelTables(array $relationships): array
-    {
-        $modelInstance = $this->query->getModel();
-        $modelTables = [];
-        foreach ($relationships as $relationship) {
-            $relatedModel = $modelInstance->$relationship()->getRelated();
-            $modelTables[$relationship] = $relatedModel->getTable();
-        }
-
-        return $modelTables;
-    }
-
-    private function getModelFields(array $relationships): array
-    {
-        $modelInstance = $this->query->getModel();
-        $modelFields = [];
-        foreach ($relationships as $relationship) {
-            $relatedModel = $modelInstance->$relationship()->getRelated();
-            $modelFields[$relationship] = $relatedModel->getFillable();
-        }
-
-        return $modelFields;
-    }
-
-    private function getRelationForColumn(string $column): ?string
+    private function getRelationsForFields(string $column): ?string
     {
         foreach ($this->modelFields as $relation => $fields) {
             if (in_array($column, $fields)) {
@@ -70,6 +70,28 @@ class DataSource
         }
 
         return null;
+    }
+
+    private function getRelationsForColumns(string $column): ?string
+    {
+        foreach ($this->modelColumns as $relation => $fields) {
+            if (in_array($column, $fields)) {
+                return $relation;
+            }
+        }
+
+        return null;
+    }
+
+    public function setRelationTypes(): void
+    {
+        $this->relationTypes = [];
+        foreach ($this->modelFields as $relation => $fields) {
+            $relationType = (new \ReflectionClass($this->query->getModel()->$relation()))->getShortName();
+            if (in_array($relationType, ['HasOne', 'BelongsTo', 'HasMany', 'BelongsToMany', 'HasOneThrough', 'HasManyThrough', 'MorphOne', 'MorphMany', 'MorphTo', 'MorphToMany', 'MorphedByMany'])) {
+                $this->relationTypes[$relation] = $relationType;
+            }
+        }
     }
 
     private function resolveTableNames($columnName): ?string
@@ -100,7 +122,7 @@ class DataSource
         }
 
         foreach ($searchColumns as $columnName) {
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
@@ -116,9 +138,29 @@ class DataSource
 
     public function orderBy(string $columnName, string $sortDirection): self
     {
+        $isRelations = strpos($columnName, '.');
+
+        if ($isRelations) {
+            $parts = explode('.', $columnName);
+            $column = $parts[1];
+            foreach ($this->modelColumns as $relation => $fields) {
+                if (in_array($column, $fields)) {
+                    $pivotTable = $this->query->getModel()->$relation()->getTable();
+                    $relatedTable = $this->modelTables[$relation];
+                    $foreignKey = $this->query->getModel()->$relation()->getQualifiedForeignPivotKeyName();
+                    $relatedKey = $this->query->getModel()->$relation()->getRelatedPivotKeyName();
+
+                    $this->query->join($pivotTable, $this->query->getModel()->getTable().'.id', '=', $foreignKey)
+                        ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
+                        ->orderBy("$relatedTable.$column", $sortDirection);
+
+                    return $this;
+                }
+            }
+        }
+
         foreach ($this->modelFields as $relation => $fields) {
             if (in_array($columnName, $fields)) {
-                // If the column is in the modelFields array, it's a column in a related table
                 $tableName = $this->modelTables[$relation];
                 $model = $this->query->getModel();
                 if (method_exists($model, $relation)) {
@@ -225,7 +267,7 @@ class DataSource
     private function handleText(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
@@ -240,7 +282,7 @@ class DataSource
     private function handleNumber(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
@@ -267,15 +309,26 @@ class DataSource
     private function handleSelect(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationForColumn($columnName);
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if ($value !== '-1') {
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $query->where($columnName, $value);
-                    });
-                } else {
-                    $this->query->where($qualifiedColumnName, $value);
+            if (is_array($value)) {
+                foreach ($value as $subColumnName => $subValue) {
+                    $relation = $this->getRelationsForColumns($subColumnName);
+                    if ($subValue !== '-1' && $relation !== null) {
+                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                            $query->where($subColumnName, $subValue);
+                        });
+                    }
+                }
+            } else {
+                $relation = $this->getRelationsForFields($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($value !== '-1') {
+                    if ($relation !== null) {
+                        $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                            $query->where($columnName, $value);
+                        });
+                    } else {
+                        $this->query->where($qualifiedColumnName, $value);
+                    }
                 }
             }
         }
@@ -284,15 +337,26 @@ class DataSource
     private function handleMultiSelect(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationForColumn($columnName);
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if (! in_array('-1', $value)) {
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $query->whereIn($columnName, $value);
-                    });
-                } else {
-                    $this->query->whereIn($qualifiedColumnName, $value);
+            if (is_array($value)) {
+                foreach ($value as $subColumnName => $subValue) {
+                    $relation = $this->getRelationsForColumns($subColumnName);
+                    if (! in_array('-1', $subValue) && $relation !== null) {
+                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                            $query->whereIn($subColumnName, $subValue);
+                        });
+                    }
+                }
+            } else {
+                $relation = $this->getRelationsForFields($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if (! in_array('-1', $value)) {
+                    if ($relation !== null) {
+                        $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                            $query->whereIn($columnName, $value);
+                        });
+                    } else {
+                        $this->query->whereIn($qualifiedColumnName, $value);
+                    }
                 }
             }
         }
@@ -301,7 +365,7 @@ class DataSource
     private function handleBoolean(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($value === 'true' || $value === 'false') {
                 if ($relation !== null) {
@@ -319,7 +383,7 @@ class DataSource
     {
         foreach ($values as $columnName => $filter) {
             $values = $this->normalizeDateTimeValues($filter, 'time');
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $values) {
@@ -347,7 +411,7 @@ class DataSource
     {
         foreach ($values as $columnName => $filter) {
             $values = $this->normalizeDateTimeValues($filter, 'date');
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $values) {
@@ -375,7 +439,7 @@ class DataSource
     {
         foreach ($values as $columnName => $filter) {
             $values = $this->normalizeDateTimeValues($filter, 'datetime');
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $values) {
@@ -402,7 +466,7 @@ class DataSource
     private function handleSelectLetter($values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationForColumn($columnName);
+            $relation = $this->getRelationsForFields($columnName);
             $qualifiedColumnName = $this->resolveTableNames($columnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
