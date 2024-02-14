@@ -151,8 +151,8 @@ class DataSource
                     $relatedKey = $this->query->getModel()->$relation()->getRelatedPivotKeyName();
 
                     $this->query->join($pivotTable, $this->query->getModel()->getTable().'.id', '=', $foreignKey)
-                        ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
-                        ->orderBy("$relatedTable.$column", $sortDirection);
+                        //->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
+                        ->orderBy($column, $sortDirection);
 
                     return $this;
                 }
