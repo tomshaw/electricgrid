@@ -70,11 +70,13 @@ Add the component to your blade template where you plan to use it.
 <livewire:tables.orders-table />
 ```
 
+> For a complete demonstation see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo)
+
 ## Usage
 
 ### The Builder Method.
 
-Populating your table is done by using the `builder` method. For a complete demonstation see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo)
+Populating your table is done by using the `builder` method.
 
 > The builder method must return an instance of `Illuminate\Database\Eloquent\Builder`.
 
