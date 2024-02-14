@@ -70,7 +70,7 @@ Add the component to your blade template where you plan to use it.
 <livewire:tables.orders-table />
 ```
 
-> For a complete demonstation see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo)
+> For a complete demonstration see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo) repository.
 
 ## Usage
 
