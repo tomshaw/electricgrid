@@ -34,11 +34,13 @@ trait WithMassActions
 
             $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
 
-            $transformedColumns = $dataSource->transformColumns($exportables->toArray());
+            $columns = $dataSource->transformColumns($exportables->toArray());
 
-            $transformedCollection = $dataSource->transformCollection($dataSource->query->get(), $transformedColumns);
+            $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
 
-            return $this->export($transformedCollection, $action);
+            $headings = $exportables->pluck('title');
+
+            return $this->export($collection, $action, $headings);
         }
 
         if ($action->has('callable') && is_callable($action->get('callable'))) {
@@ -49,16 +51,16 @@ trait WithMassActions
         return null;
     }
 
-    public function export(Collection $collection, Collection $action): Response|BinaryFileResponse
+    public function export(Collection $collection, Collection $action, Collection $headings): Response|BinaryFileResponse
     {
-        $datatableExport = new DataExport($collection);
+        $export = new DataExport($collection, $headings);
 
-        $datatableExport->setFileName($action->get('fileName'));
+        $export->setFileName($action->get('fileName'));
 
-        $datatableExport->setStyles($action->get('styles'));
+        $export->setStyles($action->get('styles'));
 
-        $datatableExport->setColumnWidths($action->get('columnWidths'));
+        $export->setColumnWidths($action->get('columnWidths'));
 
-        return $datatableExport->download();
+        return $export->download();
     }
 }

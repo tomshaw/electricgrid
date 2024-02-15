@@ -96,6 +96,16 @@ parameters:
 			path: src/Component.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:export\\(\\) has parameter \\$headings with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:export\\(\\) should return Illuminate\\\\Http\\\\Response\\|Symfony\\\\Component\\\\HttpFoundation\\\\BinaryFileResponse but returns Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:filters\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Component.php
@@ -221,17 +231,17 @@ parameters:
 			path: src/DataExport.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:__construct\\(\\) has parameter \\$headings with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:collection\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
 			count: 1
 			path: src/DataExport.php
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:columnWidths\\(\\) return type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataExport.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:download\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/DataExport.php
 
@@ -251,17 +261,7 @@ parameters:
 			path: src/DataExport.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setColumnWidths\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/DataExport.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setColumnWidths\\(\\) has parameter \\$columnWidths with no type specified\\.$#"
-			count: 1
-			path: src/DataExport.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setFileName\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/DataExport.php
 
@@ -271,17 +271,12 @@ parameters:
 			path: src/DataExport.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setStyles\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/DataExport.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setStyles\\(\\) has parameter \\$styles with no type specified\\.$#"
 			count: 1
 			path: src/DataExport.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:styles\\(\\) has no return type specified\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:styles\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataExport.php
 

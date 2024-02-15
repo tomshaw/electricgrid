@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\{Exportable, FromCollection, ShouldAutoSize, WithColumnWidths, WithHeadings, WithStyles};
 use Maatwebsite\Excel\Facades\Excel;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Symfony\Component\HttpFoundation\{BinaryFileResponse, Response};
 
 class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, WithHeadings, WithStyles
 {
@@ -18,21 +19,22 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
     public $columnWidths = [];
 
     public function __construct(
-        public Collection $collection
+        public Collection $collection,
+        public Collection $headings
     ) {
     }
 
-    public function collection()
+    public function collection(): Collection
     {
         return $this->collection;
     }
 
     public function headings(): array
     {
-        return array_keys((array) $this->collection->first());
+        return $this->headings->toArray();
     }
 
-    public function setFileName($fileName)
+    public function setFileName($fileName): self
     {
         $this->fileName = $fileName;
 
@@ -44,7 +46,7 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
         return $this->fileName;
     }
 
-    public function setColumnWidths($columnWidths)
+    public function setColumnWidths($columnWidths): self
     {
         $this->columnWidths = $columnWidths;
 
@@ -61,7 +63,7 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
         return $this->getColumnWidths();
     }
 
-    public function setStyles($styles)
+    public function setStyles($styles): self
     {
         $this->styles = $styles;
 
@@ -73,12 +75,12 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
         return $this->styles;
     }
 
-    public function styles(Worksheet $sheet)
+    public function styles(Worksheet $sheet): array
     {
         return $this->getStyles();
     }
 
-    public function download()
+    public function download(): BinaryFileResponse|Response
     {
         return Excel::download($this, $this->getFileName());
     }
