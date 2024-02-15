@@ -451,17 +451,17 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelColumns has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationColumns has no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelFields has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationFillable has no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelTables has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationTables has no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 

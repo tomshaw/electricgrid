@@ -13,11 +13,11 @@ use TomShaw\ElectricGrid\Exceptions\{InvalidFilterHandler, InvalidModelRelations
 
 class DataSource
 {
-    public $modelTables = [];
+    public $modelRelationTables = [];
 
-    public $modelFields = [];
+    public $modelRelationFillable = [];
 
-    public $modelColumns = [];
+    public $modelRelationColumns = [];
 
     public array $eloquentRelationshipTypes = ['HasOne', 'BelongsTo', 'HasMany', 'BelongsToMany', 'HasOneThrough', 'HasManyThrough', 'MorphOne', 'MorphMany', 'MorphTo', 'MorphToMany', 'MorphedByMany'];
 
@@ -30,20 +30,20 @@ class DataSource
             $relationships = $this->getRelationships();
             $modelInstance = $this->getModelInstance();
 
-            $modelTables = [];
-            $modelFields = [];
-            $modelColumns = [];
+            $modelRelationTables = [];
+            $modelRelationFillable = [];
+            $modelRelationColumns = [];
             foreach ($relationships as $relationship) {
                 $relatedModel = $modelInstance->$relationship()->getRelated();
                 $tableName = $relatedModel->getTable();
-                $modelTables[$relationship] = $tableName;
-                $modelFields[$relationship] = $relatedModel->getFillable();
-                $modelColumns[$relationship] = DB::getSchemaBuilder()->getColumnListing($tableName);
+                $modelRelationTables[$relationship] = $tableName;
+                $modelRelationFillable[$relationship] = $relatedModel->getFillable();
+                $modelRelationColumns[$relationship] = DB::getSchemaBuilder()->getColumnListing($tableName);
             }
 
-            $this->modelTables = $modelTables;
-            $this->modelFields = $modelFields;
-            $this->modelColumns = $modelColumns;
+            $this->modelRelationTables = $modelRelationTables;
+            $this->modelRelationFillable = $modelRelationFillable;
+            $this->modelRelationColumns = $modelRelationColumns;
 
             $this->setRelationTypes();
         } catch (Exception $e) {
@@ -70,7 +70,7 @@ class DataSource
 
     private function getRelationsForFields(string $column): ?string
     {
-        foreach ($this->modelFields as $relation => $fields) {
+        foreach ($this->modelRelationFillable as $relation => $fields) {
             if (in_array($column, $fields)) {
                 return $relation;
             }
@@ -81,7 +81,7 @@ class DataSource
 
     private function getRelationsForColumns(string $column): ?string
     {
-        foreach ($this->modelColumns as $relation => $fields) {
+        foreach ($this->modelRelationColumns as $relation => $fields) {
             if (in_array($column, $fields)) {
                 return $relation;
             }
@@ -93,7 +93,7 @@ class DataSource
     public function setRelationTypes(): void
     {
         $relationTypes = [];
-        foreach ($this->modelFields as $relation => $fields) {
+        foreach ($this->modelRelationFillable as $relation => $fields) {
             $relationType = (new \ReflectionClass($this->query->getModel()->$relation()))->getShortName();
             if (in_array($relationType, $this->eloquentRelationshipTypes)) {
                 $relationTypes[$relation] = $relationType;
@@ -151,11 +151,11 @@ class DataSource
         if ($isRelations) {
             $parts = explode('.', $columnName);
             $column = $parts[1];
-            foreach ($this->modelColumns as $relation => $fields) {
+            foreach ($this->modelRelationColumns as $relation => $fields) {
                 if (in_array($column, $fields)) {
                     $tableName = $this->query->getModel()->getTable();
                     $pivotTable = $this->query->getModel()->$relation()->getTable();
-                    $relatedTable = $this->modelTables[$relation];
+                    $relatedTable = $this->modelRelationTables[$relation];
                     $foreignKey = $this->query->getModel()->$relation()->getQualifiedForeignPivotKeyName();
                     $relatedKey = $this->query->getModel()->$relation()->getRelatedPivotKeyName();
 
@@ -173,9 +173,9 @@ class DataSource
             }
         }
 
-        foreach ($this->modelFields as $relation => $fields) {
+        foreach ($this->modelRelationFillable as $relation => $fields) {
             if (in_array($columnName, $fields)) {
-                $tableName = $this->modelTables[$relation];
+                $tableName = $this->modelRelationTables[$relation];
                 $model = $this->query->getModel();
                 if (method_exists($model, $relation)) {
                     $foreignKey = $model->$relation()->getForeignKeyName();
@@ -221,7 +221,7 @@ class DataSource
 
     private function createDefaultClosure(string $field): \Closure
     {
-        foreach ($this->modelFields as $relation => $fields) {
+        foreach ($this->modelRelationFillable as $relation => $fields) {
             if (in_array($field, $fields)) {
                 return fn ($model) => $model->$relation ? $model->$relation->$field : null;
             }
