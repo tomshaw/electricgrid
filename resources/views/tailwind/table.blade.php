@@ -53,12 +53,14 @@
           </div>
           <div class="p-0">
             @foreach($this->columns as $column)
+            @if($column->visible)
             <div class="flex items-center border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200">
               <label class="flex items-center space-x-3 w-full py-2 px-3">
                 <input type="checkbox" wire:click="handleToggleColumns('{{ $column->field }}')" {{ !in_array($column->field, $this->hiddenColumns) ? 'checked' : '' }} class="form-checkbox h-5 w-5 {{ !in_array($column->field, $this->hiddenColumns) ? 'text-blue-600' : 'text-gray-400' }}">
                 <span class="text-gray-900 font-medium">{{ $column->title }}</span>
               </label>
             </div>
+            @endif
             @endforeach
           </div>
         </div>
