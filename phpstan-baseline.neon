@@ -96,11 +96,6 @@ parameters:
 			path: src/Component.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:export\\(\\) has parameter \\$headings with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/Component.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:export\\(\\) should return Illuminate\\\\Http\\\\Response\\|Symfony\\\\Component\\\\HttpFoundation\\\\BinaryFileResponse but returns Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
 			count: 1
 			path: src/Component.php
@@ -231,11 +226,6 @@ parameters:
 			path: src/DataExport.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:__construct\\(\\) has parameter \\$headings with generic class Illuminate\\\\Support\\\\Collection but does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/DataExport.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:collection\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
 			count: 1
 			path: src/DataExport.php
@@ -271,6 +261,11 @@ parameters:
 			path: src/DataExport.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setHeadings\\(\\) has parameter \\$headings with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataExport.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:setStyles\\(\\) has parameter \\$styles with no type specified\\.$#"
 			count: 1
 			path: src/DataExport.php
@@ -281,17 +276,17 @@ parameters:
 			path: src/DataExport.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$columnWidths has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$columnWidths type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataExport.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$fileName has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$headings type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataExport.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$styles has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataExport\\:\\:\\$styles type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataExport.php
 

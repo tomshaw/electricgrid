@@ -12,15 +12,16 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
 {
     use Exportable;
 
-    public $fileName = 'DataExport.xlsx';
+    public string $fileName = 'DataExport.xlsx';
 
-    public $styles = [];
+    public array $headings = [];
 
-    public $columnWidths = [];
+    public array $styles = [];
+
+    public array $columnWidths = [];
 
     public function __construct(
-        public Collection $collection,
-        public Collection $headings
+        public Collection $collection
     ) {
     }
 
@@ -31,7 +32,14 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
 
     public function headings(): array
     {
-        return $this->headings->toArray();
+        return $this->headings;
+    }
+
+    public function setHeadings(array $headings): self
+    {
+        $this->headings = $headings;
+
+        return $this;
     }
 
     public function setFileName($fileName): self

@@ -38,9 +38,9 @@ trait WithMassActions
 
             $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
 
-            $headings = $exportables->pluck('title');
+            $action->put('headings', $exportables->pluck('title')->toArray());
 
-            return $this->export($collection, $action, $headings);
+            return $this->export($collection, $action);
         }
 
         if ($action->has('callable') && is_callable($action->get('callable'))) {
@@ -51,9 +51,11 @@ trait WithMassActions
         return null;
     }
 
-    public function export(Collection $collection, Collection $action, Collection $headings): Response|BinaryFileResponse
+    public function export(Collection $collection, Collection $action): Response|BinaryFileResponse
     {
-        $export = new DataExport($collection, $headings);
+        $export = new DataExport($collection);
+
+        $export->setHeadings($action->get('headings'));
 
         $export->setFileName($action->get('fileName'));
 
