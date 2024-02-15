@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\{DB, Schema};
 use InvalidArgumentException;
-use TomShaw\ElectricGrid\Exceptions\InvalidFilterHandler;
+use TomShaw\ElectricGrid\Exceptions\{InvalidFilterHandler, InvalidModelRelationsHandler};
 
 class DataSource
 {
@@ -26,24 +26,29 @@ class DataSource
     public function __construct(
         public Builder $query,
     ) {
-        $relationships = $this->getRelationships();
-        $modelInstance = $this->getModelInstance();
-        $modelTables = [];
-        $modelFields = [];
-        $modelColumns = [];
-        foreach ($relationships as $relationship) {
-            $relatedModel = $modelInstance->$relationship()->getRelated();
-            $tableName = $relatedModel->getTable();
-            $modelTables[$relationship] = $tableName;
-            $modelFields[$relationship] = $relatedModel->getFillable();
-            $modelColumns[$relationship] = DB::getSchemaBuilder()->getColumnListing($tableName);
+        try {
+            $relationships = $this->getRelationships();
+            $modelInstance = $this->getModelInstance();
+
+            $modelTables = [];
+            $modelFields = [];
+            $modelColumns = [];
+            foreach ($relationships as $relationship) {
+                $relatedModel = $modelInstance->$relationship()->getRelated();
+                $tableName = $relatedModel->getTable();
+                $modelTables[$relationship] = $tableName;
+                $modelFields[$relationship] = $relatedModel->getFillable();
+                $modelColumns[$relationship] = DB::getSchemaBuilder()->getColumnListing($tableName);
+            }
+
+            $this->modelTables = $modelTables;
+            $this->modelFields = $modelFields;
+            $this->modelColumns = $modelColumns;
+
+            $this->setRelationTypes();
+        } catch (Exception $e) {
+            throw InvalidModelRelationsHandler::make($e->getMessage());
         }
-
-        $this->modelTables = $modelTables;
-        $this->modelFields = $modelFields;
-        $this->modelColumns = $modelColumns;
-
-        $this->setRelationTypes();
     }
 
     public static function make(Builder $query): self

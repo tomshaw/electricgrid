@@ -496,6 +496,11 @@ parameters:
 			path: src/Exceptions/InvalidFilterHandler.php
 
 		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Exceptions/InvalidModelRelationsHandler.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\Exceptions\\\\RequiredColumnsHandler\\:\\:make\\(\\) has parameter \\$missingColumns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Exceptions/RequiredColumnsHandler.php
