@@ -281,14 +281,25 @@ class DataSource
     private function handleText(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationsForFields($columnName);
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                    $query->where($columnName, 'like', '%'.$value.'%');
-                });
+            if (is_array($value)) {
+                foreach ($value as $subColumnName => $subValue) {
+                    $relation = $this->getRelationsForColumns($subColumnName);
+                    if ($relation !== null) {
+                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                            $query->where($subColumnName, 'like', '%'.$subValue.'%');
+                        });
+                    }
+                }
             } else {
-                $this->query->where($qualifiedColumnName, 'like', '%'.$value.'%');
+                $relation = $this->getRelationsForFields($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                        $query->where($columnName, 'like', '%'.$value.'%');
+                    });
+                } else {
+                    $this->query->where($qualifiedColumnName, 'like', '%'.$value.'%');
+                }
             }
         }
     }
