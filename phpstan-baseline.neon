@@ -456,7 +456,7 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationFillable has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationFillables has no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 
