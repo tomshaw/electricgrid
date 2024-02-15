@@ -15,7 +15,7 @@ class DataSource
 {
     public $modelRelationTables = [];
 
-    public $modelRelationFillable = [];
+    public $modelRelationFillables = [];
 
     public $modelRelationColumns = [];
 
@@ -31,18 +31,18 @@ class DataSource
             $modelInstance = $this->getModelInstance();
 
             $modelRelationTables = [];
-            $modelRelationFillable = [];
+            $modelRelationFillables = [];
             $modelRelationColumns = [];
             foreach ($relationships as $relationship) {
                 $relatedModel = $modelInstance->$relationship()->getRelated();
                 $tableName = $relatedModel->getTable();
                 $modelRelationTables[$relationship] = $tableName;
-                $modelRelationFillable[$relationship] = $relatedModel->getFillable();
+                $modelRelationFillables[$relationship] = $relatedModel->getFillable();
                 $modelRelationColumns[$relationship] = DB::getSchemaBuilder()->getColumnListing($tableName);
             }
 
             $this->modelRelationTables = $modelRelationTables;
-            $this->modelRelationFillable = $modelRelationFillable;
+            $this->modelRelationFillables = $modelRelationFillables;
             $this->modelRelationColumns = $modelRelationColumns;
 
             $this->setRelationTypes();
@@ -70,7 +70,7 @@ class DataSource
 
     private function getRelationsForFields(string $column): ?string
     {
-        foreach ($this->modelRelationFillable as $relation => $fields) {
+        foreach ($this->modelRelationFillables as $relation => $fields) {
             if (in_array($column, $fields)) {
                 return $relation;
             }
@@ -93,7 +93,7 @@ class DataSource
     public function setRelationTypes(): void
     {
         $relationTypes = [];
-        foreach ($this->modelRelationFillable as $relation => $fields) {
+        foreach ($this->modelRelationFillables as $relation => $fields) {
             $relationType = (new \ReflectionClass($this->query->getModel()->$relation()))->getShortName();
             if (in_array($relationType, $this->eloquentRelationshipTypes)) {
                 $relationTypes[$relation] = $relationType;
@@ -173,7 +173,7 @@ class DataSource
             }
         }
 
-        foreach ($this->modelRelationFillable as $relation => $fields) {
+        foreach ($this->modelRelationFillables as $relation => $fields) {
             if (in_array($columnName, $fields)) {
                 $tableName = $this->modelRelationTables[$relation];
                 $model = $this->query->getModel();
@@ -221,7 +221,7 @@ class DataSource
 
     private function createDefaultClosure(string $field): \Closure
     {
-        foreach ($this->modelRelationFillable as $relation => $fields) {
+        foreach ($this->modelRelationFillables as $relation => $fields) {
             if (in_array($field, $fields)) {
                 return fn ($model) => $model->$relation ? $model->$relation->$field : null;
             }
