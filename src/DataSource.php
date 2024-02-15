@@ -307,25 +307,42 @@ class DataSource
     private function handleNumber(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationsForFields($columnName);
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                    if (isset($value['start']) && ! isset($value['end'])) {
-                        $query->where($columnName, '>=', $value['start']);
-                    } elseif (! isset($value['start']) && isset($value['end'])) {
-                        $query->where($columnName, '=<', $value['end']);
-                    } elseif (isset($value['start']) && isset($value['end'])) {
-                        $query->whereBetween($columnName, [$value['start'], $value['end']]);
+            if (is_array($value)) {
+                foreach ($value as $subColumnName => $subValue) {
+                    $relation = $this->getRelationsForColumns($subColumnName);
+                    if ($relation !== null) {
+                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                            if (isset($subValue['start']) && ! isset($subValue['end'])) {
+                                $query->where($subColumnName, '>=', $subValue['start']);
+                            } elseif (! isset($subValue['start']) && isset($subValue['end'])) {
+                                $query->where($subColumnName, '=<', $subValue['end']);
+                            } elseif (isset($subValue['start']) && isset($subValue['end'])) {
+                                $query->whereBetween($subColumnName, [$subValue['start'], $subValue['end']]);
+                            }
+                        });
                     }
-                });
+                }
             } else {
-                if (isset($value['start']) && ! isset($value['end'])) {
-                    $this->query->where($qualifiedColumnName, '>=', $value['start']);
-                } elseif (! isset($value['start']) && isset($value['end'])) {
-                    $this->query->where($qualifiedColumnName, '=<', $value['end']);
-                } elseif (isset($value['start']) && isset($value['end'])) {
-                    $this->query->whereBetween($qualifiedColumnName, [$value['start'], $value['end']]);
+                $relation = $this->getRelationsForFields($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                        if (isset($value['start']) && ! isset($value['end'])) {
+                            $query->where($columnName, '>=', $value['start']);
+                        } elseif (! isset($value['start']) && isset($value['end'])) {
+                            $query->where($columnName, '=<', $value['end']);
+                        } elseif (isset($value['start']) && isset($value['end'])) {
+                            $query->whereBetween($columnName, [$value['start'], $value['end']]);
+                        }
+                    });
+                } else {
+                    if (isset($value['start']) && ! isset($value['end'])) {
+                        $this->query->where($qualifiedColumnName, '>=', $value['start']);
+                    } elseif (! isset($value['start']) && isset($value['end'])) {
+                        $this->query->where($qualifiedColumnName, '=<', $value['end']);
+                    } elseif (isset($value['start']) && isset($value['end'])) {
+                        $this->query->whereBetween($qualifiedColumnName, [$value['start'], $value['end']]);
+                    }
                 }
             }
         }
