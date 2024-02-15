@@ -5,6 +5,7 @@ namespace TomShaw\ElectricGrid;
 use DateTime;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne, HasOneOrMany, MorphMany, MorphOne, MorphTo, MorphToMany, Relation};
 use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\{DB, Schema};
@@ -102,6 +103,16 @@ class DataSource
         $this->relationTypes = $relationTypes;
     }
 
+    public function isDirectRelation($relation): bool
+    {
+        return $relation instanceof BelongsTo || $relation instanceof HasOne || $relation instanceof HasMany || $relation instanceof MorphOne || $relation instanceof MorphMany || $relation instanceof MorphTo;
+    }
+
+    public function isManyToManyRelation($relation): bool
+    {
+        return $relation instanceof BelongsToMany || $relation instanceof MorphToMany;
+    }
+
     private function resolveTableNames($columnName): ?string
     {
         $baseTable = $this->query->getModel()->getTable();
@@ -127,23 +138,33 @@ class DataSource
     {
         if (strpos($columnName, '.')) {
             $parts = explode('.', $columnName);
-            $column = $parts[1];
+            $columnRelation = $parts[0];
+            $columnName = $parts[1];
             foreach ($this->modelRelationColumns as $relation => $fields) {
-                if (in_array($column, $fields)) {
+                if (in_array($columnName, $fields)) {
                     $tableName = $this->query->getModel()->getTable();
-                    $pivotTable = $this->query->getModel()->$relation()->getTable();
-                    $relatedTable = $this->modelRelationTables[$relation];
-                    $foreignKey = $this->query->getModel()->$relation()->getQualifiedForeignPivotKeyName();
-                    $relatedKey = $this->query->getModel()->$relation()->getRelatedPivotKeyName();
+                    $relationQuery = $this->query->getModel()->$relation();
 
                     // Added to not modify the result set
                     $this->query->select("$tableName.*");
-                    $this->query->join($pivotTable, $this->query->getModel()->getTable().'.id', '=', $foreignKey)
-                        ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
-                        ->orderBy("$relatedTable.$column", $sortDirection);
 
-                    // $this->query->join($pivotTable, $this->query->getModel()->getTable().'.id', '=', $foreignKey)
-                    //     ->orderBy("$pivotTable.$relatedKey", $sortDirection);
+                    if ($this->isDirectRelation($relationQuery)) {
+                        $relatedTable = $relationQuery->getRelated()->getTable();
+                        $foreignKey = $relationQuery->getForeignKeyName();
+                        $ownerKey = $relationQuery->getRelated()->getKeyName();
+
+                        $this->query->join($relatedTable, "$tableName.$ownerKey", '=', "$relatedTable.$foreignKey")
+                            ->orderBy("$relatedTable.$columnName", $sortDirection);
+                    } elseif ($this->isManyToManyRelation($relationQuery)) {
+                        $pivotTable = $relationQuery->getTable();
+                        $relatedTable = $this->modelRelationTables[$relation];
+                        $foreignKey = $relationQuery->getQualifiedForeignPivotKeyName();
+                        $relatedKey = $relationQuery->getRelatedPivotKeyName();
+
+                        $this->query->join($pivotTable, "$tableName.id", '=', $foreignKey)
+                            ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
+                            ->orderBy("$relatedTable.$columnName", $sortDirection);
+                    }
 
                     return $this;
                 }
