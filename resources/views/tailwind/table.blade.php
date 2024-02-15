@@ -39,6 +39,32 @@
       </select>
       <button type="button" wire:click="handleSelectedAction" class="inline-flex items-center p-2.5 rounded-md bg-gray-800 dark:bg-gray-200 border border-transparent font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">Go</button>
       @endif
+
+      @if($showToggleColumns)
+      <div class="relative" x-data="{ open: false }">
+        <button @click="open = !open" type="button" class="inline-flex items-center px-2.5 py-1.5 rounded-md bg-gray-800 dark:bg-gray-200 border border-transparent font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6C7.25 6 3 9.5 3 12s4.25 6 9 6 9-2.5 9-6-4.25-6-9-6zm0 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
+          </svg>
+        </button>
+        <div x-show="open" @click.away="open = false" role="tooltip" class="absolute z-10 inline-block w-64 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800 right-full mr-3 transform translate-y-[-40%] top-1/2">
+          <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
+            <h3 class="font-semibold text-gray-900 dark:text-white">Toggle Columns</h3>
+          </div>
+          <div class="p-0">
+            @foreach($this->columns as $column)
+            <div class="flex items-center border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200">
+              <label class="flex items-center space-x-3 w-full py-2 px-3">
+                <input type="checkbox" wire:click="handleToggleColumns('{{ $column->field }}')" {{ !in_array($column->field, $this->hiddenColumns) ? 'checked' : '' }} class="form-checkbox h-5 w-5 {{ !in_array($column->field, $this->hiddenColumns) ? 'text-blue-600' : 'text-gray-400' }}">
+                <span class="text-gray-900 font-medium">{{ $column->title }}</span>
+              </label>
+            </div>
+            @endforeach
+          </div>
+        </div>
+      </div>
+      @endif
+
     </div>
 
   </div>
@@ -84,7 +110,7 @@
             </th>
             @endif
             @foreach($this->columns as $column)
-            @if($column->visible)
+            @if($column->visible && !in_array($column->field, $this->hiddenColumns))
             <th @class(['border px-2 py-3 text-left font-bold text-gray-600 tracking-wider whitespace-nowrap' . ($column->sortable ? ' cursor-pointer' : '')]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
               <div class="flex justify-between items-center">
                 <span>{{$column->title}}</span>
@@ -115,7 +141,7 @@
             <td class="border p-2"></td>
             @endif
             @foreach($this->columns as $column)
-            @if($column->visible)
+            @if($column->visible && !in_array($column->field, $this->hiddenColumns))
             <td @class(['border p-2 align-top'])>
               @foreach ($this->filters as $key => $filter)
               @if($filter->column === $column->field)
@@ -198,7 +224,7 @@
             @php
             $field = $column->field;
             @endphp
-            @if($column->visible)
+            @if($column->visible && !in_array($column->field, $this->hiddenColumns))
             <td @class(['text-gray-600 border p-2', $column->styles])>
               {!! $row->$field !!}
             </td>

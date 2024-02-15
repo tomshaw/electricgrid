@@ -3,6 +3,7 @@
 namespace TomShaw\ElectricGrid;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
 use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredColumnsHandler, RequiredMethodHandler};
 use TomShaw\ElectricGrid\Traits\WithMassActions;
@@ -28,6 +29,8 @@ class Component extends BaseComponent
 
     public bool $showPerPage = true;
 
+    public bool $showToggleColumns = true;
+
     public array $searchTermColumns = [];
 
     public array $letterSearchColumns = [];
@@ -51,6 +54,8 @@ class Component extends BaseComponent
     public array $checkboxValues = [];
 
     public string $checkboxField = 'id';
+
+    public array $hiddenColumns = [];
 
     public function mount()
     {
@@ -104,12 +109,12 @@ class Component extends BaseComponent
         return $this->filters();
     }
 
-    public function updatedSearchTerm()
+    public function updatedSearchTerm(): void
     {
         $this->resetPage();
     }
 
-    public function updatedSearchLetter()
+    public function updatedSearchLetter(): void
     {
         $this->resetPage();
     }
@@ -161,7 +166,7 @@ class Component extends BaseComponent
         }
     }
 
-    public function handleSortOrder($field, $sortable)
+    public function handleSortOrder($field, $sortable): void
     {
         if (! $sortable) {
             return;
@@ -174,7 +179,7 @@ class Component extends BaseComponent
         $this->orderBy = $field;
     }
 
-    public function handleSelectedLetter($selectedLetter)
+    public function handleSelectedLetter($selectedLetter): void
     {
         if ($this->searchLetter === $selectedLetter) {
             $this->searchLetter = '';
@@ -185,7 +190,16 @@ class Component extends BaseComponent
         }
     }
 
-    public function validateColumns()
+    public function handleToggleColumns(string $field): void
+    {
+        if (in_array($field, $this->hiddenColumns)) {
+            $this->hiddenColumns = array_diff($this->hiddenColumns, [$field]);
+        } else {
+            $this->hiddenColumns[] = $field;
+        }
+    }
+
+    public function validateColumns(): void
     {
         $selectedColumns = $this->builder->getQuery()->columns;
 
@@ -228,7 +242,7 @@ class Component extends BaseComponent
         }
     }
 
-    public function render()
+    public function render(): View
     {
         $dataSource = DataSource::make($this->builder);
 

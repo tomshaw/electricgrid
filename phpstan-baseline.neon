@@ -121,17 +121,7 @@ parameters:
 			path: src/Component.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSelectedLetter\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSelectedLetter\\(\\) has parameter \\$selectedLetter with no type specified\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:handleSortOrder\\(\\) has no return type specified\\.$#"
 			count: 1
 			path: src/Component.php
 
@@ -151,26 +141,6 @@ parameters:
 			path: src/Component.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:render\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:updatedSearchLetter\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:updatedSearchTerm\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:validateColumns\\(\\) has no return type specified\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$checkboxValues type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Component.php
@@ -182,6 +152,11 @@ parameters:
 
 		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$filter type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$hiddenColumns type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Component.php
 
