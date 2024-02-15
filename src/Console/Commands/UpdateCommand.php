@@ -31,10 +31,10 @@ class UpdateCommand extends Command
 
         if ($this->confirm('Do you wish to continue?', true)) {
             $this->comment('Updating ElectricGrid Config...');
-            $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.config']);
+            $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.config', '--force' => true]);
 
-            $this->comment('Updating ElectricGrid Assets...');
-            $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.views']);
+            $this->comment('Updating ElectricGrid Views...');
+            $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.views', '--force' => true]);
 
             $this->comment('Building ElectricGrid Assets...');
             $this->buildAssets();

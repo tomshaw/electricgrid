@@ -73,7 +73,7 @@
 
   <div class="w-full">
     <div class="overflow-x-auto">
-      <table class="border-collapse table-auto w-full text-sm">
+      <table class="bg-white border-collapse table-auto w-full text-sm">
         <thead>
           @if($showTableInfo || count($letterSearchColumns))
           <tr>
