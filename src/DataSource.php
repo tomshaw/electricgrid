@@ -123,32 +123,9 @@ class DataSource
         return null;
     }
 
-    public function search(string $searchTerm, array $searchColumns): self
-    {
-        if (empty($searchTerm)) {
-            return $this;
-        }
-
-        foreach ($searchColumns as $columnName) {
-            $relation = $this->getRelationsForFields($columnName);
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
-                    $query->where($columnName, 'like', '%'.$searchTerm.'%');
-                });
-            } else {
-                $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
-            }
-        }
-
-        return $this;
-    }
-
     public function orderBy(string $columnName, string $sortDirection): self
     {
-        $isRelations = strpos($columnName, '.');
-
-        if ($isRelations) {
+        if (strpos($columnName, '.')) {
             $parts = explode('.', $columnName);
             $column = $parts[1];
             foreach ($this->modelRelationColumns as $relation => $fields) {
@@ -503,6 +480,38 @@ class DataSource
                 }
             }
         }
+    }
+
+    public function search(string $searchTerm, array $searchColumns): self
+    {
+        if (empty($searchTerm)) {
+            return $this;
+        }
+
+        foreach ($searchColumns as $columnName) {
+            if (strpos($columnName, '.')) {
+                $parts = explode('.', $columnName);
+                $relation = $parts[0];
+                $subColumnName = $parts[1];
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
+                        $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
+                    });
+                }
+            } else {
+                $relation = $this->getRelationsForFields($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
+                        $query->where($columnName, 'like', '%'.$searchTerm.'%');
+                    });
+                } else {
+                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
+                }
+            }
+        }
+
+        return $this;
     }
 
     private function handleSelectLetter($values): void
