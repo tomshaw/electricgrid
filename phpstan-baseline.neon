@@ -301,12 +301,12 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Instanceof between mixed and Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\MorphTo will always evaluate to false\\.$#"
+			message: "#^Instanceof between Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\Relation and Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\MorphTo will always evaluate to false\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Instanceof between mixed and Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\MorphToMany will always evaluate to false\\.$#"
+			message: "#^Instanceof between Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\Relation and Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\MorphToMany will always evaluate to false\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -351,12 +351,17 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleSearchTerm\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleSelect\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleSelectLetter\\(\\) has parameter \\$values with no type specified\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleSelectLetter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -371,12 +376,12 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:isDirectRelation\\(\\) has parameter \\$relation with no type specified\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:isDirectRelation\\(\\) has parameter \\$relation with generic class Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\Relation but does not specify its types\\: TRelatedModel$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:isManyToManyRelation\\(\\) has parameter \\$relation with no type specified\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:isManyToManyRelation\\(\\) has parameter \\$relation with generic class Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\Relation but does not specify its types\\: TRelatedModel$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -402,11 +407,6 @@ parameters:
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:resolveTableNames\\(\\) has parameter \\$columnName with no type specified\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:search\\(\\) has parameter \\$searchColumns with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 

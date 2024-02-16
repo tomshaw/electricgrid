@@ -112,6 +112,8 @@ class Component extends BaseComponent
     public function updatedSearchTerm(): void
     {
         $this->resetPage();
+
+        $this->filter = array_merge($this->filter, ['search' => array_fill_keys($this->searchTermColumns, $this->searchTerm)]);
     }
 
     public function updatedSearchLetter(): void
@@ -245,8 +247,6 @@ class Component extends BaseComponent
     public function render(): View
     {
         $dataSource = DataSource::make($this->builder);
-
-        $dataSource->search($this->searchTerm, $this->searchTermColumns);
 
         $dataSource->filter($this->filter);
 

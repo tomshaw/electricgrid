@@ -103,12 +103,12 @@ class DataSource
         $this->relationTypes = $relationTypes;
     }
 
-    public function isDirectRelation($relation): bool
+    public function isDirectRelation(Relation $relation): bool
     {
         return $relation instanceof BelongsTo || $relation instanceof HasOne || $relation instanceof HasMany || $relation instanceof MorphOne || $relation instanceof MorphMany || $relation instanceof MorphTo;
     }
 
-    public function isManyToManyRelation($relation): bool
+    public function isManyToManyRelation(Relation $relation): bool
     {
         return $relation instanceof BelongsToMany || $relation instanceof MorphToMany;
     }
@@ -270,6 +270,7 @@ class DataSource
                 'timepicker' => $this->handleTimePicker($values),
                 'datepicker' => $this->handleDatePicker($values),
                 'datetimepicker' => $this->handleDateTimePicker($values),
+                'search' => $this->handleSearchTerm($values),
                 'letter' => $this->handleSelectLetter($values),
                 default => throw InvalidFilterHandler::make($type),
             };
@@ -503,13 +504,9 @@ class DataSource
         }
     }
 
-    public function search(string $searchTerm, array $searchColumns): self
+    public function handleSearchTerm(array $values): self
     {
-        if (empty($searchTerm)) {
-            return $this;
-        }
-
-        foreach ($searchColumns as $columnName) {
+        foreach ($values as $columnName => $searchTerm) {
             if (strpos($columnName, '.')) {
                 $parts = explode('.', $columnName);
                 $relation = $parts[0];
@@ -535,7 +532,7 @@ class DataSource
         return $this;
     }
 
-    private function handleSelectLetter($values): void
+    private function handleSelectLetter(array $values): void
     {
         foreach ($values as $columnName => $value) {
             $relation = $this->getRelationsForFields($columnName);
