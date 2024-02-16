@@ -30,15 +30,17 @@ trait WithMassActions
                 return null;
             }
 
+            $action->put('headings', $exportables->pluck('title')->toArray());
+
             $dataSource = DataSource::make($this->builder());
+
+            $dataSource->filter($this->filter);
 
             $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
 
             $columns = $dataSource->transformColumns($exportables->toArray());
 
             $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
-
-            $action->put('headings', $exportables->pluck('title')->toArray());
 
             return $this->export($collection, $action);
         }
