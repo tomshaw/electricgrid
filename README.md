@@ -302,6 +302,48 @@ class OrdersTable extends Component
 }
 ```
 
+## Customizing Excel Exports
+
+Excel exports can be customized with specific styles and column widths.
+
+Uses the `styles` and `columnWidths` methods to apply custom styles and column widths to the Excel file.
+
+The `styles` method returns an array of cell styles. The array keys are cell references and the values are arrays of style definitions. For example, `'1'  => ['font' => ['bold' => true]]` applies a bold font style to all cells in row 1, and `'B2' => ['font' => ['italic' => true]]` applies an italic font style to the cell at column B, row 2.
+
+The `columnWidths` method returns an array of column widths. The array keys are column letters and the values are the widths of the columns. For example, `'A' => 20` sets the width of column A to 20.
+
+Here's an example of how to define custom styles and column widths for Excel exports:
+
+```php
+    public function actions(): array
+    {
+        return [
+            Action::groupBy('Export Options', function () {
+                return [
+                    Action::make('xlsx', 'Export XLSX')->export('SalesOrders.xlsx')->styles($this->exportStyles)->columnWidths($this->exportWidths),
+                ];
+            }),
+        ];
+    }
+
+    public function getExportStylesProperty()
+    {
+        return [
+            '1'  => ['font' => ['bold' => true]],
+            'B2' => ['font' => ['italic' => true]],
+            'C'  => ['font' => ['size' => 16]],
+        ];
+    }
+
+    public function getExportWidthsProperty()
+    {
+        return [
+            'A' => 20,
+            'B' => 30,
+        ];
+    }
+```
+
 ### Search Input
 
 Enable by adding the following property filled with the columns names you wish to search.
