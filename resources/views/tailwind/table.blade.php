@@ -228,7 +228,15 @@
             @endphp
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
             <td @class(['text-gray-600 border p-2', $column->styles])>
-              {!! $row->$field !!}
+              @php
+              $fieldValue = $row->$field;
+              if (in_array($field, $this->searchTermColumns) || in_array($field, $this->letterSearchColumns)) {
+              $searches = [$searchTerm, $searchLetter];
+              $replacements = ['<span class="bg-yellow-300">'.$searchTerm.'</span>', '<span class="bg-yellow-300">'.$searchLetter.'</span>'];
+              $fieldValue = str_replace($searches, $replacements, $fieldValue);
+              }
+              @endphp
+              {!! $fieldValue !!}
             </td>
             @endif
             @endforeach
