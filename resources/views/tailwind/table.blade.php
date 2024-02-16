@@ -232,8 +232,9 @@
               $fieldValue = $row->$field;
               if (in_array($field, $this->searchTermColumns) || in_array($field, $this->letterSearchColumns)) {
               $searches = [$searchTerm, $searchLetter];
-              $replacements = ['<span class="bg-yellow-300">'.$searchTerm.'</span>', '<span class="bg-yellow-300">'.$searchLetter.'</span>'];
-              $fieldValue = str_replace($searches, $replacements, $fieldValue);
+              $fieldValue = preg_replace_callback('/(' . implode('|', array_map('preg_quote', $searches)) . ')/i', function($matches) {
+              return '<span class="bg-yellow-300">' . $matches[0] . '</span>';
+              }, $fieldValue);
               }
               @endphp
               {!! $fieldValue !!}
