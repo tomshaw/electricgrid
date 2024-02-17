@@ -521,14 +521,25 @@ class DataSource
     private function handleSelectLetter(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationsForFields($columnName);
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                    $query->where($columnName, 'like', $value.'%');
-                });
+            if (strpos($columnName, '.')) {
+                $parts = explode('.', $columnName);
+                $relation = $parts[0];
+                $subColumnName = $parts[1];
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
+                        $query->where($subColumnName, 'like', $value.'%');
+                    });
+                }
             } else {
-                $this->query->where($qualifiedColumnName, 'like', $value.'%');
+                $relation = $this->getRelationsForFields($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                        $query->where($columnName, 'like', $value.'%');
+                    });
+                } else {
+                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
+                }
             }
         }
     }

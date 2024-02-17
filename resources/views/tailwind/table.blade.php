@@ -228,16 +228,7 @@
             @endphp
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
             <td @class(['text-gray-600 border p-2', $column->styles])>
-              @php
-              $fieldValue = $row->$field;
-              if (in_array($field, $this->searchTermColumns) || in_array($field, $this->letterSearchColumns)) {
-              $searches = [$searchTerm];
-              $fieldValue = preg_replace_callback('/(' . implode('|', array_map('preg_quote', $searches)) . ')/i', function($matches) {
-              return '<span class="bg-yellow-300">' . $matches[0] . '</span>';
-              }, $fieldValue);
-              }
-              @endphp
-              {!! $fieldValue !!}
+              {!! $row->$field !!}
             </td>
             @endif
             @endforeach
