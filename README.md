@@ -1,6 +1,6 @@
 # Electric Grid 🔌
 
-A fast and efficient Livewire data table. A great choice for projects that require a data table solution.
+A powerful Livewire data table package. A great choice for projects that require a data table solution.
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tomshaw/electricgrid/run-tests.yml?branch=master&style=flat-square&label=tests)
 ![issues](https://img.shields.io/github/issues/tomshaw/electricgrid?style=flat&logo=appveyor)
@@ -9,8 +9,6 @@ A fast and efficient Livewire data table. A great choice for projects that requi
 [![GitHub license](https://img.shields.io/github/license/tomshaw/electricgrid)](https://github.com/tomshaw/electricgrid/blob/master/LICENSE)
 
 ## Features
-
-Electric Grid is a powerful Livewire data table package with the following features:
 
 1. **Easy Installation**: The package provides a simple command for installation and updates.
 
@@ -28,7 +26,7 @@ Electric Grid is a powerful Livewire data table package with the following featu
 
 8. **Inline Actions**: You can add inline actions to your data rows, which can be useful for adding quick actions like update or delete.
 
-9. **Themes**: The package uses a single template at around two hundred `loc` making it super easy to theme.
+9. **Themes**: The package uses a single blade template making it super easy to theme.
 
 10. **Testing**: Provides a command for running tests to ensure the package works as expected.
 
