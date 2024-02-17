@@ -12,13 +12,13 @@ A powerful Livewire data table package. A great choice for projects that require
 
 1. **Easy Installation**: The package provides a simple command for installation and updates.
 
-2. **Customizable Columns**: You can add columns to your grid with various options like sortable, styleable, exportable, visible, and callable.
+2. **Columns**: Add columns to your grid with various options including sortable, styleable, exportable and visible.
 
-3. **Column Filters**: The package supports text, number, select, multiselect, boolean, timepicker, datepicker, and datetimepicker.
+3. **Filters**: Supports text, number, select, multiselect, boolean, timepicker, datepicker, and datetimepicker.
 
-4. **Mass Actions**: It provides the capability to execute operations on multiple rows of data simultaneously.
+4. **Mass Actions**: Provides the capability to execute operations on multiple rows of data simultaneously.
 
-5. **Table Exports**: Tables can be exported in various formats like xlsx, csv, pdf, and html.
+5. **Table Exports**: Tables can be exported in various formats like xlsx, csv, pdf, and html out of the box.
 
 6. **Search Input**: You can enable search functionality by specifying the columns you wish to search.
 
