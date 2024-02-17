@@ -9,8 +9,12 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, H
 use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\{DB, Schema};
-use InvalidArgumentException;
-use TomShaw\ElectricGrid\Exceptions\{InvalidFilterHandler, InvalidModelRelationsHandler};
+use TomShaw\ElectricGrid\Exceptions\{
+    InvalidDateFormatHandler,
+    InvalidDateTypeHandler,
+    InvalidFilterHandler,
+    InvalidModelRelationsHandler
+};
 
 class DataSource
 {
@@ -19,10 +23,6 @@ class DataSource
     public $modelRelationFillables = [];
 
     public $modelRelationColumns = [];
-
-    public array $eloquentRelationshipTypes = ['HasOne', 'BelongsTo', 'HasMany', 'BelongsToMany', 'HasOneThrough', 'HasManyThrough', 'MorphOne', 'MorphMany', 'MorphTo', 'MorphToMany', 'MorphedByMany'];
-
-    public array $relationTypes = [];
 
     public function __construct(
         public Builder $query,
@@ -45,8 +45,6 @@ class DataSource
             $this->modelRelationTables = $modelRelationTables;
             $this->modelRelationFillables = $modelRelationFillables;
             $this->modelRelationColumns = $modelRelationColumns;
-
-            $this->setRelationTypes();
         } catch (Exception $e) {
             throw InvalidModelRelationsHandler::make($e->getMessage());
         }
@@ -89,18 +87,6 @@ class DataSource
         }
 
         return null;
-    }
-
-    public function setRelationTypes(): void
-    {
-        $relationTypes = [];
-        foreach ($this->modelRelationFillables as $relation => $fields) {
-            $relationType = (new \ReflectionClass($this->query->getModel()->$relation()))->getShortName();
-            if (in_array($relationType, $this->eloquentRelationshipTypes)) {
-                $relationTypes[$relation] = $relationType;
-            }
-        }
-        $this->relationTypes = $relationTypes;
     }
 
     public function isDirectRelation(Relation $relation): bool
@@ -181,7 +167,7 @@ class DataSource
                     $this->query->join($tableName, $foreignKey, '=', "$tableName.$ownerKey")
                         ->orderBy("$tableName.$columnName", $sortDirection);
                 } else {
-                    throw new Exception("The method '$relation' does not exist on the model.");
+                    throw InvalidModelRelationsHandler::make("The method '$relation' does not exist on the model.");
                 }
 
                 return $this;
@@ -246,12 +232,12 @@ class DataSource
                     $format = 'Y-m-d H:i:s';
                     break;
                 default:
-                    throw new InvalidArgumentException("Invalid type: $type");
+                    throw InvalidDateTypeHandler::make($type);
             }
             if ($date !== false) {
                 $normalizedValues[$key] = $date->format($format);
             } else {
-                throw new InvalidArgumentException("Invalid date format for $key: $value");
+                throw InvalidDateFormatHandler::make($key, $value);
             }
         }
 

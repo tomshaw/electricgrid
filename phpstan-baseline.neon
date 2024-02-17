@@ -151,11 +151,6 @@ parameters:
 			path: src/Component.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$columnNames type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$filter type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Component.php
@@ -187,6 +182,11 @@ parameters:
 
 		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$searchTermColumns type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/Component.php
+
+		-
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$visibleColumns type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/Component.php
 
@@ -456,11 +456,6 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$eloquentRelationshipTypes type has no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationColumns has no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
@@ -472,11 +467,6 @@ parameters:
 
 		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationTables has no type specified\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$relationTypes type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -499,6 +489,16 @@ parameters:
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"
 			count: 1
 			path: src/Exceptions/DuplicateActionsHandler.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Exceptions/InvalidDateFormatHandler.php
+
+		-
+			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			count: 1
+			path: src/Exceptions/InvalidDateTypeHandler.php
 
 		-
 			message: "#^Unsafe usage of new static\\(\\)\\.$#"

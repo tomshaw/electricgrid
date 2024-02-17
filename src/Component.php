@@ -5,19 +5,20 @@ namespace TomShaw\ElectricGrid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
-use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredColumnsHandler, RequiredMethodHandler};
-use TomShaw\ElectricGrid\Traits\WithMassActions;
+use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
+use TomShaw\ElectricGrid\Traits\{WithMassActions, WithValidateColumns};
 
 class Component extends BaseComponent
 {
     use WithMassActions;
     use WithPagination;
+    use WithValidateColumns;
 
     public string $theme = 'tailwind';
 
     public array $filter = [];
 
-    public array $columnNames = [];
+    public array $visibleColumns = [];
 
     public array $inlineActions = [];
 
@@ -61,11 +62,11 @@ class Component extends BaseComponent
     {
         $this->setup();
 
-        $this->columnNames = collect($this->columns)->filter->visible->pluck('field')->toArray();
+        $this->visibleColumns = collect($this->columns)->filter->visible->pluck('field')->toArray();
 
-        $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->columnNames);
+        $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->visibleColumns);
 
-        $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->columnNames);
+        $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->visibleColumns);
 
         $this->validateColumns();
     }
@@ -136,7 +137,7 @@ class Component extends BaseComponent
 
     public function getColspanProperty(): int
     {
-        $colspan = count($this->columnNames);
+        $colspan = count($this->visibleColumns);
 
         if ($this->showCheckbox) {
             $colspan++;
@@ -198,49 +199,6 @@ class Component extends BaseComponent
             $this->hiddenColumns = array_diff($this->hiddenColumns, [$field]);
         } else {
             $this->hiddenColumns[] = $field;
-        }
-    }
-
-    public function validateColumns(): void
-    {
-        $selectedColumns = $this->builder->getQuery()->columns;
-
-        if ($selectedColumns === null || in_array('*', $selectedColumns)) {
-            return;
-        }
-
-        $selectedColumns = array_map(function ($column) {
-            return substr($column, strpos($column, '.') + 1);
-        }, $selectedColumns);
-
-        // Include columns from eager loaded tables
-        $eagerLoads = $this->builder->getEagerLoads();
-        foreach ($eagerLoads as $relation => $constraint) {
-            $relationModel = $this->builder->getModel()->$relation()->getRelated();
-            $relationTable = $relationModel->getTable();
-            $relationColumns = $relationModel->getConnection()->getSchemaBuilder()->getColumnListing($relationTable);
-            $relationColumns = array_map(function ($column) use ($relation) {
-                return $relation.'.'.$column;
-            }, $relationColumns);
-            $selectedColumns = array_merge($selectedColumns, $relationColumns);
-        }
-
-        // Treat columns selected in subqueries for relations as if they were selected in the main query
-        foreach ($this->builder->getEagerLoads() as $relation => $constraint) {
-            if ($constraint instanceof \Closure) {
-                $relationQuery = $this->builder->getModel()->$relation()->getRelated()->newQuery();
-                $constraint($relationQuery);
-                $relationColumns = $relationQuery->getQuery()->columns;
-                if ($relationColumns !== null) {
-                    $selectedColumns = array_merge($selectedColumns, $relationColumns);
-                }
-            }
-        }
-
-        $missingColumns = array_diff($this->columnNames, $selectedColumns);
-
-        if (! empty($missingColumns)) {
-            throw RequiredColumnsHandler::make($missingColumns);
         }
     }
 
