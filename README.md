@@ -98,10 +98,6 @@ class OrdersTable extends Component
 
 Use Columns to present data in your grid. 
 
-> Columns support being `sortable`, `styleable`, `exportable`, `visible`, `callable` and appear in the order created.
-
-> Column helper methods accept a toggleable boolean. 
-
 ```php
 use TomShaw\ElectricGrid\{Component, Column};
 use NumberFormatter;
@@ -116,14 +112,12 @@ class OrdersTable extends Component
             Column::add('id', 'ID')
                 ->sortable()
                 ->stylable('text-center w-20')
-                ->exportable(false)
-                ->visible(),
+                ->exportable(),
 
             Column::add('name', 'Customer Name')
                 ->searchable()
                 ->sortable()
-                ->exportable()
-                ->visible(),
+                ->exportable(),
 
             Column::add('status', 'Status')
                 ->callback(function (Order $order) {
@@ -144,15 +138,22 @@ class OrdersTable extends Component
                 ->exportable(),
 
             Column::add('created_at', 'Created At')
-                ->callback(fn (Order $order) => Carbon::parse($order->created_at)->format('Y-m-d H:i'))
+                ->callback(fn (Order $order) => Carbon::parse($order->created_at)->format('F j, Y, g:i a'))
                 ->sortable()
                 ->exportable(),
+
+            Column::add('updated_at', 'Updated At')
+                ->callback(fn (Order $order) => Carbon::parse($order->updated_at)->format('F j, Y, g:i a'))
+                ->sortable()
+                ->exportable()
+                ->visible(false),
+
         ];
     }
 }
 ```
 
-Each of the following methods accepts a boolean value (`true` or `false`) that toggles the corresponding feature on or off for a column in the data grid. 
+The following methods accepts a boolean value (`true` or `false`) that toggles the corresponding feature on or off. 
 
 > With the exception of `visible()` these properties are set to `false`:
 
