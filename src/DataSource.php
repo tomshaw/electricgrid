@@ -200,13 +200,7 @@ class DataSource
 
     public function transformCollection(Collection $results, Collection $columns): Collection
     {
-        return $results->map(fn ($row) => (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
-            if (is_callable($column)) {
-                return [$columnName => $column($row)];
-            } else {
-                return [$columnName => $row->$column];
-            }
-        })->toArray());
+        return $results->map(fn ($row) => (object) $columns->mapWithKeys(fn ($column, $columnName) => [$columnName => $column($row)])->toArray());
     }
 
     private function createDefaultClosure(string $field): \Closure
@@ -298,7 +292,7 @@ class DataSource
     private function handleNumber(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
+            if (strpos($columnName, '.')) {
                 foreach ($value as $subColumnName => $subValue) {
                     $relation = $this->getRelationsForColumns($subColumnName);
                     if ($relation !== null) {
