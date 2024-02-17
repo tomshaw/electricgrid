@@ -114,7 +114,10 @@ class OrdersTable extends Component
                 ->stylable('text-center w-20')
                 ->exportable(),
 
-            Column::add('name', 'Customer Name')
+            Column::add('name', 'Customer')
+                ->callback(function (Model $model) {
+                    return view('livewire.tables.users-customer', ['model' => $model]);
+                })
                 ->searchable()
                 ->sortable()
                 ->exportable(),
