@@ -27,8 +27,7 @@ class TestComponent extends Component
             Column::add('id', __('ID'))
                 ->sortable()
                 ->stylable('text-start')
-                ->exportable()
-                ->visible(true),
+                ->exportable(),
 
             Column::add('name', __('Name'))
                 ->searchable()
@@ -51,7 +50,8 @@ class TestComponent extends Component
 
             Column::add('updated_at', __('Updated At'))
                 ->callback(fn (TestModel $model) => Carbon::parse($model->updated_at)->format('d/m/Y'))
-                ->sortable(),
+                ->sortable()
+                ->visible(false),
         ];
     }
 
