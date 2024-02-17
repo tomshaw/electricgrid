@@ -18,7 +18,7 @@ A powerful Livewire data table package. A great choice for projects that require
 
 4. **Mass Actions**: Provides the capability to execute operations on multiple rows of data simultaneously.
 
-5. **Table Exports**: Tables can be exported in various formats like xlsx, csv, pdf, and html out of the box.
+5. **Table Exports**: Tables can be exported in various formats including xlsx, csv, pdf, and html out of the box.
 
 6. **Search Input**: You can enable search functionality by specifying the columns you wish to search.
 
@@ -289,7 +289,7 @@ class OrdersTable extends Component
 
 ### Table Exports.
 
-Out of the box tables can be exported in the following formats `xlsx`, `csv`, `pdf`, `html`. Export types are decided by `Extension-based format determination`. If you supply a file name of `SalesOrders.xlsx` an Excel spreadsheet will be generated.
+Tables can be exported in the following formats `xlsx`, `csv`, `pdf`, `html`. The type of export is decided by `Extension-based format determination`. If you supply a file name of `SalesOrders.xlsx` an Excel spreadsheet will be generated.
 
 ```php
 use TomShaw\ElectricGrid\{Component, Column, Filter, Action};
