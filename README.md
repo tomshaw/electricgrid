@@ -154,6 +154,18 @@ class OrdersTable extends Component
 }
 ```
 
+Each of the following methods accepts a boolean value (`true` or `false`) that toggles the corresponding feature on or off for a column in the data grid. 
+
+> By default, these properties are set to `false`:
+
+- `searchable()`: When included, this makes the column searchable. This means that the search functionality of the data grid will include this column when looking for matches.
+
+- `sortable()`: When included, this makes the column sortable. This means that users can click on the column header to sort the data grid by this column.
+
+- `exportable()`: When included, this includes the column in the data export. This means that when users export the data grid to a file (such as CSV or Excel), this column will be included.
+
+- `visible()`: When included, this makes the column visible in the data grid. This means that the column will be displayed to users.
+
 ### Column Filters.
 
 Filters allow you to filter data displayed in the grid. 
@@ -236,7 +248,9 @@ Filters should be used with the appropriate database column types.
 
 ### Mass Actions.
 
-Mass or bulk actions provide the capability to execute operations on multiple rows of data simultaneously. To group actions togther use the `group` and `groupBy` helper methods.
+Mass or bulk actions provide the capability to execute operations on multiple rows of data simultaneously. 
+
+> You can group actions together using the `group` and `groupBy` helper methods.
 
 ```php
 use TomShaw\ElectricGrid\{Component, Column, Filter, Action};
