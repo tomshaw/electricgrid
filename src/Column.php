@@ -10,7 +10,7 @@ class Column
 
     public bool $exportable = false;
 
-    public bool $visible = false;
+    public bool $visible = true;
 
     public string $styles = '';
 

@@ -156,7 +156,7 @@ class OrdersTable extends Component
 
 Each of the following methods accepts a boolean value (`true` or `false`) that toggles the corresponding feature on or off for a column in the data grid. 
 
-> By default, these properties are set to `false`:
+> With the exception of `visible()` these properties are set to `false`:
 
 - `searchable()`: When included, this makes the column searchable. This means that the search functionality of the data grid will include this column when looking for matches.
 
@@ -164,7 +164,7 @@ Each of the following methods accepts a boolean value (`true` or `false`) that t
 
 - `exportable()`: When included, this includes the column in the data export. This means that when users export the data grid to a file (such as CSV or Excel), this column will be included.
 
-- `visible()`: When included, this makes the column visible in the data grid. This means that the column will be displayed to users.
+- `visible()`: This makes the column visible in the data grid. This means that the column will be displayed to users.
 
 ### Column Filters.
 
