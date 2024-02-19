@@ -106,7 +106,7 @@ class DataSource
         $baseTable = $this->query->getModel()->getTable();
 
         if (Schema::hasColumn($baseTable, $columnName)) {
-            return $baseTable.'.'.$columnName;
+            return $baseTable . '.' . $columnName;
         }
 
         $joins = $this->query->getQuery()->joins;
@@ -114,7 +114,7 @@ class DataSource
         if ($joins) {
             foreach ($joins as $join) {
                 if (Schema::hasColumn($join->table, $columnName)) {
-                    return $join->table.'.'.$columnName;
+                    return $join->table . '.' . $columnName;
                 }
             }
         }
@@ -300,7 +300,7 @@ class DataSource
             $relation = $this->getRelationColumnListing($subColumnName);
             if ($relation !== null) {
                 $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
-                    $query->where($subColumnName, $operator, '%'.$subValue.'%');
+                    $query->where($subColumnName, $operator, '%' . $subValue . '%');
                 });
             }
         }
@@ -312,17 +312,17 @@ class DataSource
         $qualifiedColumnName = $this->resolveTableNames($columnName);
         if ($relation !== null) {
             $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
-                $query->where($columnName, $operator, '%'.$value.'%');
+                $query->where($columnName, $operator, '%' . $value . '%');
             });
         } else {
-            $this->query->where($qualifiedColumnName, $operator, '%'.$value.'%');
+            $this->query->where($qualifiedColumnName, $operator, '%' . $value . '%');
         }
     }
 
     private function handleNumber(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            if (! $this->hasStartOrEndKey($value)) {
+            if (!$this->hasStartOrEndKey($value)) {
                 $this->handleNumberSubFilters($value);
             } else {
                 $this->handleNumberDefaultFilter($columnName, $value);
@@ -363,9 +363,6 @@ class DataSource
     private function selectFilter(array $values, string $operator): void
     {
         foreach ($values as $columnName => $value) {
-            if ($value == strval(self::IGNORE_VALUE)) {
-                continue;
-            }
             if (is_array($value)) {
                 $this->handleSelectSubFilter($value, $operator);
             } else {
@@ -377,11 +374,8 @@ class DataSource
     private function handleSelectSubFilter(array $values, string $operator): void
     {
         foreach ($values as $subColumnName => $subValue) {
-            if ($subValue == strval(self::IGNORE_VALUE)) {
-                continue;
-            }
             $relation = $this->getRelationColumnListing($subColumnName);
-            if ($subValue !== '-1' && $relation !== null) {
+            if ($relation !== null && $subValue !== strval(self::IGNORE_VALUE)) {
                 $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
                     $query->where($subColumnName, $operator, $subValue);
                 });
@@ -393,12 +387,14 @@ class DataSource
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
-        if ($relation !== null) {
-            $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
-                $query->where($columnName, $operator, $value);
-            });
-        } else {
-            $this->query->where($qualifiedColumnName, $operator, $value);
+        if ($value !== strval(self::IGNORE_VALUE)) {
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
+                    $query->where($columnName, $operator, $value);
+                });
+            } else {
+                $this->query->where($qualifiedColumnName, $operator, $value);
+            }
         }
     }
 
@@ -410,9 +406,6 @@ class DataSource
     private function multiSelectFilter(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            if ($value[0] == strval(self::IGNORE_VALUE)) {
-                continue;
-            }
             if (is_array($value)) {
                 $this->handleMultiSelectSubFilter($value);
             } else {
@@ -424,14 +417,13 @@ class DataSource
     private function handleMultiSelectSubFilter(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
-            if ($subValue[0] == strval(self::IGNORE_VALUE)) {
-                continue;
-            }
-            $relation = $this->getRelationColumnListing($subColumnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                    $query->whereIn($subColumnName, $subValue);
-                });
+            if ($subValue !== strval(self::IGNORE_VALUE)) {
+                $relation = $this->getRelationColumnListing($subColumnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                        $query->whereIn($subColumnName, $subValue);
+                    });
+                }
             }
         }
     }
@@ -440,59 +432,54 @@ class DataSource
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
-        if ($relation !== null) {
-            $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                $query->whereIn($columnName, $value);
-            });
-        } else {
-            $this->query->whereIn($qualifiedColumnName, $value);
+
+        if ($value !== strval(self::IGNORE_VALUE)) {
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                    $query->whereIn($columnName, $value);
+                });
+            } else {
+                $this->query->whereIn($qualifiedColumnName, $value);
+            }
         }
     }
 
     private function handleBoolean(array $values): void
     {
-        $this->booleanFilter($values, '=');
-    }
-
-    private function booleanFilter(array $values, string $operator): void
-    {
         foreach ($values as $columnName => $value) {
-            if ($value == self::IGNORE_VALUE) {
-                continue;
-            }
             if (is_array($value)) {
-                $this->handleBooleanSubFilter($value, $operator);
+                $this->handleBooleanSubFilters($value);
             } else {
-                $this->handleDefaultBooleanFilter($columnName, $operator, $value);
+                $this->handleBooleanDefaultFilter($columnName, $value);
             }
         }
     }
-
-    private function handleBooleanSubFilter(array $values, string $operator): void
+    
+    private function handleBooleanSubFilters(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
-            if ($subValue == strval(self::IGNORE_VALUE)) {
-                continue;
-            }
             $relation = $this->getRelationColumnListing($subColumnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
-                    $query->where($subColumnName, $operator, $subValue);
+            if ($relation !== null && $subValue !== strval(self::IGNORE_VALUE)) {
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                    $query->where($subColumnName, $subValue === 'true' ? 1 : 0);
                 });
             }
         }
     }
-
-    private function handleDefaultBooleanFilter(string $columnName, string $operator, $value): void
+    
+    private function handleBooleanDefaultFilter(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
-        if ($relation !== null) {
-            $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
-                $query->where($columnName, $operator, $value);
-            });
-        } else {
-            $this->query->where($qualifiedColumnName, $operator, $value);
+
+        if ($value !== strval(self::IGNORE_VALUE)) {
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                    $query->where($columnName, $value === 'true' ? 1 : 0);
+                });
+            } else {
+                $this->query->where($qualifiedColumnName, $value === 'true' ? 1 : 0);
+            }
         }
     }
 
@@ -551,9 +538,9 @@ class DataSource
 
     private function applyWhereConditions($query, string $columnName, array $values): void
     {
-        if (isset($values['start']) && ! isset($values['end'])) {
+        if (isset($values['start']) && !isset($values['end'])) {
             $query->where($columnName, '>=', $values['start']);
-        } elseif (! isset($values['start']) && isset($values['end'])) {
+        } elseif (!isset($values['start']) && isset($values['end'])) {
             $query->where($columnName, '<=', $values['end']);
         } elseif (isset($values['start']) && isset($values['end'])) {
             $query->whereBetween($columnName, [$values['start'], $values['end']]);
@@ -567,7 +554,7 @@ class DataSource
                 [$relation, $subColumnName] = $this->parseColumnString($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
-                        $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
+                        $query->where($subColumnName, 'like', '%' . $searchTerm . '%');
                     });
                 }
             } else {
@@ -575,10 +562,10 @@ class DataSource
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
-                        $query->where($columnName, 'like', '%'.$searchTerm.'%');
+                        $query->where($columnName, 'like', '%' . $searchTerm . '%');
                     });
                 } else {
-                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
+                    $this->query->where($qualifiedColumnName, 'like', '%' . $searchTerm . '%');
                 }
             }
         }
@@ -593,7 +580,7 @@ class DataSource
                 [$relation, $subColumnName] = $this->parseColumnString($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
-                        $query->where($subColumnName, 'like', $value.'%');
+                        $query->where($subColumnName, 'like', $value . '%');
                     });
                 }
             } else {
@@ -601,10 +588,10 @@ class DataSource
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $query->where($columnName, 'like', $value.'%');
+                        $query->where($columnName, 'like', $value . '%');
                     });
                 } else {
-                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
+                    $this->query->where($qualifiedColumnName, 'like', $value . '%');
                 }
             }
         }
