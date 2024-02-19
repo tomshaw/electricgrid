@@ -238,10 +238,60 @@ class DataSource
                 'timepicker' => $this->handleTimePicker($values),
                 'datepicker' => $this->handleDatePicker($values),
                 'datetimepicker' => $this->handleDateTimePicker($values),
-                'search' => $this->handleSearchTerm($values),
-                'letter' => $this->handleSelectLetter($values),
+                'search_term' => $this->handleSearchTerm($values),
+                'search_letter' => $this->handleSelectLetter($values),
                 default => throw InvalidFilterHandler::make($type),
             };
+        }
+    }
+
+    private function handleSearchTerm(array $values): self
+    {
+        foreach ($values as $columnName => $searchTerm) {
+            if (strpos($columnName, '.')) {
+                [$relation, $subColumnName] = $this->parseColumnString($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
+                        $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
+                    });
+                }
+            } else {
+                $relation = $this->getRelationFillables($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
+                        $query->where($columnName, 'like', '%'.$searchTerm.'%');
+                    });
+                } else {
+                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    private function handleSelectLetter(array $values): void
+    {
+        foreach ($values as $columnName => $value) {
+            if (strpos($columnName, '.')) {
+                [$relation, $subColumnName] = $this->parseColumnString($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
+                        $query->where($subColumnName, 'like', $value.'%');
+                    });
+                }
+            } else {
+                $relation = $this->getRelationFillables($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                        $query->where($columnName, 'like', $value.'%');
+                    });
+                } else {
+                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
+                }
+            }
         }
     }
 
@@ -331,14 +381,14 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             if (is_array($value)) {
-                $this->handleTextSubFilter($value);
+                $this->handleTextArray($value);
             } else {
-                $this->handleDefaultTextFilter($columnName, $value);
+                $this->handleTextDefault($columnName, $value);
             }
         }
     }
 
-    private function handleTextSubFilter(array $values): void
+    private function handleTextArray(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
             $relation = $this->getRelationColumnListing($subColumnName);
@@ -350,7 +400,7 @@ class DataSource
         }
     }
 
-    private function handleDefaultTextFilter(string $columnName, $value): void
+    private function handleTextDefault(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
@@ -367,14 +417,14 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             if (! $this->hasStartOrEndKey($value)) {
-                $this->handleNumberSubFilters($value);
+                $this->handleNumberArray($value);
             } else {
-                $this->handleNumberDefaultFilter($columnName, $value);
+                $this->handleNumberDefault($columnName, $value);
             }
         }
     }
 
-    private function handleNumberSubFilters(array $values): void
+    private function handleNumberArray(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
             $relation = $this->getRelationColumnListing($subColumnName);
@@ -386,7 +436,7 @@ class DataSource
         }
     }
 
-    private function handleNumberDefaultFilter(string $columnName, $value): void
+    private function handleNumberDefault(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
@@ -403,14 +453,14 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             if (is_array($value)) {
-                $this->handleSelectSubFilter($value);
+                $this->handleSelectArray($value);
             } else {
-                $this->handleDefaultSelectFilter($columnName, $value);
+                $this->handleSelectDefault($columnName, $value);
             }
         }
     }
 
-    private function handleSelectSubFilter(array $values): void
+    private function handleSelectArray(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
             $relation = $this->getRelationColumnListing($subColumnName);
@@ -422,7 +472,7 @@ class DataSource
         }
     }
 
-    private function handleDefaultSelectFilter(string $columnName, $value): void
+    private function handleSelectDefault(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
@@ -441,14 +491,14 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             if (is_array($value)) {
-                $this->handleMultiSelectSubFilter($value);
+                $this->handleMultiSelectArray($value);
             } else {
-                $this->handleDefaultMultiSelectFilter($columnName, $value);
+                $this->handleMultiSelectDefault($columnName, $value);
             }
         }
     }
 
-    private function handleMultiSelectSubFilter(array $values): void
+    private function handleMultiSelectArray(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
             if ($subValue[0] !== strval(self::IGNORE_VALUE)) {
@@ -462,7 +512,7 @@ class DataSource
         }
     }
 
-    private function handleDefaultMultiSelectFilter(string $columnName, $value): void
+    private function handleMultiSelectDefault(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
@@ -482,14 +532,14 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             if (is_array($value)) {
-                $this->handleBooleanSubFilters($value);
+                $this->handleBooleanArray($value);
             } else {
-                $this->handleBooleanDefaultFilter($columnName, $value);
+                $this->handleBooleanDefault($columnName, $value);
             }
         }
     }
 
-    private function handleBooleanSubFilters(array $values): void
+    private function handleBooleanArray(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
             $relation = $this->getRelationColumnListing($subColumnName);
@@ -501,7 +551,7 @@ class DataSource
         }
     }
 
-    private function handleBooleanDefaultFilter(string $columnName, $value): void
+    private function handleBooleanDefault(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
@@ -578,56 +628,6 @@ class DataSource
             $query->where($columnName, '<=', $values['end']);
         } elseif (isset($values['start']) && isset($values['end'])) {
             $query->whereBetween($columnName, [$values['start'], $values['end']]);
-        }
-    }
-
-    public function handleSearchTerm(array $values): self
-    {
-        foreach ($values as $columnName => $searchTerm) {
-            if (strpos($columnName, '.')) {
-                [$relation, $subColumnName] = $this->parseColumnString($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
-                        $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
-                    });
-                }
-            } else {
-                $relation = $this->getRelationFillables($columnName);
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
-                        $query->where($columnName, 'like', '%'.$searchTerm.'%');
-                    });
-                } else {
-                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    private function handleSelectLetter(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (strpos($columnName, '.')) {
-                [$relation, $subColumnName] = $this->parseColumnString($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
-                        $query->where($subColumnName, 'like', $value.'%');
-                    });
-                }
-            } else {
-                $relation = $this->getRelationFillables($columnName);
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $query->where($columnName, 'like', $value.'%');
-                    });
-                } else {
-                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
-                }
-            }
         }
     }
 }

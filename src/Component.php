@@ -64,9 +64,9 @@ class Component extends BaseComponent
 
         $this->visibleColumns = collect($this->columns)->filter->visible->pluck('field')->toArray();
 
-        // $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->visibleColumns);
+        $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->visibleColumns);
 
-        // $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->visibleColumns);
+        $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->visibleColumns);
 
         $this->validateColumns();
     }
@@ -114,7 +114,7 @@ class Component extends BaseComponent
     {
         $this->resetPage();
 
-        $this->filter = array_merge($this->filter, ['search' => array_fill_keys($this->searchTermColumns, $this->searchTerm)]);
+        $this->filter = array_merge($this->filter, ['search_term' => array_fill_keys($this->searchTermColumns, $this->searchTerm)]);
     }
 
     public function updatedSearchLetter(): void
@@ -186,10 +186,10 @@ class Component extends BaseComponent
     {
         if ($this->searchLetter === $selectedLetter) {
             $this->searchLetter = '';
-            $this->filter = array_diff_key($this->filter, ['letter' => '']);
+            $this->filter = array_diff_key($this->filter, ['search_letter' => '']);
         } else {
             $this->searchLetter = $selectedLetter;
-            $this->filter = array_merge($this->filter, ['letter' => array_fill_keys($this->letterSearchColumns, $selectedLetter)]);
+            $this->filter = array_merge($this->filter, ['search_letter' => array_fill_keys($this->letterSearchColumns, $selectedLetter)]);
         }
     }
 
