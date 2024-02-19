@@ -122,19 +122,20 @@ class DataSource
         return null;
     }
 
-    private function getTableField(string $columnName): array
+    private function parseColumnString(string $columnString): array
     {
-        $parts = explode('.', $columnName);
-        $table = $parts[0] ?? null;
-        $field = $parts[1] ?? null;
+        $parts = explode('.', $columnString);
 
-        return [$table, $field];
+        $relation = $parts[0] ?? null;
+        $column = $parts[1] ?? null;
+
+        return [$relation, $column];
     }
 
     public function orderBy(string $columnName, string $sortDirection): self
     {
         if (strpos($columnName, '.')) {
-            [, $columnName] = $this->getTableField($columnName);
+            [, $columnName] = $this->parseColumnString($columnName);
             foreach ($this->modelRelationColumnListing as $relation => $fields) {
                 if (in_array($columnName, $fields)) {
                     $tableName = $this->query->getModel()->getTable();
@@ -479,9 +480,7 @@ class DataSource
     {
         foreach ($values as $columnName => $searchTerm) {
             if (strpos($columnName, '.')) {
-                $parts = explode('.', $columnName);
-                $relation = $parts[0];
-                $subColumnName = $parts[1];
+                [$relation, $subColumnName] = $this->parseColumnString($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
                         $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
@@ -507,9 +506,7 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             if (strpos($columnName, '.')) {
-                $parts = explode('.', $columnName);
-                $relation = $parts[0];
-                $subColumnName = $parts[1];
+                [$relation, $subColumnName] = $this->parseColumnString($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
                         $query->where($subColumnName, 'like', $value.'%');
