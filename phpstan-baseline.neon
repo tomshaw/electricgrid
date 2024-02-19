@@ -331,11 +331,6 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:booleanFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:filter\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
@@ -351,7 +346,12 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBooleanSubFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBooleanDefaultFilter\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBooleanSubFilters\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -362,11 +362,6 @@ parameters:
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDateTimePicker\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDefaultBooleanFilter\\(\\) has parameter \\$value with no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 
