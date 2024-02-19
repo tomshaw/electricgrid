@@ -4,7 +4,7 @@ namespace TomShaw\ElectricGrid\Traits;
 
 use TomShaw\ElectricGrid\Exceptions\RequiredColumnsHandler;
 
-trait ValidateColumns
+trait WithGridValidation
 {
     public function validateColumns(): void
     {

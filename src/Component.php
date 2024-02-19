@@ -6,12 +6,12 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
 use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
-use TomShaw\ElectricGrid\Traits\{MassActions, ValidateColumns};
+use TomShaw\ElectricGrid\Traits\{WithGridActions, WithGridValidation};
 
 class Component extends BaseComponent
 {
-    use MassActions;
-    use ValidateColumns;
+    use WithGridActions;
+    use WithGridValidation;
     use WithPagination;
 
     public string $theme = 'tailwind';

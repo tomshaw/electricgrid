@@ -316,12 +316,32 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:applyDateTimeFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:applyWhereConditions\\(\\) has parameter \\$query with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:applyWhereConditions\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:filter\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getRelationships\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getTableField\\(\\) return type has no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -372,6 +392,11 @@ parameters:
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleTimePicker\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:hasStartOrEndKey\\(\\) has parameter \\$value with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -456,7 +481,7 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationColumns has no type specified\\.$#"
+			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationColumnListing has no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -467,16 +492,6 @@ parameters:
 
 		-
 			message: "#^Property TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:\\$modelRelationTables has no type specified\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Result of && is always false\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Variable \\$value in isset\\(\\) is never defined\\.$#"
 			count: 1
 			path: src/DataSource.php
 
