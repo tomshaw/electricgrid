@@ -9,12 +9,7 @@ use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, H
 use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\{DB, Schema};
-use TomShaw\ElectricGrid\Exceptions\{
-    InvalidDateFormatHandler,
-    InvalidDateTypeHandler,
-    InvalidFilterHandler,
-    InvalidModelRelationsHandler
-};
+use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler, InvalidFilterHandler, InvalidModelRelationsHandler};
 
 class DataSource
 {
@@ -132,63 +127,6 @@ class DataSource
         return [$relation, $column];
     }
 
-    public function orderBy(string $columnName, string $sortDirection): self
-    {
-        if (strpos($columnName, '.')) {
-            [, $columnName] = $this->parseColumnString($columnName);
-            foreach ($this->modelRelationColumnListing as $relation => $fields) {
-                if (in_array($columnName, $fields)) {
-                    $tableName = $this->query->getModel()->getTable();
-                    $relationQuery = $this->query->getModel()->$relation();
-
-                    // Added to not modify the result set
-                    $this->query->select("$tableName.*");
-
-                    if ($this->isDirectRelation($relationQuery)) {
-                        $relatedTable = $relationQuery->getRelated()->getTable();
-                        $foreignKey = $relationQuery->getForeignKeyName();
-                        $ownerKey = $relationQuery->getRelated()->getKeyName();
-
-                        $this->query->join($relatedTable, "$tableName.$ownerKey", '=', "$relatedTable.$foreignKey")
-                            ->orderBy("$relatedTable.$columnName", $sortDirection);
-                    } elseif ($this->isManyToManyRelation($relationQuery)) {
-                        $pivotTable = $relationQuery->getTable();
-                        $relatedTable = $this->modelRelationTables[$relation];
-                        $foreignKey = $relationQuery->getQualifiedForeignPivotKeyName();
-                        $relatedKey = $relationQuery->getRelatedPivotKeyName();
-
-                        $this->query->join($pivotTable, "$tableName.id", '=', $foreignKey)
-                            ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
-                            ->orderBy("$relatedTable.$columnName", $sortDirection);
-                    }
-
-                    return $this;
-                }
-            }
-        }
-
-        foreach ($this->modelRelationFillables as $relation => $fields) {
-            if (in_array($columnName, $fields)) {
-                $tableName = $this->modelRelationTables[$relation];
-                $model = $this->query->getModel();
-                if (method_exists($model, $relation)) {
-                    $foreignKey = $model->$relation()->getForeignKeyName();
-                    $ownerKey = $model->$relation()->getOwnerKeyName();
-                    $this->query->join($tableName, $foreignKey, '=', "$tableName.$ownerKey")
-                        ->orderBy("$tableName.$columnName", $sortDirection);
-                } else {
-                    throw InvalidModelRelationsHandler::make("The method '$relation' does not exist on the model.");
-                }
-
-                return $this;
-            }
-        }
-
-        $this->query->orderBy($columnName, $sortDirection);
-
-        return $this;
-    }
-
     public function paginate(int $perPage = 20): LengthAwarePaginator
     {
         return $this->query->paginate(($perPage > 0) ? $perPage : $this->query->count());
@@ -278,44 +216,121 @@ class DataSource
         }
     }
 
-    private function handleText(array $values): void
+    public function orderBy(string $columnName, string $sortDirection): self
     {
-        $this->textFilter($values, 'like');
+        if (strpos($columnName, '.')) {
+            [, $columnName] = $this->parseColumnString($columnName);
+            $this->orderByWithRelation($columnName, $sortDirection);
+        } else {
+            $this->orderByWithoutRelation($columnName, $sortDirection);
+        }
+
+        return $this;
     }
 
-    private function textFilter(array $values, string $operator): void
+    private function orderByWithRelation(string $columnName, string $sortDirection): void
     {
-        foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                $this->handleTextSubFilter($value, $operator);
-            } else {
-                $this->handleDefaultTextFilter($columnName, $operator, $value);
+        foreach ($this->modelRelationColumnListing as $relation => $fields) {
+            if (in_array($columnName, $fields)) {
+                $tableName = $this->query->getModel()->getTable();
+                $relationQuery = $this->query->getModel()->$relation();
+
+                // Added to not modify the result set
+                $this->query->select("$tableName.*");
+
+                if ($this->isDirectRelation($relationQuery)) {
+                    $this->orderByDirectRelation($relationQuery, $tableName, $columnName, $sortDirection);
+                } elseif ($this->isManyToManyRelation($relationQuery)) {
+                    $this->orderByManyToManyRelation($relationQuery, $tableName, $relation, $columnName, $sortDirection);
+                }
+
+                return;
             }
         }
     }
 
-    private function handleTextSubFilter(array $values, string $operator): void
+    private function orderByWithoutRelation(string $columnName, string $sortDirection): void
+    {
+        foreach ($this->modelRelationFillables as $relation => $fields) {
+            if (in_array($columnName, $fields)) {
+                $this->orderByFillableRelation($relation, $columnName, $sortDirection);
+
+                return;
+            }
+        }
+
+        $this->query->orderBy($columnName, $sortDirection);
+    }
+
+    private function orderByDirectRelation($relationQuery, string $tableName, string $columnName, string $sortDirection): void
+    {
+        $relatedTable = $relationQuery->getRelated()->getTable();
+        $foreignKey = $relationQuery->getForeignKeyName();
+        $ownerKey = $relationQuery->getRelated()->getKeyName();
+
+        $this->query->join($relatedTable, "$tableName.$ownerKey", '=', "$relatedTable.$foreignKey")
+            ->orderBy("$relatedTable.$columnName", $sortDirection);
+    }
+
+    private function orderByManyToManyRelation($relationQuery, string $tableName, string $relation, string $columnName, string $sortDirection): void
+    {
+        $pivotTable = $relationQuery->getTable();
+        $relatedTable = $this->modelRelationTables[$relation];
+        $foreignKey = $relationQuery->getQualifiedForeignPivotKeyName();
+        $relatedKey = $relationQuery->getRelatedPivotKeyName();
+
+        $this->query->join($pivotTable, "$tableName.id", '=', $foreignKey)
+            ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
+            ->orderBy("$relatedTable.$columnName", $sortDirection);
+    }
+
+    private function orderByFillableRelation(string $relation, string $columnName, string $sortDirection): void
+    {
+        $tableName = $this->modelRelationTables[$relation];
+        $model = $this->query->getModel();
+        if (method_exists($model, $relation)) {
+            $foreignKey = $model->$relation()->getForeignKeyName();
+            $ownerKey = $model->$relation()->getOwnerKeyName();
+            $this->query->join($tableName, $foreignKey, '=', "$tableName.$ownerKey")
+                ->orderBy("$tableName.$columnName", $sortDirection);
+        } else {
+            throw InvalidModelRelationsHandler::make("The method '$relation' does not exist on the model.");
+        }
+    }
+
+    private function handleText(array $values): void
+    {
+        foreach ($values as $columnName => $value) {
+            if (is_array($value)) {
+                $this->handleTextSubFilter($value);
+            } else {
+                $this->handleDefaultTextFilter($columnName, $value);
+            }
+        }
+    }
+
+    private function handleTextSubFilter(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
             $relation = $this->getRelationColumnListing($subColumnName);
             if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
-                    $query->where($subColumnName, $operator, '%'.$subValue.'%');
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                    $query->where($subColumnName, 'like', '%'.$subValue.'%');
                 });
             }
         }
     }
 
-    private function handleDefaultTextFilter(string $columnName, string $operator, $value): void
+    private function handleDefaultTextFilter(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
         if ($relation !== null) {
-            $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
-                $query->where($columnName, $operator, '%'.$value.'%');
+            $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                $query->where($columnName, 'like', '%'.$value.'%');
             });
         } else {
-            $this->query->where($qualifiedColumnName, $operator, '%'.$value.'%');
+            $this->query->where($qualifiedColumnName, 'like', '%'.$value.'%');
         }
     }
 
@@ -357,53 +372,43 @@ class DataSource
 
     private function handleSelect(array $values): void
     {
-        $this->selectFilter($values, '=');
-    }
-
-    private function selectFilter(array $values, string $operator): void
-    {
         foreach ($values as $columnName => $value) {
             if (is_array($value)) {
-                $this->handleSelectSubFilter($value, $operator);
+                $this->handleSelectSubFilter($value);
             } else {
-                $this->handleDefaultSelectFilter($columnName, $operator, $value);
+                $this->handleDefaultSelectFilter($columnName, $value);
             }
         }
     }
 
-    private function handleSelectSubFilter(array $values, string $operator): void
+    private function handleSelectSubFilter(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
             $relation = $this->getRelationColumnListing($subColumnName);
             if ($relation !== null && $subValue !== strval(self::IGNORE_VALUE)) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
-                    $query->where($subColumnName, $operator, $subValue);
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                    $query->where($subColumnName, '=', $subValue);
                 });
             }
         }
     }
 
-    private function handleDefaultSelectFilter(string $columnName, string $operator, $value): void
+    private function handleDefaultSelectFilter(string $columnName, $value): void
     {
         $relation = $this->getRelationFillables($columnName);
         $qualifiedColumnName = $this->resolveTableNames($columnName);
         if ($value !== strval(self::IGNORE_VALUE)) {
             if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
-                    $query->where($columnName, $operator, $value);
+                $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                    $query->where($columnName, '=', $value);
                 });
             } else {
-                $this->query->where($qualifiedColumnName, $operator, $value);
+                $this->query->where($qualifiedColumnName, $value);
             }
         }
     }
 
     private function handleMultiSelect(array $values): void
-    {
-        $this->multiSelectFilter($values);
-    }
-
-    private function multiSelectFilter(array $values): void
     {
         foreach ($values as $columnName => $value) {
             if (is_array($value)) {
@@ -417,7 +422,7 @@ class DataSource
     private function handleMultiSelectSubFilter(array $values): void
     {
         foreach ($values as $subColumnName => $subValue) {
-            if ($subValue !== strval(self::IGNORE_VALUE)) {
+            if ($subValue[0] !== strval(self::IGNORE_VALUE)) {
                 $relation = $this->getRelationColumnListing($subColumnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {

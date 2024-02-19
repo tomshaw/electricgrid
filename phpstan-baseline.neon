@@ -461,17 +461,22 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:multiSelectFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:normalizeDateTimeValues\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:normalizeDateTimeValues\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:orderByDirectRelation\\(\\) has parameter \\$relationQuery with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:orderByManyToManyRelation\\(\\) has parameter \\$relationQuery with no type specified\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -487,16 +492,6 @@ parameters:
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:resolveTableNames\\(\\) has parameter \\$columnName with no type specified\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:selectFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:textFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
