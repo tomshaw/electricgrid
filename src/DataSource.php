@@ -24,6 +24,8 @@ class DataSource
 
     public $modelRelationColumnListing = [];
 
+    private const IGNORE_VALUE = -1;
+
     public function __construct(
         public Builder $query,
     ) {
@@ -48,8 +50,6 @@ class DataSource
         } catch (Exception $e) {
             throw InvalidModelRelationsHandler::make($e->getMessage());
         }
-
-        //dd($this->modelRelationColumnListing);
     }
 
     public static function make(Builder $query): self
@@ -280,27 +280,42 @@ class DataSource
 
     private function handleText(array $values): void
     {
+        $this->textFilter($values, 'like');
+    }
+
+    private function textFilter(array $values, string $operator): void
+    {
         foreach ($values as $columnName => $value) {
             if (is_array($value)) {
-                foreach ($value as $subColumnName => $subValue) {
-                    $relation = $this->getRelationColumnListing($subColumnName);
-                    if ($relation !== null) {
-                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                            $query->where($subColumnName, 'like', '%'.$subValue.'%');
-                        });
-                    }
-                }
+                $this->handleTextSubFilter($value, $operator);
             } else {
-                $relation = $this->getRelationFillables($columnName);
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $query->where($columnName, 'like', '%'.$value.'%');
-                    });
-                } else {
-                    $this->query->where($qualifiedColumnName, 'like', '%'.$value.'%');
-                }
+                $this->handleDefaultTextFilter($columnName, $operator, $value);
             }
+        }
+    }
+
+    private function handleTextSubFilter(array $values, string $operator): void
+    {
+        foreach ($values as $subColumnName => $subValue) {
+            $relation = $this->getRelationColumnListing($subColumnName);
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
+                    $query->where($subColumnName, $operator, '%'.$subValue.'%');
+                });
+            }
+        }
+    }
+
+    private function handleDefaultTextFilter(string $columnName, string $operator, $value): void
+    {
+        $relation = $this->getRelationFillables($columnName);
+        $qualifiedColumnName = $this->resolveTableNames($columnName);
+        if ($relation !== null) {
+            $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
+                $query->where($columnName, $operator, '%'.$value.'%');
+            });
+        } else {
+            $this->query->where($qualifiedColumnName, $operator, '%'.$value.'%');
         }
     }
 
@@ -308,107 +323,176 @@ class DataSource
     {
         foreach ($values as $columnName => $value) {
             if (! $this->hasStartOrEndKey($value)) {
-                foreach ($value as $subColumnName => $subValue) {
-                    $relation = $this->getRelationColumnListing($subColumnName);
-                    if ($relation !== null) {
-                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                            $this->applyWhereConditions($query, $subColumnName, $subValue);
-                        });
-                    }
-                }
+                $this->handleNumberSubFilters($value);
             } else {
-                $relation = $this->getRelationFillables($columnName);
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $this->applyWhereConditions($query, $columnName, $value);
-                    });
-                } else {
-                    $this->applyWhereConditions($this->query, $qualifiedColumnName, $value);
-                }
+                $this->handleNumberDefaultFilter($columnName, $value);
             }
+        }
+    }
+
+    private function handleNumberSubFilters(array $values): void
+    {
+        foreach ($values as $subColumnName => $subValue) {
+            $relation = $this->getRelationColumnListing($subColumnName);
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                    $this->applyWhereConditions($query, $subColumnName, $subValue);
+                });
+            }
+        }
+    }
+
+    private function handleNumberDefaultFilter(string $columnName, $value): void
+    {
+        $relation = $this->getRelationFillables($columnName);
+        $qualifiedColumnName = $this->resolveTableNames($columnName);
+        if ($relation !== null) {
+            $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                $this->applyWhereConditions($query, $columnName, $value);
+            });
+        } else {
+            $this->applyWhereConditions($this->query, $qualifiedColumnName, $value);
         }
     }
 
     private function handleSelect(array $values): void
     {
+        $this->selectFilter($values, '=');
+    }
+
+    private function selectFilter(array $values, string $operator): void
+    {
         foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                foreach ($value as $subColumnName => $subValue) {
-                    $relation = $this->getRelationColumnListing($subColumnName);
-                    if ($subValue !== '-1' && $relation !== null) {
-                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                            $query->where($subColumnName, $subValue);
-                        });
-                    }
-                }
-            } else {
-                $relation = $this->getRelationFillables($columnName);
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($value !== '-1') {
-                    if ($relation !== null) {
-                        $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                            $query->where($columnName, $value);
-                        });
-                    } else {
-                        $this->query->where($qualifiedColumnName, $value);
-                    }
-                }
+            if ($value == strval(self::IGNORE_VALUE)) {
+                continue;
             }
+            if (is_array($value)) {
+                $this->handleSelectSubFilter($value, $operator);
+            } else {
+                $this->handleDefaultSelectFilter($columnName, $operator, $value);
+            }
+        }
+    }
+
+    private function handleSelectSubFilter(array $values, string $operator): void
+    {
+        foreach ($values as $subColumnName => $subValue) {
+            if ($subValue == strval(self::IGNORE_VALUE)) {
+                continue;
+            }
+            $relation = $this->getRelationColumnListing($subColumnName);
+            if ($subValue !== '-1' && $relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
+                    $query->where($subColumnName, $operator, $subValue);
+                });
+            }
+        }
+    }
+
+    private function handleDefaultSelectFilter(string $columnName, string $operator, $value): void
+    {
+        $relation = $this->getRelationFillables($columnName);
+        $qualifiedColumnName = $this->resolveTableNames($columnName);
+        if ($relation !== null) {
+            $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
+                $query->where($columnName, $operator, $value);
+            });
+        } else {
+            $this->query->where($qualifiedColumnName, $operator, $value);
         }
     }
 
     private function handleMultiSelect(array $values): void
     {
+        $this->multiSelectFilter($values);
+    }
+
+    private function multiSelectFilter(array $values): void
+    {
         foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                foreach ($value as $subColumnName => $subValue) {
-                    $relation = $this->getRelationColumnListing($subColumnName);
-                    if (! in_array('-1', $subValue) && $relation !== null) {
-                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                            $query->whereIn($subColumnName, $subValue);
-                        });
-                    }
-                }
-            } else {
-                $relation = $this->getRelationFillables($columnName);
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if (! in_array('-1', $value)) {
-                    if ($relation !== null) {
-                        $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                            $query->whereIn($columnName, $value);
-                        });
-                    } else {
-                        $this->query->whereIn($qualifiedColumnName, $value);
-                    }
-                }
+            if ($value[0] == strval(self::IGNORE_VALUE)) {
+                continue;
             }
+            if (is_array($value)) {
+                $this->handleMultiSelectSubFilter($value);
+            } else {
+                $this->handleDefaultMultiSelectFilter($columnName, $value);
+            }
+        }
+    }
+
+    private function handleMultiSelectSubFilter(array $values): void
+    {
+        foreach ($values as $subColumnName => $subValue) {
+            if ($subValue[0] == strval(self::IGNORE_VALUE)) {
+                continue;
+            }
+            $relation = $this->getRelationColumnListing($subColumnName);
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                    $query->whereIn($subColumnName, $subValue);
+                });
+            }
+        }
+    }
+
+    private function handleDefaultMultiSelectFilter(string $columnName, $value): void
+    {
+        $relation = $this->getRelationFillables($columnName);
+        $qualifiedColumnName = $this->resolveTableNames($columnName);
+        if ($relation !== null) {
+            $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
+                $query->whereIn($columnName, $value);
+            });
+        } else {
+            $this->query->whereIn($qualifiedColumnName, $value);
         }
     }
 
     private function handleBoolean(array $values): void
     {
+        $this->booleanFilter($values, '=');
+    }
+
+    private function booleanFilter(array $values, string $operator): void
+    {
         foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                foreach ($value as $subColumnName => $subValue) {
-                    $relation = $this->getRelationColumnListing($subColumnName);
-                    if ($relation !== null) {
-                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                            $query->where($subColumnName, $subValue === 'true' ? 1 : 0);
-                        });
-                    }
-                }
-            } else {
-                $relation = $this->getRelationFillables($columnName);
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $query->where($columnName, $value === 'true' ? 1 : 0);
-                    });
-                } else {
-                    $this->query->where($qualifiedColumnName, $value === 'true' ? 1 : 0);
-                }
+            if ($value == self::IGNORE_VALUE) {
+                continue;
             }
+            if (is_array($value)) {
+                $this->handleBooleanSubFilter($value, $operator);
+            } else {
+                $this->handleDefaultBooleanFilter($columnName, $operator, $value);
+            }
+        }
+    }
+
+    private function handleBooleanSubFilter(array $values, string $operator): void
+    {
+        foreach ($values as $subColumnName => $subValue) {
+            if ($subValue == strval(self::IGNORE_VALUE)) {
+                continue;
+            }
+            $relation = $this->getRelationColumnListing($subColumnName);
+            if ($relation !== null) {
+                $this->query->whereHas($relation, function ($query) use ($subColumnName, $operator, $subValue) {
+                    $query->where($subColumnName, $operator, $subValue);
+                });
+            }
+        }
+    }
+
+    private function handleDefaultBooleanFilter(string $columnName, string $operator, $value): void
+    {
+        $relation = $this->getRelationFillables($columnName);
+        $qualifiedColumnName = $this->resolveTableNames($columnName);
+        if ($relation !== null) {
+            $this->query->whereHas($relation, function ($query) use ($columnName, $operator, $value) {
+                $query->where($columnName, $operator, $value);
+            });
+        } else {
+            $this->query->where($qualifiedColumnName, $operator, $value);
         }
     }
 

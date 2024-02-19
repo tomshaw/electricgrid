@@ -331,6 +331,11 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:booleanFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:filter\\(\\) has parameter \\$filters with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
@@ -341,12 +346,12 @@ parameters:
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:getTableField\\(\\) return type has no value type specified in iterable type array\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBoolean\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBoolean\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleBooleanSubFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -361,12 +366,47 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDefaultBooleanFilter\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDefaultMultiSelectFilter\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDefaultSelectFilter\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleDefaultTextFilter\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleMultiSelect\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleMultiSelectSubFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleNumber\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleNumberDefaultFilter\\(\\) has parameter \\$value with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleNumberSubFilters\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -386,7 +426,17 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleSelectSubFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleText\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:handleTextSubFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -416,6 +466,11 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:multiSelectFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:normalizeDateTimeValues\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
@@ -431,7 +486,22 @@ parameters:
 			path: src/DataSource.php
 
 		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:parseColumnString\\(\\) return type has no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:resolveTableNames\\(\\) has parameter \\$columnName with no type specified\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:selectFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:textFilter\\(\\) has parameter \\$values with no value type specified in iterable type array\\.$#"
 			count: 1
 			path: src/DataSource.php
 
@@ -472,11 +542,6 @@ parameters:
 
 		-
 			message: "#^Method TomShaw\\\\ElectricGrid\\\\DataSource\\:\\:transformColumns\\(\\) return type with generic class Illuminate\\\\Support\\\\Collection does not specify its types\\: TKey, TValue$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Parameter \\#2 \\$haystack of function in_array expects array, mixed given\\.$#"
 			count: 1
 			path: src/DataSource.php
 
