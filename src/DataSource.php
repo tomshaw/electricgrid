@@ -306,18 +306,12 @@ class DataSource
     private function handleNumber(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            if (strpos($columnName, '.')) {
+            if (! $this->hasStartOrEndKey($value)) {
                 foreach ($value as $subColumnName => $subValue) {
                     $relation = $this->getRelationColumnListing($subColumnName);
                     if ($relation !== null) {
                         $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                            if (isset($subValue['start']) && ! isset($subValue['end'])) {
-                                $query->where($subColumnName, '>=', $subValue['start']);
-                            } elseif (! isset($subValue['start']) && isset($subValue['end'])) {
-                                $query->where($subColumnName, '=<', $subValue['end']);
-                            } elseif (isset($subValue['start']) && isset($subValue['end'])) {
-                                $query->whereBetween($subColumnName, [$subValue['start'], $subValue['end']]);
-                            }
+                            $this->applyWhereConditions($query, $subColumnName, $subValue);
                         });
                     }
                 }
@@ -326,22 +320,10 @@ class DataSource
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        if (isset($value['start']) && ! isset($value['end'])) {
-                            $query->where($columnName, '>=', $value['start']);
-                        } elseif (! isset($value['start']) && isset($value['end'])) {
-                            $query->where($columnName, '=<', $value['end']);
-                        } elseif (isset($value['start']) && isset($value['end'])) {
-                            $query->whereBetween($columnName, [$value['start'], $value['end']]);
-                        }
+                        $this->applyWhereConditions($query, $columnName, $value);
                     });
                 } else {
-                    if (isset($value['start']) && ! isset($value['end'])) {
-                        $this->query->where($qualifiedColumnName, '>=', $value['start']);
-                    } elseif (! isset($value['start']) && isset($value['end'])) {
-                        $this->query->where($qualifiedColumnName, '=<', $value['end']);
-                    } elseif (isset($value['start']) && isset($value['end'])) {
-                        $this->query->whereBetween($qualifiedColumnName, [$value['start'], $value['end']]);
-                    }
+                    $this->applyWhereConditions($this->query, $qualifiedColumnName, $value);
                 }
             }
         }
@@ -406,9 +388,18 @@ class DataSource
     private function handleBoolean(array $values): void
     {
         foreach ($values as $columnName => $value) {
-            $relation = $this->getRelationFillables($columnName);
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if ($value === 'true' || $value === 'false') {
+            if (is_array($value)) {
+                foreach ($value as $subColumnName => $subValue) {
+                    $relation = $this->getRelationColumnListing($subColumnName);
+                    if ($relation !== null) {
+                        $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
+                            $query->where($subColumnName, $subValue === 'true' ? 1 : 0);
+                        });
+                    }
+                }
+            } else {
+                $relation = $this->getRelationFillables($columnName);
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if ($relation !== null) {
                     $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
                         $query->where($columnName, $value === 'true' ? 1 : 0);
