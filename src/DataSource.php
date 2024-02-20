@@ -4,7 +4,8 @@ namespace TomShaw\ElectricGrid;
 
 use DateTime;
 use Exception;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+//use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne, MorphMany, MorphOne, MorphTo, MorphToMany, Relation};
 use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Support\Collection;
