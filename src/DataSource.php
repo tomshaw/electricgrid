@@ -301,7 +301,8 @@ class DataSource
             [, $columnName] = $this->parseColumnString($columnName);
             $this->orderByWithRelation($columnName, $sortDirection);
         } else {
-            $this->orderByWithoutRelation($columnName, $sortDirection);
+            $qualifiedColumnName = $this->resolveTableNames($columnName);
+            $this->query->orderBy($qualifiedColumnName, $sortDirection);
         }
 
         return $this;
@@ -326,19 +327,6 @@ class DataSource
                 return;
             }
         }
-    }
-
-    private function orderByWithoutRelation(string $columnName, string $sortDirection): void
-    {
-        foreach ($this->modelRelationFillables as $relation => $fields) {
-            if (in_array($columnName, $fields)) {
-                $this->orderByFillableRelation($relation, $columnName, $sortDirection);
-
-                return;
-            }
-        }
-
-        $this->query->orderBy($columnName, $sortDirection);
     }
 
     private function orderByDirectRelation($relationQuery, string $tableName, string $columnName, string $sortDirection): void
@@ -366,20 +354,6 @@ class DataSource
         $this->query->join($pivotTable, "$tableName.id", '=', $foreignKey)
             ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
             ->orderBy("$relatedTable.$columnName", $sortDirection);
-    }
-
-    private function orderByFillableRelation(string $relation, string $columnName, string $sortDirection): void
-    {
-        $tableName = $this->modelRelationTables[$relation];
-        $model = $this->query->getModel();
-        if (method_exists($model, $relation)) {
-            $foreignKey = $model->$relation()->getForeignKeyName();
-            $ownerKey = $model->$relation()->getOwnerKeyName();
-            $this->query->join($tableName, $foreignKey, '=', "$tableName.$ownerKey")
-                ->orderBy("$tableName.$columnName", $sortDirection);
-        } else {
-            throw InvalidModelRelationsHandler::make("The method '$relation' does not exist on the model.");
-        }
     }
 
     private function handleText(array $values): void
