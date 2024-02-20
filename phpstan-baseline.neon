@@ -31,16 +31,6 @@ parameters:
 			path: src/Component.php
 
 		-
-			message: "#^Call to an undefined method Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator\\:\\:getCollection\\(\\)\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
-			message: "#^Call to an undefined method Illuminate\\\\Contracts\\\\Pagination\\\\LengthAwarePaginator\\:\\:setCollection\\(\\)\\.$#"
-			count: 1
-			path: src/DataSource.php
-
-		-
 			message: "#^Instanceof between Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\Relation and Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\MorphTo will always evaluate to false\\.$#"
 			count: 1
 			path: src/DataSource.php
