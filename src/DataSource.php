@@ -182,10 +182,10 @@ class DataSource
 
     private function createDefaultClosure(string $field): \Closure
     {
-        foreach ($this->modelRelationFillables as $relation => $fields) {
-            if (in_array($field, $fields)) {
-                return fn ($model) => $model->$relation ? $model->$relation->$field : null;
-            }
+        if (strpos($field, '.')) {
+            [$relation, $field] = $this->parseColumnString($field);
+
+            return fn ($model) => $model->$relation ? $model->$relation->$field : $model->$field;
         }
 
         return fn ($model) => $model->$field;
