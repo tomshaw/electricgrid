@@ -345,10 +345,16 @@ class DataSource
     {
         $relatedTable = $relationQuery->getRelated()->getTable();
         $foreignKey = $relationQuery->getForeignKeyName();
-        $ownerKey = $relationQuery->getRelated()->getKeyName();
 
-        $this->query->join($relatedTable, "$tableName.$ownerKey", '=', "$relatedTable.$foreignKey")
-            ->orderBy("$relatedTable.$columnName", $sortDirection);
+        if ($relationQuery instanceof BelongsTo) {
+            $ownerKey = $relationQuery->getOwnerKeyName();
+            $this->query->join($relatedTable, "$tableName.$foreignKey", '=', "$relatedTable.$ownerKey");
+        } else { // HasOne or HasMany
+            $ownerKey = $relationQuery->getQualifiedParentKeyName();
+            $this->query->join($relatedTable, $ownerKey, '=', "$relatedTable.$foreignKey");
+        }
+
+        $this->query->orderBy("$relatedTable.$columnName", $sortDirection);
     }
 
     private function orderByManyToManyRelation($relationQuery, string $tableName, string $relation, string $columnName, string $sortDirection): void
