@@ -345,12 +345,11 @@ class DataSource
     {
         $relatedTable = $relationQuery->getRelated()->getTable();
         $foreignKey = $relationQuery->getForeignKeyName();
+        $ownerKey = $relationQuery instanceof BelongsTo ? $relationQuery->getOwnerKeyName() : $relationQuery->getQualifiedParentKeyName();
 
         if ($relationQuery instanceof BelongsTo) {
-            $ownerKey = $relationQuery->getOwnerKeyName();
             $this->query->join($relatedTable, "$tableName.$foreignKey", '=', "$relatedTable.$ownerKey");
         } else { // HasOne or HasMany
-            $ownerKey = $relationQuery->getQualifiedParentKeyName();
             $this->query->join($relatedTable, $ownerKey, '=', "$relatedTable.$foreignKey");
         }
 
