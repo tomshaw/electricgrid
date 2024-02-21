@@ -117,7 +117,7 @@
               <div @class(['flex items-center', $column->actionable ? 'justify-center' : 'justify-between'])>
                 <span>{{$column->title}}</span>
                 @if($column->sortable === true && $column->actionable === false)
-                <div @class(['flex flex-col items-center text-gray-200 hover:text-gray-700', '!text-gray-700'=> ($orderBy === $column->field)])>
+                <div @class(['flex flex-col items-center text-gray-300 hover:text-gray-700', '!text-gray-700'=> ($orderBy === $column->field)])>
                   @if ($orderDir === 'ASC')
                   <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
