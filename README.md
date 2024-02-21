@@ -323,7 +323,10 @@ Here's an example of how to define custom styles and column widths for Excel exp
         return [
             Action::groupBy('Export Options', function () {
                 return [
-                    Action::make('xlsx', 'Export XLSX')->export('SalesOrders.xlsx')->styles($this->exportStyles)->columnWidths($this->exportWidths),
+                    Action::make('xlsx', 'Export XLSX')
+                        ->export('SalesOrders.xlsx')
+                        ->styles($this->exportStyles)
+                        ->columnWidths($this->exportWidths),
                 ];
             }),
         ];
