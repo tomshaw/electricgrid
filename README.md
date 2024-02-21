@@ -46,7 +46,7 @@ Run the installation command.
 php artisan electricgrid:install
 ```
 
-Use the following command when updating the package:
+Run the update command for package updates:
 
 ```
 php artisan electricgrid:update
@@ -154,18 +154,6 @@ class OrdersTable extends Component
     }
 }
 ```
-
-The following methods accepts a boolean value (`true` or `false`) that toggles the corresponding feature on or off. 
-
-> With the exception of `visible()` these properties are set to `false`:
-
-- `searchable()`: When included, this makes the column searchable. This means that the search functionality of the data grid will include this column when looking for matches.
-
-- `sortable()`: When included, this makes the column sortable. This means that users can click on the column header to sort the data grid by this column.
-
-- `exportable()`: When included, this includes the column in the data export. This means that when users export the data grid to a file (such as CSV or Excel), this column will be included.
-
-- `visible()`: This makes the column visible in the data grid. This means that the column will be displayed to users.
 
 ### Column Filters.
 
@@ -317,7 +305,7 @@ class OrdersTable extends Component
 }
 ```
 
-## Customizing Excel Exports
+## Custom Excel Exports
 
 Excel exports can be customized with specific styles and column widths.
 
