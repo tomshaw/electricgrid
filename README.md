@@ -8,6 +8,8 @@ A powerful Livewire data table package. A great choice for projects that require
 ![stars](https://img.shields.io/github/stars/tomshaw/electricgrid?style=flat&logo=appveyor)
 [![GitHub license](https://img.shields.io/github/license/tomshaw/electricgrid)](https://github.com/tomshaw/electricgrid/blob/master/LICENSE)
 
+> Note: For a complete demonstration see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo) repository.
+
 ## Features
 
 1. **Easy Installation**: The package provides a simple command for installation and updates.
@@ -26,10 +28,9 @@ A powerful Livewire data table package. A great choice for projects that require
 
 8. **Inline Actions**: You can add inline actions to your data rows, which can be useful for adding quick actions like update or delete.
 
-9. **Themes**: The package uses a single blade template making it super easy to theme.
+9. **Themes**: Uses a single blade template under 300 lines of html making it super easy to theme.
 
 10. **Testing**: Provides a command for running tests to ensure the package works as expected.
-
 
 ## Installation
 
@@ -67,8 +68,6 @@ Add the component to your blade template where you plan to use it.
 ```html
 <livewire:tables.orders-table />
 ```
-
-> For a complete demonstration see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo) repository.
 
 ## Usage
 
