@@ -1,7 +1,5 @@
 <div class="electricgrid">
-
   <div class="flex items-center justify-between w-full py-4">
-
     <div class="flex items-center justify-center gap-x-2">
       @if(count($searchTermColumns))
       <div class="flex items-center relative my-1">
@@ -18,7 +16,6 @@
         <div class="border-gray-300 h-6 w-6 animate-spin rounded-full border-2 border-t-gray-600"></div>
       </div>
     </div>
-
     <div class="flex items-center justify-center gap-x-2">
       @if(count($this->actions))
       <select wire:model.live="selectedAction" class="form-select ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md">
@@ -39,7 +36,6 @@
       </select>
       <button type="button" wire:click="handleSelectedAction" class="inline-flex items-center p-2.5 rounded-md bg-gray-800 dark:bg-gray-200 border border-transparent font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">Go</button>
       @endif
-
       @if($showToggleColumns)
       <div class="relative" x-data="{ open: false }">
         <button @click="open = !open" type="button" class="inline-flex items-center px-2.5 py-1.5 rounded-md bg-gray-800 dark:bg-gray-200 border border-transparent font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
@@ -66,11 +62,8 @@
         </div>
       </div>
       @endif
-
     </div>
-
   </div>
-
   <div class="w-full">
     <div class="overflow-x-auto">
       <table class="bg-white border-collapse table-auto w-full text-sm">
@@ -144,16 +137,13 @@
               @foreach ($this->filters as $key => $filter)
               @if($filter->column === $column->field)
               <div class="flex flex-col items-start justify-center" wire:key="filter-{{ $column->field }}-{{ $key }}">
-
                 @if($filter->type('FilterText'))
                 <input type="text" class="form-input w-full ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.text.{{ $column->field }}" placeholder="{{ $filter->placeholder }}" {!! $filter->getDataAttributes() !!}>
                 @endif
-
                 @if($filter->type('FilterNumber'))
                 <input type="number" class="form-input w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md mb-2" wire:model.live.debounce.1s="filter.number.{{ $column->field }}.start" placeholder="{{ $filter->placeholders['min'] }}" {!! $filter->getDataAttributes() !!}>
                 <input type="number" class="form-input w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.number.{{ $column->field }}.end" placeholder="{{ $filter->placeholders['max'] }}" {!! $filter->getDataAttributes() !!}>
                 @endif
-
                 @if($filter->type('FilterSelect'))
                 <select class="form-select w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.select.{{ $column->field }}" {!! $filter->getDataAttributes() !!}>
                   <option value="-1">{{ __('All') }}</option>
@@ -162,7 +152,6 @@
                   @endforeach
                 </select>
                 @endif
-
                 @if($filter->type('FilterMultiSelect'))
                 <select class="form-select-multiple w-full min-w-[140px] ring-0 outline-none text-gray-500 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.multiselect.{{ $column->field }}" {!! $filter->getDataAttributes() !!} multiple>
                   <option value="-1">{{ __('All') }}</option>
@@ -171,7 +160,6 @@
                   @endforeach
                 </select>
                 @endif
-
                 @if($filter->type('FilterBoolean'))
                 <select class="form-select w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.boolean.{{ $column->field }}" {!! $filter->getDataAttributes() !!}>
                   <option value="-1">{{ __('All') }}</option>
@@ -180,22 +168,18 @@
                   @endforeach
                 </select>
                 @endif
-
                 @if($filter->type('FilterTimePicker'))
                 <input type="time" class="form-input w-full ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md mb-2" min="{{$filter->startMin}}" max="{{$filter->startMax}}" step="{{$filter->startStep}}" wire:model.live.debounce.300ms="filter.timepicker.{{ $column->field }}.start" {!! $filter->getDataAttributes() !!}>
                 <input type="time" class="form-input w-full ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" min="{{$filter->endMin}}" max="{{$filter->endMax}}" step="{{$filter->endStep}}" wire:model.live.debounce.300ms="filter.timepicker.{{ $column->field }}.end" {!! $filter->getDataAttributes() !!}>
                 @endif
-
                 @if($filter->type('FilterDatePicker'))
                 <input type="date" class="form-input w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md mb-2" wire:model.live.debounce.300ms="filter.datepicker.{{ $column->field }}.start" {!! $filter->getDataAttributes() !!}>
                 <input type="date" class="form-input w-full ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.300ms="filter.datepicker.{{ $column->field }}.end" {!! $filter->getDataAttributes() !!}>
                 @endif
-
                 @if($filter->type('FilterDateTimePicker'))
                 <input type="datetime-local" class="form-input w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md mb-2" wire:model.live.debounce.300ms="filter.datetimepicker.{{ $column->field }}.start" {!! $filter->getDataAttributes() !!}>
                 <input type="datetime-local" class="form-input w-full ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.300ms="filter.datetimepicker.{{ $column->field }}.end" {!! $filter->getDataAttributes() !!}>
                 @endif
-
               </div>
               @endif
               @endforeach

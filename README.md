@@ -28,7 +28,7 @@ A powerful Livewire data table package. A great choice for projects that require
 
 8. **Toggleable Columns**: Hide and show columns useful for customizing the grid to focus on the most relevant data.
 
-9. **Themes**: Uses a single blade template under 250 lines of html making it super easy to theme.
+9. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
 
 10. **Testing**: Provides a command for running tests to ensure the package works as expected.
 
