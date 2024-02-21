@@ -7,7 +7,7 @@ use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use TomShaw\ElectricGrid\{DataExport, DataSource};
 
-trait WithGridActions
+trait GridActions
 {
     public string $selectedAction;
 
