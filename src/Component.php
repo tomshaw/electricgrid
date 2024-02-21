@@ -6,12 +6,11 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
 use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
-use TomShaw\ElectricGrid\Traits\{WithGridActions, WithGridValidation};
+use TomShaw\ElectricGrid\Traits\{WithGridActions};
 
 class Component extends BaseComponent
 {
     use WithGridActions;
-    use WithGridValidation;
     use WithPagination;
 
     public string $theme = 'tailwind';
@@ -67,8 +66,6 @@ class Component extends BaseComponent
         // $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->visibleColumns);
 
         // $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->visibleColumns);
-
-        $this->validateColumns();
     }
 
     protected function setup(): void

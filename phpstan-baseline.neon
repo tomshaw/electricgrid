@@ -17,7 +17,7 @@ parameters:
 
 		-
 			message: "#^Access to an undefined property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$builder\\.$#"
-			count: 6
+			count: 1
 			path: src/Component.php
 
 		-

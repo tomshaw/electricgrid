@@ -28,16 +28,6 @@ class DataSource
         $relationships = $this->getRelationships();
         $modelInstance = $this->getModelInstance();
 
-        $this->boot($relationships, $modelInstance);
-    }
-
-    public static function make(Builder $query): self
-    {
-        return new self($query);
-    }
-
-    public function boot(array $relationships, $modelInstance): void
-    {
         try {
             $this->modelRelationTables = $this->getModelRelationTables($relationships, $modelInstance);
             $this->modelRelationFillables = $this->getModelRelationFillables($relationships, $modelInstance);
@@ -45,6 +35,11 @@ class DataSource
         } catch (Exception $e) {
             throw InvalidModelRelationsHandler::make($e->getMessage());
         }
+    }
+
+    public static function make(Builder $query): self
+    {
+        return new self($query);
     }
 
     private function getModelRelationTables(array $relationships, $modelInstance): array
@@ -82,6 +77,11 @@ class DataSource
         return $modelRelationColumnListing;
     }
 
+    private function getTableName(): string
+    {
+        return $this->getModelInstance()->getTable();
+    }
+
     private function getModelInstance(): Model
     {
         return $this->query->getModel();
@@ -92,17 +92,6 @@ class DataSource
         $eagerLoad = $this->query->getEagerLoads();
 
         return array_keys($eagerLoad);
-    }
-
-    private function getRelationFillables(string $column): ?string
-    {
-        foreach ($this->modelRelationFillables as $relation => $fields) {
-            if (in_array($column, $fields)) {
-                return $relation;
-            }
-        }
-
-        return null;
     }
 
     private function getRelationColumnListing(string $column): ?string
@@ -128,10 +117,10 @@ class DataSource
 
     private function resolveTableNames($columnName): ?string
     {
-        $baseTable = $this->query->getModel()->getTable();
+        $tableName = $this->getTableName();
 
-        if (Schema::hasColumn($baseTable, $columnName)) {
-            return $baseTable.'.'.$columnName;
+        if (Schema::hasColumn($tableName, $columnName)) {
+            return $tableName.'.'.$columnName;
         }
 
         $joins = $this->query->getQuery()->joins;
@@ -257,15 +246,8 @@ class DataSource
                     });
                 }
             } else {
-                $relation = $this->getRelationFillables($columnName);
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $searchTerm) {
-                        $query->where($columnName, 'like', '%'.$searchTerm.'%');
-                    });
-                } else {
-                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
-                }
+                $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
             }
         }
 
@@ -283,15 +265,8 @@ class DataSource
                     });
                 }
             } else {
-                $relation = $this->getRelationFillables($columnName);
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($columnName, $value) {
-                        $query->where($columnName, 'like', $value.'%');
-                    });
-                } else {
-                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
-                }
+                $this->query->where($qualifiedColumnName, 'like', $value.'%');
             }
         }
     }
@@ -313,7 +288,7 @@ class DataSource
     {
         foreach ($this->modelRelationColumnListing as $relation => $fields) {
             if (in_array($columnName, $fields)) {
-                $tableName = $this->query->getModel()->getTable();
+                $tableName = $this->getTableName();
                 $relationQuery = $this->query->getModel()->$relation();
 
                 // Added to not modify the result set
@@ -411,8 +386,8 @@ class DataSource
             if (is_array($value)) {
                 $this->handleSelectRelation($value);
             } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if ($value !== strval(self::IGNORE_VALUE)) {
+                    $qualifiedColumnName = $this->resolveTableNames($columnName);
                     $this->query->where($qualifiedColumnName, $value);
                 }
             }
@@ -437,8 +412,8 @@ class DataSource
             if (is_array($value)) {
                 $this->handleMultiSelectRelation($value);
             } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if ($value !== strval(self::IGNORE_VALUE)) {
+                    $qualifiedColumnName = $this->resolveTableNames($columnName);
                     $this->query->whereIn($qualifiedColumnName, $value);
                 }
             }
@@ -465,8 +440,8 @@ class DataSource
             if (is_array($value)) {
                 $this->handleBooleanRelation($value);
             } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
                 if ($value !== strval(self::IGNORE_VALUE)) {
+                    $qualifiedColumnName = $this->resolveTableNames($columnName);
                     $this->query->where($qualifiedColumnName, $value === 'true' ? 1 : 0);
                 }
             }
