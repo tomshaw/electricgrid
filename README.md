@@ -171,7 +171,7 @@ The following methods accepts a boolean value (`true` or `false`) that toggles t
 
 Filters allow you to filter data displayed in the grid. 
 
-> Note: Data attributes can be added to any filter using the `addDataAttribute` helper method.
+> Data attributes can be added to filters using the `addDataAttribute` method.
 
 ```php
 use TomShaw\ElectricGrid\{Component, Column, Filter};
