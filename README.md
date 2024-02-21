@@ -26,7 +26,7 @@ A powerful Livewire data table package. A great choice for projects that require
 
 7. **Letter Search**: This feature allows you to search data based on specific letters in the specified columns.
 
-8. **Toggleable Columns**: Hide and show columns useful for customizing the grid to focus on the most relevant data.
+8. **Toggleable Columns**: Hide or show columns useful for focusing on the most relevant data.
 
 9. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
 
