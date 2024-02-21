@@ -17,10 +17,6 @@ class Component extends BaseComponent
 
     public array $filter = [];
 
-    public array $visibleColumns = [];
-
-    public array $inlineActions = [];
-
     public bool $showCheckbox = true;
 
     public bool $showPagination = true;
@@ -39,9 +35,9 @@ class Component extends BaseComponent
 
     public string $searchLetter = '';
 
-    public int $perPage = 10;
+    public int $perPage = 15;
 
-    public array $perPageValues = [10, 20, 50, 100];
+    public array $perPageValues = [10, 15, 20, 50, 75, 100];
 
     public string $orderBy = 'id';
 
@@ -60,12 +56,6 @@ class Component extends BaseComponent
     public function mount()
     {
         $this->setup();
-
-        $this->visibleColumns = collect($this->columns)->filter->visible->pluck('field')->toArray();
-
-        // $this->searchTermColumns = array_intersect($this->searchTermColumns, $this->visibleColumns);
-
-        // $this->letterSearchColumns = array_intersect($this->letterSearchColumns, $this->visibleColumns);
     }
 
     protected function setup(): void
@@ -134,26 +124,15 @@ class Component extends BaseComponent
 
     public function getColspanProperty(): int
     {
-        $colspan = count($this->visibleColumns);
+        $visibleColumns = collect($this->columns)->filter->visible->pluck('field')->toArray();
+
+        $colspan = count($visibleColumns);
 
         if ($this->showCheckbox) {
             $colspan++;
         }
 
-        if (count($this->inlineActions)) {
-            $colspan++;
-        }
-
         return $colspan;
-    }
-
-    public function addInlineAction($text, $routeName, $routeParams = []): void
-    {
-        $this->inlineActions[] = [
-            'text' => $text,
-            'route' => $routeName,
-            'params' => $routeParams,
-        ];
     }
 
     public function handleCheckAll(bool $checked): void

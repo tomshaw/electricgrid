@@ -4,27 +4,36 @@ namespace TomShaw\ElectricGrid;
 
 class Column
 {
+    public bool $visible = true;
+
     public bool $searchable = false;
 
     public bool $sortable = false;
 
     public bool $exportable = false;
 
-    public bool $visible = true;
+    public bool $actionable = false;
 
-    public string $styles = '';
+    public string $stylable = '';
 
     public ?\Closure $closure = null;
 
     public function __construct(
-        public string $field,
-        public string $title,
+        public string $field = '',
+        public string $title = '',
     ) {
     }
 
     public static function add(string $field, string $title): self
     {
         return new static($field, $title);
+    }
+
+    public function visible(bool $visible = true): Column
+    {
+        $this->visible = $visible;
+
+        return $this;
     }
 
     public function searchable(bool $searchable = true): Column
@@ -48,16 +57,16 @@ class Column
         return $this;
     }
 
-    public function visible(bool $visible = true): Column
+    public function actionable(bool $actionable = true): Column
     {
-        $this->visible = $visible;
+        $this->actionable = $actionable;
 
         return $this;
     }
 
-    public function stylable(string $styles): Column
+    public function stylable(string $stylable): Column
     {
-        $this->styles = $styles;
+        $this->stylable = $stylable;
 
         return $this;
     }

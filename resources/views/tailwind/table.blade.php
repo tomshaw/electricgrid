@@ -113,11 +113,11 @@
             @endif
             @foreach($this->columns as $column)
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
-            <th @class(['border px-2 py-3 text-left font-bold text-gray-600 tracking-wider whitespace-nowrap' . ($column->sortable ? ' cursor-pointer' : '')]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
-              <div class="flex justify-between items-center">
+            <th @class(['border px-2 py-3 font-bold text-left text-gray-600 tracking-wider whitespace-nowrap', 'cursor-pointer' => $column->sortable, 'min-w-[160px]' => $column->actionable]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
+              <div @class(['flex items-center', $column->actionable ? 'justify-center' : 'justify-between'])>
                 <span>{{$column->title}}</span>
-                @if($column->sortable === true)
-                <div @class(['flex flex-col items-center text-gray-200', '!text-gray-800'=> ($orderBy === $column->field)])>
+                @if($column->sortable === true && $column->actionable === false)
+                <div @class(['flex flex-col items-center text-gray-200 hover:text-gray-700', '!text-gray-700'=> ($orderBy === $column->field)])>
                   @if ($orderDir === 'ASC')
                   <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
@@ -133,11 +133,7 @@
             </th>
             @endif
             @endforeach
-            @if(count($this->inlineActions))
-            <th class="border px-2 py-3 text-center font-bold text-gray-500 tracking-wider whitespace-nowrap" rowspan="1" colspan="1">Actions</th>
-            @endif
           </tr>
-
           <tr class="filters">
             @if($showCheckbox)
             <td class="border p-2"></td>
@@ -206,11 +202,7 @@
             </td>
             @endif
             @endforeach
-            @if(count($this->inlineActions))
-            <td class="border p-2" colspan="1"></td>
-            @endif
           </tr>
-
         </thead>
         <tbody>
           @foreach($data as $row)
@@ -227,29 +219,17 @@
             $field = $column->field;
             @endphp
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
-            <td @class(['text-gray-600 border p-2', $column->styles])>
+            <td @class(['text-gray-600 border p-2', $column->stylable])>
               {!! $row->$field !!}
             </td>
             @endif
             @endforeach
-            @if(count($this->inlineActions))
-            <td class="border p-2 text-left">
-              <div class="flex items-center justify-center gap-x-2">
-                @foreach($this->inlineActions as $item)
-                <a href="{{ route($item['route'], array_map(fn($value) => $row->$value, $item['params'])) }}" class="inline-flex items-center px-2.5 py-1.5 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150" title="{{ $item['text'] }}">
-                  {{ $item['text'] }}
-                </a>
-                @endforeach
-              </div>
-            </td>
-            @endif
           </tr>
           @endforeach
         </tbody>
       </table>
     </div>
   </div>
-
   <div class="flex justify-between items-center py-4">
     @if($showPagination && method_exists($data, 'links'))
     {!! $data->links('electricgrid::tailwind.pagination') !!}
@@ -263,5 +243,4 @@
     </select>
     @endif
   </div>
-
 </div>

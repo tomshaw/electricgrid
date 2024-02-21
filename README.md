@@ -26,9 +26,9 @@ A powerful Livewire data table package. A great choice for projects that require
 
 7. **Letter Search**: This feature allows you to search data based on specific letters in the specified columns.
 
-8. **Inline Actions**: You can add inline actions to your data rows, which can be useful for adding quick actions like update or delete.
+8. **Toggleable Columns**: Hide and show columns useful for customizing the grid to focus on the most relevant data.
 
-9. **Themes**: Uses a single blade template under 300 lines of html making it super easy to theme.
+9. **Themes**: Uses a single blade template under 250 lines of html making it super easy to theme.
 
 10. **Testing**: Provides a command for running tests to ensure the package works as expected.
 
@@ -377,20 +377,6 @@ Enable by adding the following property filled with the columns names you wish t
 
 ```php
 public array $letterSearchColumns = ['name'];
-```
-
-### Inline Actions
-
-Adding `Inline Actions` is done by utilizing the component setup method.
-
-> Note: The following example uses `Route Model Binding`.
-
-```php
-protected function setup(): void
-{
-    $this->addInlineAction('Update'), 'admin.orders.update', ['order' => 'id']);
-    $this->addInlineAction('Delete'), 'admin.orders.delete', ['order' => 'id']);
-}
 ```
 
 ## Requirements
