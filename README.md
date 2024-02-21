@@ -8,7 +8,7 @@ A powerful Livewire data table package. A great choice for projects that require
 ![stars](https://img.shields.io/github/stars/tomshaw/electricgrid?style=flat&logo=appveyor)
 [![GitHub license](https://img.shields.io/github/license/tomshaw/electricgrid)](https://github.com/tomshaw/electricgrid/blob/master/LICENSE)
 
-> Note: For a complete demonstration see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo) repository.
+> For a complete demonstration see the [Electric Grid Demo](https://github.com/tomshaw/electricgrid-demo) repository.
 
 ## Features
 
