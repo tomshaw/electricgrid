@@ -26,7 +26,6 @@ class TestComponent extends Component
         return [
             Column::add('id', __('ID'))
                 ->sortable()
-                ->stylable('text-start')
                 ->exportable(),
 
             Column::add('name', __('Name'))

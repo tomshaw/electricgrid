@@ -106,11 +106,11 @@
             @endif
             @foreach($this->columns as $column)
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
-            <th @class(['border px-2 py-3 font-bold text-left text-gray-600 tracking-wider whitespace-nowrap', 'cursor-pointer' => $column->sortable, 'min-w-[160px]' => $column->actionable]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
-              <div @class(['flex items-center', $column->actionable ? 'justify-center' : 'justify-between'])>
+            <th @class(['border px-2 py-3 font-bold text-gray-600 tracking-wider whitespace-nowrap', 'cursor-pointer' => $column->sortable, 'min-w-[160px]' => $column->align, $column->style]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
+              <div @class(['flex items-center', $column->style, $column->align])>
                 <span>{{$column->title}}</span>
                 @if($column->sortable === true && $column->actionable === false)
-                <div @class(['flex flex-col items-center text-gray-300 hover:text-gray-700', '!text-gray-700'=> ($orderBy === $column->field)])>
+                <div @class(['flex flex-col items-end justify-center w-full text-gray-300 hover:text-gray-700', '!text-gray-700'=> ($orderBy === $column->field)])>
                   @if ($orderDir === 'ASC')
                   <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
@@ -205,7 +205,7 @@
             $field = $column->field;
             @endphp
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
-            <td @class(['text-gray-600 border p-2', $column->stylable])>
+            <td @class(['text-gray-600 border p-2', $column->style])>
               {!! $row->$field !!}
             </td>
             @endif

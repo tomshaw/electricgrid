@@ -14,7 +14,9 @@ class Column
 
     public bool $actionable = false;
 
-    public string $stylable = '';
+    public string $align = '';
+
+    public string $style = '';
 
     public ?\Closure $closure = null;
 
@@ -64,9 +66,16 @@ class Column
         return $this;
     }
 
-    public function stylable(string $stylable): Column
+    public function align(string $align): Column
     {
-        $this->stylable = $stylable;
+        $this->align = $align;
+
+        return $this;
+    }
+
+    public function style(string $style): Column
+    {
+        $this->style = $style;
 
         return $this;
     }
