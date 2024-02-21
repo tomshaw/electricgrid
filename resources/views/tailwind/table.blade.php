@@ -107,7 +107,7 @@
             @foreach($this->columns as $column)
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
             <th @class(['border px-2 py-3 font-bold text-gray-600 tracking-wider whitespace-nowrap', 'cursor-pointer' => $column->sortable, 'min-w-[160px]' => $column->align, $column->style]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
-              <div @class(['flex items-center', $column->style, $column->align])>
+              <div @class(['flex items-center', $column->align])>
                 <span>{{$column->title}}</span>
                 @if($column->sortable === true && $column->actionable === false)
                 <div @class(['flex flex-col items-end justify-center w-full text-gray-300 hover:text-gray-700', '!text-gray-700'=> ($orderBy === $column->field)])>
