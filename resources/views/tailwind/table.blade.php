@@ -127,6 +127,7 @@
             @endif
             @endforeach
           </tr>
+          @if(count($this->filters))
           <tr class="filters">
             @if($showCheckbox)
             <td class="border p-2"></td>
@@ -187,6 +188,7 @@
             @endif
             @endforeach
           </tr>
+          @endif
         </thead>
         <tbody>
           @foreach($data as $row)
