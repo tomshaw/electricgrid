@@ -30,7 +30,7 @@ A powerful Livewire data table package. A great choice for projects that require
 
 9. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
 
-10. **Testing**: Provides a command for running tests to ensure the package works as expected.
+10. **Testing**: Provides a command for running tests to ensure everything works as expected.
 
 ## Installation
 
