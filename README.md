@@ -12,7 +12,7 @@ A powerful Livewire data table package. A great choice for projects that require
 
 ## Features
 
-1. **Easy Installation**: The package provides a simple command for installation and updates.
+1. **Easy Installation**: Use a simple command for installation and package updates.
 
 2. **Columns**: Add columns to your grid with various options including sortable, styleable, exportable and visible.
 
