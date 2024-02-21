@@ -363,8 +363,6 @@ Here's an example of how to define custom styles and column widths for Excel exp
 
 Enable by adding the following property filled with the columns names you wish to search.
 
-> Note: Array values are compared against your columns fields and must be visible.
-
 ```php
 public array $searchTermColumns = ['title', 'description'];
 ```
@@ -372,8 +370,6 @@ public array $searchTermColumns = ['title', 'description'];
 ### Letter Search
 
 Enable by adding the following property filled with the columns names you wish to search.
-
-> Note: Array values are compared against your columns fields and must be visible.
 
 ```php
 public array $letterSearchColumns = ['name'];
