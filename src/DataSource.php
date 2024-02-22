@@ -19,6 +19,8 @@ class DataSource
 
     public $modelRelationColumnListing = [];
 
+    public $computedColumns = [];
+
     private const IGNORE_VALUE = -1;
 
     public function __construct(
@@ -133,6 +135,23 @@ class DataSource
         }
 
         return null;
+    }
+
+    public function addComputedColumns(array $columns): void
+    {
+        foreach ($columns as $column) {
+            $this->addComputedColumn($column);
+        }
+    }
+
+    public function addComputedColumn(string $columnName): void
+    {
+        $this->computedColumns[] = $columnName;
+    }
+
+    public function isComputedColumn($column): bool
+    {
+        return in_array($column, $this->computedColumns);
     }
 
     private function parseColumnString(string $columnString): array
@@ -277,7 +296,11 @@ class DataSource
             $this->orderByWithRelation($columnName, $sortDirection);
         } else {
             $qualifiedColumnName = $this->resolveTableNames($columnName);
-            $this->query->orderBy($qualifiedColumnName, $sortDirection);
+            if ($qualifiedColumnName) {
+                $this->query->orderBy($qualifiedColumnName, $sortDirection);
+            } else {
+                $this->query->orderBy($columnName, $sortDirection);
+            }
         }
 
         return $this;
@@ -362,7 +385,15 @@ class DataSource
                 $this->handleNumberRelation($value);
             } else {
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
-                $this->applyWhereConditions($this->query, $qualifiedColumnName, $value);
+                if ($qualifiedColumnName) {
+                    $this->applyWhereConditions($this->query, $qualifiedColumnName, $value);
+                } else {
+                    if ($this->isComputedColumn($columnName)) {
+                        $this->applyWhereHavingConditions($this->query, $columnName, $value);
+                    } else {
+                        $this->applyWhereConditions($this->query, $columnName, $value);
+                    }
+                }
             }
         }
     }
@@ -520,6 +551,17 @@ class DataSource
             $query->where($columnName, '<=', $values['end']);
         } elseif (isset($values['start']) && isset($values['end'])) {
             $query->whereBetween($columnName, [$values['start'], $values['end']]);
+        }
+    }
+
+    private function applyWhereHavingConditions($query, string $columnName, array $values): void
+    {
+        if (isset($values['start']) && ! isset($values['end'])) {
+            $query->having($columnName, '>=', $values['start']);
+        } elseif (! isset($values['start']) && isset($values['end'])) {
+            $query->having($columnName, '<=', $values['end']);
+        } elseif (isset($values['start']) && isset($values['end'])) {
+            $query->having($columnName, '>=', $values['start'])->having($columnName, '<=', $values['end']);
         }
     }
 }

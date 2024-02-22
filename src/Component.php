@@ -31,6 +31,9 @@ class Component extends BaseComponent
 
     public array $letterSearchColumns = [];
 
+    // withCount, withSum, withAvg, etc
+    public array $computedColumns = [];
+
     public string $searchTerm = '';
 
     public string $searchLetter = '';
@@ -181,6 +184,8 @@ class Component extends BaseComponent
     public function render(): View
     {
         $dataSource = DataSource::make($this->builder);
+
+        $dataSource->addComputedColumns($this->computedColumns);
 
         $dataSource->filter($this->filter);
 
