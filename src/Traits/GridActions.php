@@ -36,6 +36,8 @@ trait GridActions
 
             $dataSource->filter($this->filter);
 
+            $dataSource->orderBy($this->orderBy, $this->orderDir);
+
             $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
 
             $columns = $dataSource->transformColumns($exportables->toArray());

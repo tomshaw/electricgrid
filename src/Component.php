@@ -31,7 +31,6 @@ class Component extends BaseComponent
 
     public array $letterSearchColumns = [];
 
-    // withCount, withSum, withAvg, etc
     public array $computedColumns = [];
 
     public string $searchTerm = '';
