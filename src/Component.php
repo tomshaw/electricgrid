@@ -146,9 +146,14 @@ class Component extends BaseComponent
     public function getOrderDirValues(): array
     {
         return [
-            self::ORDER_ASC => __('translation.ascending'),
-            self::ORDER_DESC => __('translation.descending'),
+            self::ORDER_ASC => __('electricgrid.ascending'),
+            self::ORDER_DESC => __('electricgrid.descending'),
         ];
+    }
+
+    public function toggleOrderDirection(): void
+    {
+        $this->orderDir = $this->orderDir === self::ORDER_ASC ? self::ORDER_DESC : self::ORDER_ASC;
     }
 
     public function handleCheckAll(bool $checked): void
@@ -169,7 +174,7 @@ class Component extends BaseComponent
 
         $this->resetPage();
 
-        $this->orderDir = $this->orderDir === self::ORDER_ASC ? self::ORDER_DESC : self::ORDER_ASC;
+        $this->toggleOrderDirection();
 
         $this->orderBy = $field;
     }
