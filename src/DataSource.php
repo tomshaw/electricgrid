@@ -265,7 +265,11 @@ class DataSource
                 }
             } else {
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
-                $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
+                if ($qualifiedColumnName) {
+                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
+                } else {
+                    $this->query->where($columnName, 'like', '%'.$searchTerm.'%');
+                }
             }
         }
 
@@ -284,7 +288,11 @@ class DataSource
                 }
             } else {
                 $qualifiedColumnName = $this->resolveTableNames($columnName);
-                $this->query->where($qualifiedColumnName, 'like', $value.'%');
+                if ($qualifiedColumnName) {
+                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
+                } else {
+                    $this->query->where($columnName, 'like', $value.'%');
+                }
             }
         }
     }
@@ -418,7 +426,11 @@ class DataSource
             } else {
                 if ($value !== strval(self::IGNORE_VALUE)) {
                     $qualifiedColumnName = $this->resolveTableNames($columnName);
-                    $this->query->where($qualifiedColumnName, $value);
+                    if ($qualifiedColumnName) {
+                        $this->query->where($qualifiedColumnName, $value);
+                    } else {
+                        $this->query->where($columnName, $value);
+                    }
                 }
             }
         }
@@ -444,7 +456,11 @@ class DataSource
             } else {
                 if ($value !== strval(self::IGNORE_VALUE)) {
                     $qualifiedColumnName = $this->resolveTableNames($columnName);
-                    $this->query->whereIn($qualifiedColumnName, $value);
+                    if ($qualifiedColumnName) {
+                        $this->query->whereIn($qualifiedColumnName, $value);
+                    } else {
+                        $this->query->whereIn($columnName, $value);
+                    }
                 }
             }
         }
@@ -472,7 +488,11 @@ class DataSource
             } else {
                 if ($value !== strval(self::IGNORE_VALUE)) {
                     $qualifiedColumnName = $this->resolveTableNames($columnName);
-                    $this->query->where($qualifiedColumnName, $value === 'true' ? 1 : 0);
+                    if ($qualifiedColumnName) {
+                        $this->query->where($qualifiedColumnName, $value === 'true' ? 1 : 0);
+                    } else {
+                        $this->query->where($columnName, $value === 'true' ? 1 : 0);
+                    }
                 }
             }
         }
