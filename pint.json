@@ -1,6 +1,7 @@
 {
     "preset": "laravel",
     "rules": {
+        "no_superfluous_phpdoc_tags": false,
         "single_import_per_statement": false,
         "group_import": true
     }
