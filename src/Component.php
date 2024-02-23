@@ -43,9 +43,9 @@ class Component extends BaseComponent
 
     public string $orderBy = 'id';
 
-    public string $orderDir = 'ASC';
+    public string $orderDir = self::ORDER_ASC;
 
-    public array $orderDirValues = ['ASC' => 'Ascending', 'DESC' => 'Descending'];
+    public array $orderDirValues = [];
 
     public bool $checkboxAll = false;
 
@@ -55,9 +55,15 @@ class Component extends BaseComponent
 
     public array $hiddenColumns = [];
 
+    const ORDER_ASC = 'ASC';
+
+    const ORDER_DESC = 'DESC';
+
     public function mount()
     {
         $this->setup();
+
+        $this->orderDirValues = $this->getOrderDirValues();
     }
 
     protected function setup(): void
@@ -137,6 +143,14 @@ class Component extends BaseComponent
         return $colspan;
     }
 
+    public function getOrderDirValues(): array
+    {
+        return [
+            self::ORDER_ASC => __('translation.ascending'),
+            self::ORDER_DESC => __('translation.descending'),
+        ];
+    }
+
     public function handleCheckAll(bool $checked): void
     {
         $this->checkboxAll = $checked;
@@ -155,7 +169,7 @@ class Component extends BaseComponent
 
         $this->resetPage();
 
-        $this->orderDir = $this->orderDir === 'ASC' ? 'DESC' : 'ASC';
+        $this->orderDir = $this->orderDir === self::ORDER_ASC ? self::ORDER_DESC : self::ORDER_ASC;
 
         $this->orderBy = $field;
     }

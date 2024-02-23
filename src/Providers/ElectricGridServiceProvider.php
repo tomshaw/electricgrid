@@ -12,11 +12,17 @@ use TomShaw\ElectricGrid\Console\Commands\{InstallCommand, UpdateCommand};
 class ElectricGridServiceProvider extends ServiceProvider
 {
     /**
+     * Package name.
+     */
+    private string $packageName = 'electricgrid';
+
+    /**
      * Perform post-registration booting of services.
      */
     public function boot(): void
     {
         $this->loadViews();
+        $this->loadLocalization();
         $this->registerLivewireComponents();
         $this->registerBladeComponents();
         $this->registerPublishableResources();
@@ -37,7 +43,15 @@ class ElectricGridServiceProvider extends ServiceProvider
      */
     protected function loadViews(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../../resources/views', 'electricgrid');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', $this->packageName);
+    }
+
+    /**
+     * Load localization.
+     */
+    protected function loadLocalization(): void
+    {
+        $this->loadTranslationsFrom(__DIR__.'/../../resources/lang', $this->packageName);
     }
 
     /**
@@ -45,7 +59,7 @@ class ElectricGridServiceProvider extends ServiceProvider
      */
     protected function registerLivewireComponents(): void
     {
-        Livewire::component('electricgrid', Component::class);
+        Livewire::component($this->packageName, Component::class);
     }
 
     /**
@@ -91,7 +105,7 @@ class ElectricGridServiceProvider extends ServiceProvider
      */
     protected function mergeConfig(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../../resources/config/config.php', 'electricgrid');
+        $this->mergeConfigFrom(__DIR__.'/../../resources/config/config.php', $this->packageName);
     }
 
     /**
