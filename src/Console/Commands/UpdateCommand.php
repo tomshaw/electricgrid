@@ -3,11 +3,12 @@
 namespace TomShaw\ElectricGrid\Console\Commands;
 
 use Illuminate\Console\Command;
-use RuntimeException;
-use Symfony\Component\Process\Process;
+use TomShaw\ElectricGrid\Console\Traits\BuildsAssets;
 
 class UpdateCommand extends Command
 {
+    use BuildsAssets;
+
     /**
      * The name and signature of the console command.
      *
@@ -20,45 +21,29 @@ class UpdateCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Updates and publishes (config, views) provided by ElectricGrid.';
+    protected $description = 'Publishes (config, views, translations) provided by Electric Grid.';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->info('This will overwrite ElectricGrid (config, views).');
+        $this->info('This will overwrite Electric Grid (config, views, translations).');
 
         if ($this->confirm('Do you wish to continue?', true)) {
-            $this->comment('Updating ElectricGrid Config...');
+            $this->comment('Updating Electric Grid Config...');
             $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.config', '--force' => true]);
 
-            $this->comment('Updating ElectricGrid Views...');
+            $this->comment('Updating Electric Grid Views...');
             $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.views', '--force' => true]);
 
-            $this->comment('Building ElectricGrid Assets...');
+            $this->comment('Updating Electric Grid Translations...');
+            $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.lang', '--force' => true]);
+
+            $this->comment('Building Electric Grid Assets...');
             $this->buildAssets();
         }
 
-        $this->info('ElectricGrid updated successfully!');
-    }
-
-    private function buildAssets()
-    {
-        $process = new Process(['npm', 'run', 'build']);
-
-        $process->setWorkingDirectory(base_path())
-            ->setTimeout(null)
-            ->run(function ($type, $buffer) {
-                if ($type === Process::ERR) {
-                    $this->error($buffer);
-                } else {
-                    $this->line($buffer);
-                }
-            });
-
-        if (! $process->isSuccessful()) {
-            throw new RuntimeException($process->getErrorOutput());
-        }
+        $this->info('Electric Grid successfully updated!');
     }
 }

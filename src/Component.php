@@ -146,8 +146,8 @@ class Component extends BaseComponent
     public function getOrderDirValues(): array
     {
         return [
-            self::ORDER_ASC => __('electricgrid.ascending'),
-            self::ORDER_DESC => __('electricgrid.descending'),
+            self::ORDER_ASC => __('electricgrid.locale.sorting.ascending'),
+            self::ORDER_DESC => __('electricgrid.locale.sorting.descending'),
         ];
     }
 

@@ -22,7 +22,7 @@ class ElectricGridServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViews();
-        $this->loadLocalization();
+        $this->loadTranslations();
         $this->registerLivewireComponents();
         $this->registerBladeComponents();
         $this->registerPublishableResources();
@@ -47,9 +47,9 @@ class ElectricGridServiceProvider extends ServiceProvider
     }
 
     /**
-     * Load localization.
+     * Load translations.
      */
-    protected function loadLocalization(): void
+    protected function loadTranslations(): void
     {
         $this->loadTranslationsFrom(__DIR__.'/../../resources/lang', $this->packageName);
     }
@@ -78,11 +78,14 @@ class ElectricGridServiceProvider extends ServiceProvider
     {
         if ($this->app->runningInConsole()) {
             $this->publishes([
-                __DIR__.'/../../resources/config/config.php' => config_path('electricgrid.php'),
-            ], 'electricgrid.config');
+                __DIR__.'/../../resources/config/config.php' => config_path($this->packageName.'.php'),
+            ], $this->packageName.'.config');
             $this->publishes([
-                __DIR__.'/../../resources/views' => resource_path('views/vendor/electricgrid'),
-            ], 'electricgrid.views');
+                __DIR__.'/../../resources/views' => resource_path('views/vendor/'.$this->packageName),
+            ], $this->packageName.'.views');
+            $this->publishes([
+                __DIR__.'/../../resources/lang' => resource_path('lang/vendor/'.$this->packageName),
+            ], $this->packageName.'.lang');
         }
     }
 

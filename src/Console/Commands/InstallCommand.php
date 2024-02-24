@@ -3,11 +3,12 @@
 namespace TomShaw\ElectricGrid\Console\Commands;
 
 use Illuminate\Console\Command;
-use RuntimeException;
-use Symfony\Component\Process\Process;
+use TomShaw\ElectricGrid\Console\Traits\BuildsAssets;
 
 class InstallCommand extends Command
 {
+    use BuildsAssets;
+
     /**
      * The name and signature of the console command.
      *
@@ -20,41 +21,25 @@ class InstallCommand extends Command
      *
      * @var string
      */
-    protected $description = 'Installs and publishes (config, views) provided by ElectricGrid.';
+    protected $description = 'Publishes (config, views, translations) provided by Electric Grid.';
 
     /**
      * Execute the console command.
      */
     public function handle()
     {
-        $this->comment('Publishing ElectricGrid Config...');
+        $this->comment('Publishing Electric Grid Config...');
         $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.config']);
 
-        $this->comment('Publishing ElectricGrid Views...');
+        $this->comment('Publishing Electric Grid Views...');
         $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.views']);
 
-        $this->comment('Building ElectricGrid Assets...');
+        $this->comment('Publishing Electric Grid Translations...');
+        $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.lang']);
+
+        $this->comment('Building Electric Grid Assets...');
         $this->buildAssets();
 
-        $this->info('ElectricGrid installed successfully!');
-    }
-
-    private function buildAssets()
-    {
-        $process = new Process(['npm', 'run', 'build']);
-
-        $process->setWorkingDirectory(base_path())
-            ->setTimeout(null)
-            ->run(function ($type, $buffer) {
-                if ($type === Process::ERR) {
-                    $this->error($buffer);
-                } else {
-                    $this->line($buffer);
-                }
-            });
-
-        if (! $process->isSuccessful()) {
-            throw new RuntimeException($process->getErrorOutput());
-        }
+        $this->info('Electric Grid successfully installed!');
     }
 }

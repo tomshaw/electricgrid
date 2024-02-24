@@ -9,7 +9,7 @@
             <path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
           </svg>
         </span>
-        <input type="text" wire:model.live.debounce.600ms="searchTerm" class="form-input ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md ps-10" placeholder="{{ __('Search') }}">
+        <input type="text" wire:model.live.debounce.600ms="searchTerm" class="form-input ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md ps-10" placeholder="{{ __('electricgrid::locale.general.search') }}">
       </div>
       @endif
       <div wire:loading class="hidden">
@@ -19,7 +19,7 @@
     <div class="flex items-center justify-center gap-x-2">
       @if(count($this->actions))
       <select wire:model.live="selectedAction" class="form-select ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md">
-        <option value="">{{ __('Choose...') }}</option>
+        <option value="">{{ __('electricgrid::locale.general.choose') }}</option>
         @foreach($this->actions as $group => $items)
         @if(!$group)
         @foreach($items as $item)
@@ -75,13 +75,7 @@
                 <div>
                   @if($showTableInfo)
                   <p class="font-medium text-gray-600 leading-5">
-                    <span>{!! __('Showing') !!}</span>
-                    <span>{{ $page->firstItem }}</span>
-                    <span>{!! __('to') !!}</span>
-                    <span>{{ $page->lastItem }}</span>
-                    <span>{!! __('of') !!}</span>
-                    <span>{{ $page->total }}</span>
-                    <span>{!! __('results') !!}.</span>
+                    <span>{!! __('electricgrid::locale.pagination.pagination_info', ['start' => $page->firstItem, 'end' => $page->lastItem, 'total' => $page->total]) !!}</span>
                   </p>
                   @endif
                 </div>
@@ -106,7 +100,7 @@
             @endif
             @foreach($this->columns as $column)
             @if($column->visible && !in_array($column->field, $this->hiddenColumns))
-            <th @class(['border px-2 py-3 font-bold text-gray-600 tracking-wider whitespace-nowrap', 'cursor-pointer' => $column->sortable, 'min-w-[160px]' => $column->align, $column->style]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
+            <th @class(['border px-2 py-3 font-bold text-gray-600 tracking-wider whitespace-nowrap', 'cursor-pointer'=> $column->sortable, 'min-w-[160px]' => $column->align, $column->style]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{$column->field}}', `{{$column->sortable}}`)">
               <div @class(['flex items-center', $column->align])>
                 <span>{{$column->title}}</span>
                 @if($column->sortable === true && $column->actionable === false)
@@ -147,7 +141,7 @@
                 @endif
                 @if($filter->type('FilterSelect'))
                 <select class="form-select w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.select.{{ $column->field }}" {!! $filter->getDataAttributes() !!}>
-                  <option value="-1">{{ __('All') }}</option>
+                  <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
                   @foreach($filter->options as $value => $label)
                   <option value="{{ $value }}">{{ $label }}</option>
                   @endforeach
@@ -155,7 +149,7 @@
                 @endif
                 @if($filter->type('FilterMultiSelect'))
                 <select class="form-select-multiple w-full min-w-[140px] ring-0 outline-none text-gray-500 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.multiselect.{{ $column->field }}" {!! $filter->getDataAttributes() !!} multiple>
-                  <option value="-1">{{ __('All') }}</option>
+                  <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
                   @foreach($filter->options as $value => $label)
                   <option value="{{ $value }}">{{ $label }}</option>
                   @endforeach
@@ -163,7 +157,7 @@
                 @endif
                 @if($filter->type('FilterBoolean'))
                 <select class="form-select w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.boolean.{{ $column->field }}" {!! $filter->getDataAttributes() !!}>
-                  <option value="-1">{{ __('All') }}</option>
+                  <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
                   @foreach($filter->options as $value => $label)
                   <option value="{{ $value }}">{{ $label }}</option>
                   @endforeach
@@ -222,7 +216,7 @@
     @endif
     @if($showPerPage)
     <select class="form-select ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live="perPage">
-      <option value="0">{{ __('View All') }}</option>
+      <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
       @foreach($perPageValues as $value)
       <option value="{{$value}}">{{ $value }}</option>
       @endforeach
