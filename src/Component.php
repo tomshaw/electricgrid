@@ -142,7 +142,6 @@ class Component extends BaseComponent
 
         return $colspan;
     }
-
     public function getOrderDirValues(): array
     {
         return [
