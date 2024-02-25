@@ -24,7 +24,13 @@ trait GridActions
         $columns = $this->columns();
 
         if ($action->get('isExport')) {
-            $exportables = collect($columns)->filter->exportable;
+            $hiddenColumns = array_filter($this->hiddenColumns);
+
+            $exportables = collect($columns)
+                ->filter->exportable
+                ->reject(function ($column) use ($hiddenColumns) {
+                    return in_array($column->field, $hiddenColumns);
+                });
 
             if ($exportables->isEmpty()) {
                 return null;
