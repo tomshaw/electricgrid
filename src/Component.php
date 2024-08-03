@@ -66,9 +66,7 @@ class Component extends BaseComponent
         $this->orderDirValues = $this->getOrderDirValues();
     }
 
-    protected function setup(): void
-    {
-    }
+    protected function setup(): void {}
 
     public function builder(): Builder
     {
@@ -213,7 +211,7 @@ class Component extends BaseComponent
 
         $paginator = $dataSource->transform($paginator, $this->columns);
 
-        $page = new \stdClass();
+        $page = new \stdClass;
         $page->firstItem = $paginator->firstItem();
         $page->lastItem = $paginator->lastItem();
         $page->total = $paginator->total();

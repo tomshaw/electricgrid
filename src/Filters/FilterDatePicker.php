@@ -2,6 +2,4 @@
 
 namespace TomShaw\ElectricGrid\Filters;
 
-class FilterDatePicker extends FilterBase
-{
-}
+class FilterDatePicker extends FilterBase {}

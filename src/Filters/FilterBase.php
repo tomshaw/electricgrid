@@ -11,8 +11,7 @@ class FilterBase
 
     public function __construct(
         public string $column
-    ) {
-    }
+    ) {}
 
     public function type(string $name): bool
     {
