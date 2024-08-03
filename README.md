@@ -368,7 +368,7 @@ public array $letterSearchColumns = ['name'];
 
 ## Requirements
 
-The package is compatible with Laravel 10 and PHP 8.1.
+The package is compatible with Laravel 11+ and PHP 8.2 and 8.3.
 
 ## Testing
 
