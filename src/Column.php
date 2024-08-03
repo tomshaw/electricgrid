@@ -23,8 +23,7 @@ class Column
     public function __construct(
         public string $field = '',
         public string $title = '',
-    ) {
-    }
+    ) {}
 
     public static function add(string $field, string $title): self
     {

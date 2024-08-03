@@ -22,8 +22,7 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
 
     public function __construct(
         public Collection $collection
-    ) {
-    }
+    ) {}
 
     public function collection(): Collection
     {

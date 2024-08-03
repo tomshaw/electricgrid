@@ -19,8 +19,7 @@ class Action
     public function __construct(
         public string $field,
         public string $label,
-    ) {
-    }
+    ) {}
 
     public static function make(string $field, string $title): self
     {
