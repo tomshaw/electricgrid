@@ -2,6 +2,7 @@
 
 namespace TomShaw\ElectricGrid\Filters;
 
+use ReflectionClass;
 use TomShaw\ElectricGrid\Filters\Traits\WithAttributes;
 
 class FilterBase
@@ -15,6 +16,8 @@ class FilterBase
 
     public function type(string $name): bool
     {
-        return basename(get_called_class()) === $name;
+        $reflection = new ReflectionClass($this);
+
+        return $reflection->getShortName() === $name;
     }
 }

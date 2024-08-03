@@ -234,69 +234,6 @@ class DataSource
         return isset($value['start']) || isset($value['end']);
     }
 
-    public function filter(array $filters): void
-    {
-        foreach ($filters as $type => $values) {
-            match ($type) {
-                'text' => $this->handleText($values),
-                'number' => $this->handleNumber($values),
-                'select' => $this->handleSelect($values),
-                'multiselect' => $this->handleMultiSelect($values),
-                'boolean' => $this->handleBoolean($values),
-                'timepicker' => $this->handleTimePicker($values),
-                'datepicker' => $this->handleDatePicker($values),
-                'datetimepicker' => $this->handleDateTimePicker($values),
-                'search_term' => $this->handleSearchTerm($values),
-                'search_letter' => $this->handleSelectLetter($values),
-                default => throw InvalidFilterHandler::make($type),
-            };
-        }
-    }
-
-    private function handleSearchTerm(array $values): self
-    {
-        foreach ($values as $columnName => $searchTerm) {
-            if (strpos($columnName, '.')) {
-                [$relation, $subColumnName] = $this->parseColumnString($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
-                        $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
-                    });
-                }
-            } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($qualifiedColumnName) {
-                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
-                } else {
-                    $this->query->where($columnName, 'like', '%'.$searchTerm.'%');
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    private function handleSelectLetter(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (strpos($columnName, '.')) {
-                [$relation, $subColumnName] = $this->parseColumnString($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
-                        $query->where($subColumnName, 'like', $value.'%');
-                    });
-                }
-            } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($qualifiedColumnName) {
-                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
-                } else {
-                    $this->query->where($columnName, 'like', $value.'%');
-                }
-            }
-        }
-    }
-
     public function orderBy(string $columnName, string $sortDirection): self
     {
         if (strpos($columnName, '.')) {
@@ -360,6 +297,69 @@ class DataSource
         $this->query->join($pivotTable, "$tableName.id", '=', $foreignKey)
             ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
             ->orderBy("$relatedTable.$columnName", $sortDirection);
+    }
+
+    public function filter(array $filters): void
+    {
+        foreach ($filters as $type => $values) {
+            match ($type) {
+                'text' => $this->handleText($values),
+                'number' => $this->handleNumber($values),
+                'select' => $this->handleSelect($values),
+                'multiselect' => $this->handleMultiSelect($values),
+                'boolean' => $this->handleBoolean($values),
+                'timepicker' => $this->handleTimePicker($values),
+                'datepicker' => $this->handleDatePicker($values),
+                'datetimepicker' => $this->handleDateTimePicker($values),
+                'search_term' => $this->handleSearchTerm($values),
+                'search_letter' => $this->handleSelectLetter($values),
+                default => throw InvalidFilterHandler::make($type),
+            };
+        }
+    }
+
+    private function handleSearchTerm(array $values): self
+    {
+        foreach ($values as $columnName => $searchTerm) {
+            if (strpos($columnName, '.')) {
+                [$relation, $subColumnName] = $this->parseColumnString($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
+                        $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
+                    });
+                }
+            } else {
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($qualifiedColumnName) {
+                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
+                } else {
+                    $this->query->where($columnName, 'like', '%'.$searchTerm.'%');
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    private function handleSelectLetter(array $values): void
+    {
+        foreach ($values as $columnName => $value) {
+            if (strpos($columnName, '.')) {
+                [$relation, $subColumnName] = $this->parseColumnString($columnName);
+                if ($relation !== null) {
+                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
+                        $query->where($subColumnName, 'like', $value.'%');
+                    });
+                }
+            } else {
+                $qualifiedColumnName = $this->resolveTableNames($columnName);
+                if ($qualifiedColumnName) {
+                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
+                } else {
+                    $this->query->where($columnName, 'like', $value.'%');
+                }
+            }
+        }
     }
 
     private function handleText(array $values): void

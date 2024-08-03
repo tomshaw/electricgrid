@@ -84,11 +84,11 @@ use App\Models\Order;
 
 class OrdersTable extends Component
 {
+    public array $computedColumns = ['posts_count'];
+    
     public function builder(): Builder
     {
-        return Order::with(['user' => function ($query) {
-            $query->select('id', 'name', 'email');
-        }])->select('orders.id', 'orders.user_id', 'orders.status', 'orders.total', 'orders.invoiced', 'orders.created_at', 'orders.updated_at');
+        return User::with(['roles', 'profile'])->withCount('posts');
     }
 }
 ```
