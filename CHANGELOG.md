@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/tomshaw/electricgrid/compare/v0.5.1...v0.5.2) (2025-02-03)
+
+
+### Miscellaneous Chores
+
+* **deps:** add support for PHP 8.3 and 8.4 in composer.json ([56c6d20](https://github.com/tomshaw/electricgrid/commit/56c6d201e73cba6050e14146447bccb815943262))
+
 ## [0.5.1](https://github.com/tomshaw/electricgrid/compare/v0.5.0...v0.5.1) (2025-02-02)
 
 
