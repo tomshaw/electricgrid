@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/tomshaw/electricgrid/compare/v0.5.2...v1.0.0) (2025-03-12)
+
+
+### ⚠ BREAKING CHANGES
+
+* This update requires Laravel v12 and may introduce breaking changes.
+
+### Features
+
+* update package to Laravel v12 ([af9e8f0](https://github.com/tomshaw/electricgrid/commit/af9e8f08b689ade9eaeb24c5d5f7e1ed395239d8))
+
 ## [0.5.2](https://github.com/tomshaw/electricgrid/compare/v0.5.1...v0.5.2) (2025-02-03)
 
 
