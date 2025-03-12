@@ -1,76 +1,109 @@
 parameters:
 	ignoreErrors:
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Action.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Assets/Scripts.php
+
+		-
+			message: '#^Parameter \#1 \$view of function view expects view\-string\|null, string given\.$#'
+			identifier: argument.type
+			count: 1
+			path: src/Assets/Styles.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Column.php
 
 		-
-			message: "#^Access to an undefined property Illuminate\\\\Database\\\\Eloquent\\\\Builder\\:\\:\\$from\\.$#"
+			message: '#^Access to an undefined property TomShaw\\ElectricGrid\\Component\:\:\$builder\.$#'
+			identifier: property.notFound
 			count: 1
 			path: src/Component.php
 
 		-
-			message: "#^Access to an undefined property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$builder\\.$#"
-			count: 1
-			path: src/Component.php
-
-		-
-			message: "#^Access to an undefined property TomShaw\\\\ElectricGrid\\\\Component\\:\\:\\$columns\\.$#"
+			message: '#^Access to an undefined property TomShaw\\ElectricGrid\\Component\:\:\$columns\.$#'
+			identifier: property.notFound
 			count: 2
 			path: src/Component.php
 
 		-
-			message: "#^Method TomShaw\\\\ElectricGrid\\\\Component\\:\\:export\\(\\) should return Illuminate\\\\Http\\\\Response\\|Symfony\\\\Component\\\\HttpFoundation\\\\BinaryFileResponse but returns Symfony\\\\Component\\\\HttpFoundation\\\\Response\\.$#"
+			message: '#^Method TomShaw\\ElectricGrid\\Component\:\:export\(\) should return Illuminate\\Http\\Response\|Symfony\\Component\\HttpFoundation\\BinaryFileResponse but returns Symfony\\Component\\HttpFoundation\\Response\.$#'
+			identifier: return.type
 			count: 1
 			path: src/Component.php
 
 		-
-			message: "#^Instanceof between Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\Relation and Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\MorphTo will always evaluate to false\\.$#"
+			message: '#^Instanceof between Illuminate\\Database\\Eloquent\\Relations\\Relation and Illuminate\\Database\\Eloquent\\Relations\\MorphTo will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Instanceof between Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\Relation and Illuminate\\\\Database\\\\Eloquent\\\\Relations\\\\MorphToMany will always evaluate to false\\.$#"
+			message: '#^Instanceof between Illuminate\\Database\\Eloquent\\Relations\\Relation and Illuminate\\Database\\Eloquent\\Relations\\MorphToMany will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
 			count: 1
 			path: src/DataSource.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Offset 0 on non\-empty\-list\<string\> on left side of \?\? always exists and is not nullable\.$#'
+			identifier: nullCoalesce.offset
+			count: 1
+			path: src/DataSource.php
+
+		-
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Exceptions/DuplicateActionsHandler.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Exceptions/InvalidDateFormatHandler.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Exceptions/InvalidDateTypeHandler.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Exceptions/InvalidFilterHandler.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Exceptions/InvalidModelRelationsHandler.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Exceptions/RequiredColumnsHandler.php
 
 		-
-			message: "#^Unsafe usage of new static\\(\\)\\.$#"
+			message: '#^Unsafe usage of new static\(\)\.$#'
+			identifier: new.static
 			count: 1
 			path: src/Exceptions/RequiredMethodHandler.php
+
+		-
+			message: '#^Trait TomShaw\\ElectricGrid\\Traits\\WithGridValidation is used zero times and is not analysed\.$#'
+			identifier: trait.unused
+			count: 1
+			path: src/Traits/WithGridValidation.php
