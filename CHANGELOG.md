@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/tomshaw/electricgrid/compare/v1.0.0...v1.0.1) (2025-03-24)
+
+
+### Performance Improvements
+
+* deprecate checkboxAll memory blowup by removing large-scale checkboxValues tracking\n\n- Avoided populating checkboxValues[] with massive row counts when checkboxAll is true\n- Improved scalability by toggling visual checkbox state only for current page\n- Bulk actions now operate efficiently on all rows using logical checkboxAll flag with chunked processing ([11cd5a8](https://github.com/tomshaw/electricgrid/commit/11cd5a83f9f0cddbcb20e9f925d352a2f8ab4e4a))
+
 ## [1.0.0](https://github.com/tomshaw/electricgrid/compare/v0.5.2...v1.0.0) (2025-03-12)
 
 
