@@ -10,6 +10,8 @@ use TomShaw\ElectricGrid\{Column, Component};
 
 class TestComponent extends Component
 {
+    public string $theme = 'tailwind';
+
     public bool $showCheckbox = true;
 
     public bool $showPagination = true;

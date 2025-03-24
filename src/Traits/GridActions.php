@@ -15,7 +15,7 @@ trait GridActions
     {
         $where = collect($this->actions())->flatten()->where('field', $this->selectedAction);
 
-        if ($where->isEmpty() || empty($this->checkboxValues)) {
+        if ($where->isEmpty()) {
             return null;
         }
 
@@ -44,7 +44,9 @@ trait GridActions
 
             $dataSource->orderBy($this->orderBy, $this->orderDir);
 
-            $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
+            if (! $this->checkboxAll) {
+                $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
+            }
 
             $columns = $dataSource->transformColumns($exportables->toArray());
 

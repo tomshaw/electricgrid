@@ -156,12 +156,10 @@ class Component extends BaseComponent
 
     public function handleCheckAll(bool $checked): void
     {
-        $this->checkboxAll = $checked;
-
-        $this->checkboxValues = [];
-        if ($this->checkboxAll) {
-            $this->builder()->each(fn ($model) => $this->checkboxValues[] = $model->{$this->checkboxField});
-        }
+        $this->fill([
+            'checkboxAll' => $checked,
+            'checkboxValues' => [],
+        ]);
     }
 
     public function handleSortOrder($field, $sortable): void
