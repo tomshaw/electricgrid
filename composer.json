@@ -1,6 +1,6 @@
 {
     "name": "tomshaw/electricgrid",
-    "description": "A powerful Livewire data table package. A great choice for projects that require a data table solution.",
+    "description": "A feature-rich Livewire package designed for projects that require dynamic, interactive data tables.",
     "keywords": [
         "laravel",
         "livewire",
