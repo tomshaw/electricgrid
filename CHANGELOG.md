@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/tomshaw/electricgrid/compare/v1.0.2...v1.0.3) (2025-04-19)
+
+
+### Bug Fixes
+
+* update package description for clarity and accuracy ([562b3d2](https://github.com/tomshaw/electricgrid/commit/562b3d204c88a8f964f91bfdf8de2250da491d16))
+
 ## [1.0.2](https://github.com/tomshaw/electricgrid/compare/v1.0.1...v1.0.2) (2025-04-19)
 
 
