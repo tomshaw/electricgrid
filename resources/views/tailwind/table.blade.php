@@ -201,15 +201,8 @@
                         <tr wire:key="{{ $index }}">
                             @if ($showCheckbox)
                                 <td class="border p-2 w-4">
-                                    @php
-                                        $checkboxValue = property_exists($row, $checkboxField) ? $row->{$checkboxField} : md5(json_encode($row));
-                                    @endphp
                                     <div class="flex items-center justify-center">
-                                        @if ($checkboxAll)
-                                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600" checked disabled>
-                                        @else
-                                            <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600" wire:model.live="checkboxValues" value="{{ $checkboxValue }}">
-                                        @endif
+                                        <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600" wire:model.live="checkboxValues" value="{{ $row->{$checkboxField} }}">
                                     </div>
                                 </td>
                             @endif
@@ -235,7 +228,7 @@
         @endif
         @if ($showPerPage)
             <select class="form-select ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live="perPage">
-                <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
+                <option value="-1">All</option>
                 @foreach ($perPageValues as $value)
                     <option value="{{ $value }}">{{ $value }}</option>
                 @endforeach

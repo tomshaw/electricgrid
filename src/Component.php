@@ -144,8 +144,8 @@ class Component extends BaseComponent
     public function getOrderDirValues(): array
     {
         return [
-            self::ORDER_ASC => __('electricgrid.locale.sorting.ascending'),
-            self::ORDER_DESC => __('electricgrid.locale.sorting.descending'),
+            self::ORDER_ASC => 'Ascending',
+            self::ORDER_DESC => 'Descending',
         ];
     }
 
@@ -156,10 +156,11 @@ class Component extends BaseComponent
 
     public function handleCheckAll(bool $checked): void
     {
-        $this->fill([
-            'checkboxAll' => $checked,
-            'checkboxValues' => [],
-        ]);
+        $this->checkboxAll = $checked;
+
+        $this->checkboxValues = $checked
+            ? $this->builder()->pluck($this->checkboxField)->all()
+            : [];
     }
 
     public function handleSortOrder($field, $sortable): void
