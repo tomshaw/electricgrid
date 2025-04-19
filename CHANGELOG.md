@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.2](https://github.com/tomshaw/electricgrid/compare/v1.0.1...v1.0.2) (2025-04-19)
+
+
+### Bug Fixes
+
+* improve checkbox handling and sorting labels in grid component ([212f8e0](https://github.com/tomshaw/electricgrid/commit/212f8e0ebe8dcf74253e4332cb5138f682679295))
+
 ## [1.0.1](https://github.com/tomshaw/electricgrid/compare/v1.0.0...v1.0.1) (2025-03-24)
 
 
