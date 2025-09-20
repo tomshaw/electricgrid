@@ -11,7 +11,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\{DB, Schema};
 use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler, InvalidFilterHandler, InvalidModelRelationsHandler};
 
-class DataSource
+class BuilderDataSource
 {
     public $modelRelationTables = [];
 

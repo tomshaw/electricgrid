@@ -2,10 +2,11 @@
 
 namespace TomShaw\ElectricGrid\Traits;
 
+use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use TomShaw\ElectricGrid\{DataExport, DataSource};
+use TomShaw\ElectricGrid\{BuilderDataSource, CollectionDataSource, DataExport};
 
 trait GridActions
 {
@@ -38,17 +39,27 @@ trait GridActions
 
             $action->put('headings', $exportables->pluck('title')->toArray());
 
-            $dataSource = DataSource::make($this->builder());
+            $builder = $this->builder();
 
-            $dataSource->filter($this->filter);
+            if ($builder instanceof DatabaseCollection) {
+                $dataSource = CollectionDataSource::make($builder);
+                $dataSource->filter($this->filter);
+                $dataSource->orderBy($this->orderBy, $this->orderDir);
 
-            $dataSource->orderBy($this->orderBy, $this->orderDir);
+                // Filter collection by selected checkbox values
+                $dataSource->collection = $dataSource->collection->whereIn($this->checkboxField, $this->checkboxValues);
 
-            $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
+                $columns = $dataSource->transformColumns($exportables->toArray());
+                $collection = $dataSource->transformCollection($dataSource->collection, $columns);
+            } else {
+                $dataSource = BuilderDataSource::make($builder);
+                $dataSource->filter($this->filter);
+                $dataSource->orderBy($this->orderBy, $this->orderDir);
+                $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
 
-            $columns = $dataSource->transformColumns($exportables->toArray());
-
-            $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
+                $columns = $dataSource->transformColumns($exportables->toArray());
+                $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
+            }
 
             return $this->export($collection, $action);
         }

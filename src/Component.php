@@ -2,7 +2,7 @@
 
 namespace TomShaw\ElectricGrid;
 
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\{Builder, Collection as DatabaseCollection};
 use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
 use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
@@ -68,7 +68,12 @@ class Component extends BaseComponent
 
     protected function setup(): void {}
 
-    public function builder(): Builder
+    /**
+     * Return an Eloquent Builder instance for database queries or a DatabaseCollection for in-memory data.
+     *
+     * @return Builder|DatabaseCollection
+     */
+    public function builder(): Builder|DatabaseCollection
     {
         throw RequiredMethodHandler::make('builder');
     }
@@ -88,7 +93,7 @@ class Component extends BaseComponent
         return [];
     }
 
-    public function getBuilderProperty(): Builder
+    public function getBuilderProperty(): Builder|DatabaseCollection
     {
         return $this->builder();
     }
@@ -167,25 +172,47 @@ class Component extends BaseComponent
             return [];
         }
 
-        $dataSource = DataSource::make($this->builder());
-        $dataSource->filter($this->filter);
-
+        $builder = $this->builder();
         $aggregates = [];
 
-        if (! empty($summableColumns)) {
-            $sums = [];
-            foreach ($summableColumns as $field) {
-                $sums[$field] = $dataSource->query->sum($field);
-            }
-            $aggregates['sums'] = $sums;
-        }
+        if ($builder instanceof DatabaseCollection) {
+            $dataSource = CollectionDataSource::make($builder);
+            $dataSource->filter($this->filter);
 
-        if (! empty($averageableColumns)) {
-            $averages = [];
-            foreach ($averageableColumns as $field) {
-                $averages[$field] = $dataSource->query->avg($field);
+            if (! empty($summableColumns)) {
+                $sums = [];
+                foreach ($summableColumns as $field) {
+                    $sums[$field] = $dataSource->sum($field);
+                }
+                $aggregates['sums'] = $sums;
             }
-            $aggregates['averages'] = $averages;
+
+            if (! empty($averageableColumns)) {
+                $averages = [];
+                foreach ($averageableColumns as $field) {
+                    $averages[$field] = $dataSource->avg($field);
+                }
+                $aggregates['averages'] = $averages;
+            }
+        } else {
+            $dataSource = BuilderDataSource::make($builder);
+            $dataSource->filter($this->filter);
+
+            if (! empty($summableColumns)) {
+                $sums = [];
+                foreach ($summableColumns as $field) {
+                    $sums[$field] = $dataSource->query->sum($field);
+                }
+                $aggregates['sums'] = $sums;
+            }
+
+            if (! empty($averageableColumns)) {
+                $averages = [];
+                foreach ($averageableColumns as $field) {
+                    $averages[$field] = $dataSource->query->avg($field);
+                }
+                $aggregates['averages'] = $averages;
+            }
         }
 
         return $aggregates;
@@ -208,9 +235,14 @@ class Component extends BaseComponent
     {
         $this->checkboxAll = $checked;
 
-        $this->checkboxValues = $checked
-            ? $this->builder()->pluck($this->checkboxField)->all()
-            : [];
+        if ($checked) {
+            $builder = $this->builder();
+            $this->checkboxValues = $builder instanceof DatabaseCollection
+                ? $builder->pluck($this->checkboxField)->all()
+                : $builder->pluck($this->checkboxField)->all();
+        } else {
+            $this->checkboxValues = [];
+        }
     }
 
     public function handleSortOrder($field, $sortable): void
@@ -248,7 +280,13 @@ class Component extends BaseComponent
 
     public function render(): View
     {
-        $dataSource = DataSource::make($this->builder);
+        $builder = $this->builder();
+
+        if ($builder instanceof DatabaseCollection) {
+            $dataSource = CollectionDataSource::make($builder);
+        } else {
+            $dataSource = BuilderDataSource::make($builder);
+        }
 
         $dataSource->addComputedColumns($this->computedColumns);
 
