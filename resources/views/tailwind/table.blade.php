@@ -107,7 +107,7 @@
                                     'cursor-pointer' => $column->sortable,
                                     'min-w-[160px]' => $column->align,
                                     $column->style,
-                                ]) tabindex="0" rowspan="1" colspan="1" wire:click.live="handleSortOrder('{{ $column->field }}', `{{ $column->sortable }}`)">
+                                ]) tabindex="0" rowspan="1" colspan="1" wire:click="handleSortOrder('{{ $column->field }}', `{{ $column->sortable }}`)">
                                     <div @class(['flex items-center', $column->align])>
                                         <span>{{ $column->title }}</span>
                                         @if ($column->sortable === true && $column->actionable === false)
