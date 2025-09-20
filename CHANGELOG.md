@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.2.0](https://github.com/tomshaw/electricgrid/compare/v1.1.1...v1.2.0) (2025-09-20)
+
+
+### Features
+
+* added database collection support. ([bcbcee7](https://github.com/tomshaw/electricgrid/commit/bcbcee7c709a3f82653fef31e670044a85ba2bbf))
+* updated per page values ([9934a71](https://github.com/tomshaw/electricgrid/commit/9934a713497c305992a205421340379ed779baa9))
+
+
+### Bug Fixes
+
+* addressed issue with column sorting ([05c142d](https://github.com/tomshaw/electricgrid/commit/05c142dc6b8434c84a17df66b8c39622bce38e96))
+
+
+### Miscellaneous Chores
+
+* **master:** release 1.1.1 ([a66866d](https://github.com/tomshaw/electricgrid/commit/a66866d64f4b138d30b50b42edd18b3644f0dd93))
+
 ## [1.1.1](https://github.com/tomshaw/electricgrid/compare/v1.1.0...v1.1.1) (2025-09-20)
 
 
