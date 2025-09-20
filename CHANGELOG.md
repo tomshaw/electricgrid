@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/tomshaw/electricgrid/compare/v1.0.3...v1.1.0) (2025-09-20)
+
+
+### Features
+
+* add new issue templates for bug reports, documentation issues, feature requests, general issues, improvements, and questions ([d9d6262](https://github.com/tomshaw/electricgrid/commit/d9d626234efec798246e1f65c1c09d5615d45239))
+* added column aggregate summable and averagable features. ([3dd6c1a](https://github.com/tomshaw/electricgrid/commit/3dd6c1a0d776203ab1a5d8ceed88f5002e0adbb6))
+
+
+### Bug Fixes
+
+* component formatting ([e75bedd](https://github.com/tomshaw/electricgrid/commit/e75beddfdd33d21d65e794577e61d6dde40c7ba9))
+
 ## [1.0.3](https://github.com/tomshaw/electricgrid/compare/v1.0.2...v1.0.3) (2025-04-19)
 
 
