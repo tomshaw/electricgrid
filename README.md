@@ -155,6 +155,48 @@ class OrdersTable extends Component
 }
 ```
 
+### Column Aggregates
+
+Columns support aggregate calculations that display in the table footer.
+
+#### Summable Columns
+
+Add `.summable()` to display column totals:
+
+```php
+Column::add('total', 'Total')
+    ->summable(),
+
+Column::add('quantity', 'Quantity')
+    ->summable(),
+```
+
+#### Averageable Columns
+
+Add `.averageable()` to display column averages:
+
+```php
+Column::add('rating', 'Rating')
+    ->averageable(),
+
+Column::add('price', 'Price')
+    ->averageable(),
+```
+
+#### Combined Aggregates
+
+Columns can display both sum and average:
+
+```php
+Column::add('amount', 'Amount')
+    ->summable()
+    ->averageable(),
+```
+
+When both aggregates are present, they display as:
+- **Sum: 1,500.00**
+- **Avg: 150.00**
+
 ### Column Filters.
 
 Filters allow you to filter data displayed in the grid. 
