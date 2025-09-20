@@ -172,7 +172,7 @@ class Component extends BaseComponent
 
         $aggregates = [];
 
-        if (!empty($summableColumns)) {
+        if (! empty($summableColumns)) {
             $sums = [];
             foreach ($summableColumns as $field) {
                 $sums[$field] = $dataSource->query->sum($field);
@@ -180,7 +180,7 @@ class Component extends BaseComponent
             $aggregates['sums'] = $sums;
         }
 
-        if (!empty($averageableColumns)) {
+        if (! empty($averageableColumns)) {
             $averages = [];
             foreach ($averageableColumns as $field) {
                 $averages[$field] = $dataSource->query->avg($field);
