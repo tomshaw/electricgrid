@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/tomshaw/electricgrid/compare/v1.1.0...v1.1.1) (2025-09-20)
+
+
+### Bug Fixes
+
+* addressed issue with column sorting ([05c142d](https://github.com/tomshaw/electricgrid/commit/05c142dc6b8434c84a17df66b8c39622bce38e96))
+
 ## [1.1.0](https://github.com/tomshaw/electricgrid/compare/v1.0.3...v1.1.0) (2025-09-20)
 
 
