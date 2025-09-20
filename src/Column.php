@@ -14,6 +14,10 @@ class Column
 
     public bool $actionable = false;
 
+    public bool $summable = false;
+
+    public bool $averageable = false;
+
     public string $align = '';
 
     public string $style = '';
@@ -75,6 +79,20 @@ class Column
     public function style(string $style): Column
     {
         $this->style = $style;
+
+        return $this;
+    }
+
+    public function summable(bool $summable = true): Column
+    {
+        $this->summable = $summable;
+
+        return $this;
+    }
+
+    public function averageable(bool $averageable = true): Column
+    {
+        $this->averageable = $averageable;
 
         return $this;
     }

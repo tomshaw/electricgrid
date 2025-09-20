@@ -141,6 +141,56 @@ class Component extends BaseComponent
         return $colspan;
     }
 
+    public function getColumnSumsProperty(): array
+    {
+        return $this->columnAggregates['sums'] ?? [];
+    }
+
+    public function getColumnAveragesProperty(): array
+    {
+        return $this->columnAggregates['averages'] ?? [];
+    }
+
+    public function getColumnAggregatesProperty(): array
+    {
+        $summableColumns = collect($this->getColumnsProperty())
+            ->filter(fn ($column) => $column->summable && $column->visible && ! in_array($column->field, $this->hiddenColumns))
+            ->pluck('field')
+            ->toArray();
+
+        $averageableColumns = collect($this->getColumnsProperty())
+            ->filter(fn ($column) => $column->averageable && $column->visible && ! in_array($column->field, $this->hiddenColumns))
+            ->pluck('field')
+            ->toArray();
+
+        if (empty($summableColumns) && empty($averageableColumns)) {
+            return [];
+        }
+
+        $dataSource = DataSource::make($this->builder());
+        $dataSource->filter($this->filter);
+
+        $aggregates = [];
+
+        if (!empty($summableColumns)) {
+            $sums = [];
+            foreach ($summableColumns as $field) {
+                $sums[$field] = $dataSource->query->sum($field);
+            }
+            $aggregates['sums'] = $sums;
+        }
+
+        if (!empty($averageableColumns)) {
+            $averages = [];
+            foreach ($averageableColumns as $field) {
+                $averages[$field] = $dataSource->query->avg($field);
+            }
+            $aggregates['averages'] = $averages;
+        }
+
+        return $aggregates;
+    }
+
     public function getOrderDirValues(): array
     {
         return [

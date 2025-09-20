@@ -219,6 +219,41 @@
                         </tr>
                     @endforeach
                 </tbody>
+                @if (count($this->columnSums) || count($this->columnAverages))
+                    <tfoot>
+                        <tr class="bg-gray-50 border-t-2 border-gray-200">
+                            @if ($showCheckbox)
+                                <td class="border px-2 py-3 font-bold text-gray-700">
+
+                                </td>
+                            @endif
+                            @foreach ($this->columns as $column)
+                                @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
+                                    <td @class([
+                                        'border px-2 py-3 font-bold text-gray-700',
+                                        $column->style,
+                                        $column->align ? 'text-' . $column->align : '',
+                                    ])>
+                                        @php
+                                            $hasSum = $column->summable && isset($this->columnSums[$column->field]);
+                                            $hasAvg = $column->averageable && isset($this->columnAverages[$column->field]);
+                                        @endphp
+                                        @if ($hasSum && $hasAvg)
+                                            <div class="text-sm">
+                                                <div>Sum: {{ number_format($this->columnSums[$column->field], 2) }}</div>
+                                                <div class="text-gray-600">Avg: {{ number_format($this->columnAverages[$column->field], 2) }}</div>
+                                            </div>
+                                        @elseif ($hasSum)
+                                            {{ number_format($this->columnSums[$column->field], 2) }}
+                                        @elseif ($hasAvg)
+                                            {{ number_format($this->columnAverages[$column->field], 2) }}
+                                        @endif
+                                    </td>
+                                @endif
+                            @endforeach
+                        </tr>
+                    </tfoot>
+                @endif
             </table>
         </div>
     </div>
