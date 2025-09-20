@@ -39,7 +39,7 @@ class Component extends BaseComponent
 
     public int $perPage = 15;
 
-    public array $perPageValues = [10, 15, 20, 50, 75, 100];
+    public array $perPageValues = [10, 15, 20, 50, 75, 100, 200, 300, 400, 500, 750, 1000];
 
     public string $orderBy = 'id';
 
