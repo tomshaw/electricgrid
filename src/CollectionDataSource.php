@@ -94,7 +94,15 @@ class CollectionDataSource
 
     public function transformCollection(Collection $results, Collection $columns): Collection
     {
-        return $results->map(fn ($row) => (object) $columns->mapWithKeys(fn ($column, $columnName) => [$columnName => $column($row)])->toArray());
+        return $results->map(fn ($row) => (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
+            $value = $column($row);
+            // Render View objects to strings
+            if ($value instanceof \Illuminate\Contracts\View\View || $value instanceof \Illuminate\Contracts\View\Factory) {
+                $value = $value->render();
+            }
+
+            return [$columnName => $value];
+        })->toArray());
     }
 
     private function createDefaultClosure(string $field): \Closure
