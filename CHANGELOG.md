@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0](https://github.com/tomshaw/electricgrid/compare/v1.2.0...v1.3.0) (2025-12-01)
+
+
+### Features
+
+* enhance collection transformation to render View objects as strings ([d5830f7](https://github.com/tomshaw/electricgrid/commit/d5830f73998e8794a8b5256643c644a32c70a29c))
+
 ## [1.2.0](https://github.com/tomshaw/electricgrid/compare/v1.1.1...v1.2.0) (2025-09-20)
 
 
