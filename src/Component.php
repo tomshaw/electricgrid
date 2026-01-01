@@ -27,6 +27,8 @@ class Component extends BaseComponent
 
     public bool $showToggleColumns = true;
 
+    public bool $persistFilters = false;
+
     public array $searchTermColumns = [];
 
     public array $letterSearchColumns = [];
@@ -61,12 +63,69 @@ class Component extends BaseComponent
 
     public function mount()
     {
+        $this->loadSessionState();
+
         $this->setup();
 
         $this->orderDirValues = $this->getOrderDirValues();
     }
 
     protected function setup(): void {}
+
+    protected function getSessionKey(): string
+    {
+        return 'electricgrid.' . static::class;
+    }
+
+    protected function loadSessionState(): void
+    {
+        if (!$this->persistFilters) {
+            return;
+        }
+
+        $state = session($this->getSessionKey(), []);
+
+        $this->filter = $state['filter'] ?? [];
+        $this->searchTerm = $state['searchTerm'] ?? '';
+        $this->searchLetter = $state['searchLetter'] ?? '';
+        $this->perPage = $state['perPage'] ?? $this->perPage;
+        $this->orderBy = $state['orderBy'] ?? $this->orderBy;
+        $this->orderDir = $state['orderDir'] ?? $this->orderDir;
+        $this->hiddenColumns = $state['hiddenColumns'] ?? [];
+    }
+
+    protected function saveSessionState(): void
+    {
+        if (!$this->persistFilters) {
+            return;
+        }
+
+        session()->put($this->getSessionKey(), [
+            'filter' => $this->filter,
+            'searchTerm' => $this->searchTerm,
+            'searchLetter' => $this->searchLetter,
+            'perPage' => $this->perPage,
+            'orderBy' => $this->orderBy,
+            'orderDir' => $this->orderDir,
+            'hiddenColumns' => $this->hiddenColumns,
+        ]);
+    }
+
+    public function clearSessionState(): void
+    {
+        session()->forget($this->getSessionKey());
+
+        $this->filter = [];
+        $this->searchTerm = '';
+        $this->searchLetter = '';
+        $this->hiddenColumns = [];
+        $this->resetPage();
+    }
+
+    public function updated($_property): void
+    {
+        $this->saveSessionState();
+    }
 
     /**
      * Return an Eloquent Builder instance for database queries or a DatabaseCollection for in-memory data.
