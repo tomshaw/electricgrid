@@ -74,12 +74,12 @@ class Component extends BaseComponent
 
     protected function getSessionKey(): string
     {
-        return 'electricgrid.' . static::class;
+        return 'electricgrid.'.static::class;
     }
 
     protected function loadSessionState(): void
     {
-        if (!$this->persistFilters) {
+        if (! $this->persistFilters) {
             return;
         }
 
@@ -96,7 +96,7 @@ class Component extends BaseComponent
 
     protected function saveSessionState(): void
     {
-        if (!$this->persistFilters) {
+        if (! $this->persistFilters) {
             return;
         }
 

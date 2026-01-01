@@ -45,7 +45,7 @@ it('does not persist filters to session when persistFilters is false', function 
     $component->set('orderBy', 'name');
 
     expect($component->get('persistFilters'))->toBe(false);
-    expect(session()->has('electricgrid.' . TestComponent::class))->toBe(false);
+    expect(session()->has('electricgrid.'.TestComponent::class))->toBe(false);
 });
 
 // Test that session persistence works when enabled
@@ -58,7 +58,7 @@ it('persists filters to session when persistFilters is true', function () {
     $component->set('orderBy', 'name');
     $component->set('orderDir', 'DESC');
 
-    $sessionData = session('electricgrid.' . TestComponent::class);
+    $sessionData = session('electricgrid.'.TestComponent::class);
 
     expect($sessionData)->not->toBeNull();
     expect($sessionData['searchTerm'])->toBe('test search');
@@ -69,7 +69,7 @@ it('persists filters to session when persistFilters is true', function () {
 
 // Test that session state is loaded on component mount
 it('loads persisted state from session on mount', function () {
-    session()->put('electricgrid.' . TestComponent::class, [
+    session()->put('electricgrid.'.TestComponent::class, [
         'filter' => ['text' => ['name' => 'test']],
         'searchTerm' => 'persisted search',
         'searchLetter' => 'A',
@@ -100,11 +100,11 @@ it('clears session state when clearSessionState is called', function () {
     $component->set('filter', ['text' => ['name' => 'test']]);
     $component->set('hiddenColumns', ['status']);
 
-    expect(session()->has('electricgrid.' . TestComponent::class))->toBe(true);
+    expect(session()->has('electricgrid.'.TestComponent::class))->toBe(true);
 
     $component->call('clearSessionState');
 
-    expect(session()->has('electricgrid.' . TestComponent::class))->toBe(false);
+    expect(session()->has('electricgrid.'.TestComponent::class))->toBe(false);
     expect($component->get('searchTerm'))->toBe('');
     expect($component->get('searchLetter'))->toBe('');
     expect($component->get('filter'))->toBe([]);
