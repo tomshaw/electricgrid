@@ -41,7 +41,11 @@ class Component extends BaseComponent
 
     public int $perPage = 15;
 
-    public array $perPageValues = [10, 15, 20, 50, 75, 100, 200, 300, 400, 500, 750, 1000];
+    public array $perPageValues = [15, 30, 50, 100];
+
+    public bool $showAllOption = true;
+
+    public int $showAllThreshold = 1000;
 
     public string $orderBy = 'id';
 
@@ -335,6 +339,74 @@ class Component extends BaseComponent
         } else {
             $this->hiddenColumns[] = $field;
         }
+    }
+
+    protected function getTotalRecords(): int
+    {
+        return once(function () {
+            $builder = $this->builder();
+
+            if ($builder instanceof DatabaseCollection) {
+                $dataSource = CollectionDataSource::make($builder);
+            } else {
+                $dataSource = BuilderDataSource::make($builder);
+            }
+
+            $dataSource->filter($this->filter);
+
+            if ($builder instanceof DatabaseCollection) {
+                return $dataSource->collection->count();
+            }
+
+            return $dataSource->query->count();
+        });
+    }
+
+    public function shouldShowPerPageSelector(): bool
+    {
+        if (! $this->showPerPage) {
+            return false;
+        }
+
+        $totalRecords = $this->getTotalRecords();
+
+        // Hide if there are no records
+        if ($totalRecords === 0) {
+            return false;
+        }
+
+        // Hide if total records are less than or equal to the minimum per-page value
+        $minPerPageValue = min($this->perPageValues);
+        if ($totalRecords <= $minPerPageValue) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public function getAvailablePerPageValues(): array
+    {
+        $totalRecords = $this->getTotalRecords();
+
+        // Filter out values that are greater than or equal to total records
+        return array_filter($this->perPageValues, fn ($value) => $value < $totalRecords);
+    }
+
+    public function shouldShowAllOption(): bool
+    {
+        if (! $this->showAllOption) {
+            return false;
+        }
+
+        $totalRecords = $this->getTotalRecords();
+
+        // Don't show "All" if there are no records
+        if ($totalRecords === 0) {
+            return false;
+        }
+
+        // Don't show "All" if it would load too many records
+        return $totalRecords <= $this->showAllThreshold;
     }
 
     public function render(): View

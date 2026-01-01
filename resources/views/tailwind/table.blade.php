@@ -261,10 +261,12 @@
         @if ($showPagination && method_exists($data, 'links'))
             {!! $data->links('electricgrid::tailwind.pagination') !!}
         @endif
-        @if ($showPerPage)
+        @if ($this->shouldShowPerPageSelector())
             <select class="form-select ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live="perPage">
-                <option value="-1">All</option>
-                @foreach ($perPageValues as $value)
+                @if ($this->shouldShowAllOption())
+                    <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
+                @endif
+                @foreach ($this->getAvailablePerPageValues() as $value)
                     <option value="{{ $value }}">{{ $value }}</option>
                 @endforeach
             </select>

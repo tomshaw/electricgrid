@@ -110,3 +110,114 @@ it('clears session state when clearSessionState is called', function () {
     expect($component->get('filter'))->toBe([]);
     expect($component->get('hiddenColumns'))->toBe([]);
 });
+
+// Test that per-page selector is hidden when there are no records
+it('hides per-page selector when there are no records', function () {
+    TestModel::truncate();
+
+    $component = Livewire::test(TestComponent::class);
+
+    expect($component->instance()->shouldShowPerPageSelector())->toBe(false);
+});
+
+// Test that per-page selector is hidden when records are less than minimum per-page value
+it('hides per-page selector when records are less than or equal to minimum per-page value', function () {
+    TestModel::truncate();
+    for ($i = 0; $i < 10; $i++) {
+        TestModel::create(['name' => "Test $i", 'status' => 1, 'invoiced' => true]);
+    }
+
+    $component = Livewire::test(TestComponent::class);
+    $component->set('perPageValues', [15, 30, 50, 100]);
+
+    expect($component->instance()->shouldShowPerPageSelector())->toBe(false);
+});
+
+// Test that per-page selector is shown when there are enough records
+it('shows per-page selector when there are enough records', function () {
+    TestModel::truncate();
+    for ($i = 0; $i < 20; $i++) {
+        TestModel::create(['name' => "Test $i", 'status' => 1, 'invoiced' => true]);
+    }
+
+    $component = Livewire::test(TestComponent::class);
+    $component->set('perPageValues', [15, 30, 50, 100]);
+
+    expect($component->instance()->shouldShowPerPageSelector())->toBe(true);
+});
+
+// Test that per-page selector can be force hidden via showPerPage property
+it('respects showPerPage property when hiding per-page selector', function () {
+    TestModel::truncate();
+    for ($i = 0; $i < 20; $i++) {
+        TestModel::create(['name' => "Test $i", 'status' => 1, 'invoiced' => true]);
+    }
+
+    $component = Livewire::test(TestComponent::class);
+    $component->set('showPerPage', false);
+
+    expect($component->instance()->shouldShowPerPageSelector())->toBe(false);
+});
+
+// Test that available per-page values excludes options >= total records
+it('filters out per-page values that are greater than or equal to total records', function () {
+    TestModel::truncate();
+    for ($i = 0; $i < 25; $i++) {
+        TestModel::create(['name' => "Test $i", 'status' => 1, 'invoiced' => true]);
+    }
+
+    $component = Livewire::test(TestComponent::class);
+    $component->set('perPageValues', [15, 30, 50, 100]);
+
+    $availableValues = $component->instance()->getAvailablePerPageValues();
+
+    expect($availableValues)->toBe([15]);
+});
+
+// Test that "All" option is shown when records are below threshold
+it('shows "All" option when total records are below threshold', function () {
+    TestModel::truncate();
+    for ($i = 0; $i < 50; $i++) {
+        TestModel::create(['name' => "Test $i", 'status' => 1, 'invoiced' => true]);
+    }
+
+    $component = Livewire::test(TestComponent::class);
+    $component->set('showAllThreshold', 100);
+
+    expect($component->instance()->shouldShowAllOption())->toBe(true);
+});
+
+// Test that "All" option is hidden when records exceed threshold
+it('hides "All" option when total records exceed threshold', function () {
+    TestModel::truncate();
+    for ($i = 0; $i < 150; $i++) {
+        TestModel::create(['name' => "Test $i", 'status' => 1, 'invoiced' => true]);
+    }
+
+    $component = Livewire::test(TestComponent::class);
+    $component->set('showAllThreshold', 100);
+
+    expect($component->instance()->shouldShowAllOption())->toBe(false);
+});
+
+// Test that "All" option can be force hidden via showAllOption property
+it('respects showAllOption property when hiding "All" option', function () {
+    TestModel::truncate();
+    for ($i = 0; $i < 50; $i++) {
+        TestModel::create(['name' => "Test $i", 'status' => 1, 'invoiced' => true]);
+    }
+
+    $component = Livewire::test(TestComponent::class);
+    $component->set('showAllOption', false);
+
+    expect($component->instance()->shouldShowAllOption())->toBe(false);
+});
+
+// Test that "All" option is hidden when there are no records
+it('hides "All" option when there are no records', function () {
+    TestModel::truncate();
+
+    $component = Livewire::test(TestComponent::class);
+
+    expect($component->instance()->shouldShowAllOption())->toBe(false);
+});
