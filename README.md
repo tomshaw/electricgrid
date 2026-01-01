@@ -28,9 +28,11 @@ A powerful Livewire data table package. A great choice for projects that require
 
 8. **Toggleable Columns**: Hide or show columns useful for focusing on the most relevant data.
 
-9. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+9. **Smart Pagination**: Intelligent per-page controls that automatically hide when unnecessary and filter options based on dataset size.
 
-10. **Testing**: Provides a command for running tests to ensure everything works as expected.
+10. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+
+11. **Testing**: Provides a command for running tests to ensure everything works as expected.
 
 ## Installation
 
@@ -408,9 +410,100 @@ Enable by adding the following property filled with the columns names you wish t
 public array $letterSearchColumns = ['name'];
 ```
 
+### Pagination & Per-Page Controls
+
+Electric Grid includes intelligent per-page pagination controls that automatically adapt based on your dataset size.
+
+#### Default Behavior
+
+By default, the grid displays 15 records per page with the following options available:
+
+```php
+public int $perPage = 15;
+public array $perPageValues = [15, 30, 50, 100];
+```
+
+The per-page selector automatically:
+- **Hides when not needed** (no records or records ≤ minimum value)
+- **Filters out irrelevant options** (removes values ≥ total records)
+- **Shows only when useful** (requires more records than smallest per-page option)
+
+#### Customizing Per-Page Options
+
+Override the per-page values in your component:
+
+```php
+class OrdersTable extends Component
+{
+    public int $perPage = 25;
+    public array $perPageValues = [25, 50, 100, 250];
+}
+```
+
+#### "Show All" Option
+
+The "All" option displays all records on a single page, but includes smart safeguards:
+
+```php
+public bool $showAllOption = true;        // Enable/disable "All" option
+public int $showAllThreshold = 1000;      // Hide "All" if records exceed this
+```
+
+The "All" option automatically hides when:
+- Total records exceed the `showAllThreshold`
+- The `showAllOption` property is set to `false`
+- There are no records in the dataset
+
+Example with custom threshold:
+
+```php
+class OrdersTable extends Component
+{
+    public int $showAllThreshold = 500;  // Only show "All" for datasets under 500 records
+}
+```
+
+#### Hiding the Per-Page Selector
+
+Completely disable the per-page selector:
+
+```php
+public bool $showPerPage = false;
+```
+
+#### Global Configuration
+
+You can set global defaults by publishing and modifying the config file:
+
+```bash
+php artisan vendor:publish --tag=electricgrid.config
+```
+
+Then edit `config/electricgrid.php`:
+
+```php
+'per_page' => [
+    'default' => 15,
+    'values' => [15, 30, 50, 100],
+    'show_all' => true,
+    'show_all_threshold' => 1000,
+],
+```
+
+#### Session Persistence
+
+Per-page settings are automatically saved to the session when `persistFilters` is enabled:
+
+```php
+class OrdersTable extends Component
+{
+    public bool $persistFilters = true;  // Remembers user's per-page selection
+}
+```
+
 ## Requirements
 
-The package is compatible with Laravel 11+ and PHP 8.2 and 8.3.
+The package is compatible with Laravel 12+ and PHP 8.5.
 
 ## Testing
 
