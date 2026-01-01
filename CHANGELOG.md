@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.4.0](https://github.com/tomshaw/electricgrid/compare/v1.3.0...v1.4.0) (2026-01-01)
+
+
+### Features
+
+* add per-page settings and improve pagination logic in Component ([1147a5d](https://github.com/tomshaw/electricgrid/commit/1147a5dba9330bc9da70d853b05b363b1e93d4a4))
+* add session state management for filter persistence in Component ([eaee0eb](https://github.com/tomshaw/electricgrid/commit/eaee0eb27fdc5c4653e6b391caca0e412d7d1608))
+* update PHP version requirements and improve session key formatting ([718693e](https://github.com/tomshaw/electricgrid/commit/718693efd12797a18aed309bddf48a5ba3d6cc7b))
+
 ## [1.3.0](https://github.com/tomshaw/electricgrid/compare/v1.2.0...v1.3.0) (2025-12-01)
 
 
