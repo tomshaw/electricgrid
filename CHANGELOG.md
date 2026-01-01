@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/tomshaw/electricgrid/compare/v1.4.0...v1.4.1) (2026-01-01)
+
+
+### Bug Fixes
+
+* enhance README with detailed pagination and per-page controls documentation ([3345684](https://github.com/tomshaw/electricgrid/commit/3345684cdf1c557ef99ddcb1dad3d81ee1ba34ab))
+
 ## [1.4.0](https://github.com/tomshaw/electricgrid/compare/v1.3.0...v1.4.0) (2026-01-01)
 
 
