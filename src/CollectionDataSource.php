@@ -241,6 +241,11 @@ class CollectionDataSource
     {
         $values = $this->normalizeDateTimeValues($values, $filterType);
 
+        // If no valid values after normalization (cleared filters), don't apply filtering
+        if (empty($values)) {
+            return;
+        }
+
         $this->collection = $this->collection->filter(function ($item) use ($columnName, $values) {
             $itemValue = data_get($item, $columnName);
 
@@ -278,6 +283,11 @@ class CollectionDataSource
     {
         $normalizedValues = [];
         foreach ($values as $key => $value) {
+            // Skip empty values (cleared date pickers)
+            if ($value === null || $value === '' || $value === '-1') {
+                continue;
+            }
+
             switch ($type) {
                 case 'time':
                     $date = DateTime::createFromFormat('H:i', $value);
