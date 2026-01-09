@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.1](https://github.com/tomshaw/electricgrid/compare/v1.5.0...v1.5.1) (2026-01-09)
+
+
+### Bug Fixes
+
+* handle empty values in date and time filtering for CollectionDataSource ([52dd389](https://github.com/tomshaw/electricgrid/commit/52dd3890814d9411853dab9600ab00322a763782))
+
 ## [1.5.0](https://github.com/tomshaw/electricgrid/compare/v1.4.1...v1.5.0) (2026-01-09)
 
 
