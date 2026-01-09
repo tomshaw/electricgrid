@@ -2,9 +2,11 @@
 
 namespace TomShaw\ElectricGrid;
 
+use DateTime;
 use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler};
 
 class CollectionDataSource
 {
@@ -45,6 +47,9 @@ class CollectionDataSource
                 'select' => $this->handleSelect($values),
                 'multiselect' => $this->handleMultiSelect($values),
                 'boolean' => $this->handleBoolean($values),
+                'timepicker' => $this->handleTimePicker($values),
+                'datepicker' => $this->handleDatePicker($values),
+                'datetimepicker' => $this->handleDateTimePicker($values),
                 'search_term' => $this->handleSearchTerm($values),
                 'search_letter' => $this->handleSelectLetter($values),
                 default => null, // Skip unsupported filters for collections
@@ -203,6 +208,105 @@ class CollectionDataSource
                 });
             }
         }
+    }
+
+    private function handleTimePicker(array $values): void
+    {
+        foreach ($values as $columnName => $value) {
+            if ($this->hasStartOrEndKey($value)) {
+                $this->applyDateTimeFilter($columnName, $value, 'time');
+            }
+        }
+    }
+
+    private function handleDatePicker(array $values): void
+    {
+        foreach ($values as $columnName => $value) {
+            if ($this->hasStartOrEndKey($value)) {
+                $this->applyDateTimeFilter($columnName, $value, 'date');
+            }
+        }
+    }
+
+    private function handleDateTimePicker(array $values): void
+    {
+        foreach ($values as $columnName => $value) {
+            if ($this->hasStartOrEndKey($value)) {
+                $this->applyDateTimeFilter($columnName, $value, 'datetime');
+            }
+        }
+    }
+
+    private function applyDateTimeFilter(string $columnName, array $values, string $filterType): void
+    {
+        $values = $this->normalizeDateTimeValues($values, $filterType);
+
+        $this->collection = $this->collection->filter(function ($item) use ($columnName, $values) {
+            $itemValue = data_get($item, $columnName);
+
+            if ($itemValue === null) {
+                return false;
+            }
+
+            // Convert item value to timestamp for comparison
+            $itemTimestamp = strtotime($itemValue);
+
+            if ($itemTimestamp === false) {
+                return false;
+            }
+
+            if (isset($values['start']) && ! isset($values['end'])) {
+                $startTimestamp = strtotime($values['start']);
+
+                return $itemTimestamp >= $startTimestamp;
+            } elseif (! isset($values['start']) && isset($values['end'])) {
+                $endTimestamp = strtotime($values['end']);
+
+                return $itemTimestamp <= $endTimestamp;
+            } elseif (isset($values['start']) && isset($values['end'])) {
+                $startTimestamp = strtotime($values['start']);
+                $endTimestamp = strtotime($values['end']);
+
+                return $itemTimestamp >= $startTimestamp && $itemTimestamp <= $endTimestamp;
+            }
+
+            return true;
+        });
+    }
+
+    private function normalizeDateTimeValues(array $values, string $type): array
+    {
+        $normalizedValues = [];
+        foreach ($values as $key => $value) {
+            switch ($type) {
+                case 'time':
+                    $date = DateTime::createFromFormat('H:i', $value);
+                    $format = 'H:i:s';
+                    break;
+                case 'date':
+                    $date = DateTime::createFromFormat('Y-m-d', $value);
+                    $format = 'Y-m-d';
+                    break;
+                case 'datetime':
+                    $date = DateTime::createFromFormat('Y-m-d\TH:i', $value);
+                    $format = 'Y-m-d H:i:s';
+                    break;
+                default:
+                    throw InvalidDateTypeHandler::make($type);
+            }
+            if ($date !== false) {
+                $normalizedValues[$key] = $date->format($format);
+            } else {
+                throw InvalidDateFormatHandler::make($key, $value);
+            }
+        }
+
+        return $normalizedValues;
+    }
+
+    private function hasStartOrEndKey(array $value): bool
+    {
+        return isset($value['start']) || isset($value['end']);
     }
 
     public function sum(string $field): float
