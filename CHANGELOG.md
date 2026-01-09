@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/tomshaw/electricgrid/compare/v1.4.1...v1.5.0) (2026-01-09)
+
+
+### Features
+
+* add date and time filtering capabilities to CollectionDataSource ([75dae8d](https://github.com/tomshaw/electricgrid/commit/75dae8d7acea50bd79952587675b9e25670bd6f4))
+
 ## [1.4.1](https://github.com/tomshaw/electricgrid/compare/v1.4.0...v1.4.1) (2026-01-01)
 
 
