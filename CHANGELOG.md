@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/tomshaw/electricgrid/compare/v1.5.1...v2.0.0) (2026-01-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* upgrade livewire to v4
+
+### Features
+
+* upgrade livewire to v4 ([a43317c](https://github.com/tomshaw/electricgrid/commit/a43317c69647cf0eb16e43c11e5521bdaa8a96e4))
+
 ## [1.5.1](https://github.com/tomshaw/electricgrid/compare/v1.5.0...v1.5.1) (2026-01-09)
 
 
