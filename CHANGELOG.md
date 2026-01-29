@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/tomshaw/electricgrid/compare/v2.0.0...v2.0.1) (2026-01-29)
+
+
+### Bug Fixes
+
+* use Paginator to resolve current page in pagination method ([1e08de4](https://github.com/tomshaw/electricgrid/commit/1e08de48bf522f44541d2c36f787bd1b53ca5790))
+
 ## [2.0.0](https://github.com/tomshaw/electricgrid/compare/v1.5.1...v2.0.0) (2026-01-22)
 
 
