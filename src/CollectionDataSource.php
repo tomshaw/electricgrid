@@ -4,7 +4,7 @@ namespace TomShaw\ElectricGrid;
 
 use DateTime;
 use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
-use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\{LengthAwarePaginator, Paginator};
 use Illuminate\Support\Collection;
 use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler};
 
@@ -66,7 +66,7 @@ class CollectionDataSource
 
     public function paginate(int $perPage = 20): LengthAwarePaginator
     {
-        $page = request()->get('page', 1);
+        $page = Paginator::resolveCurrentPage();
         $total = $this->collection->count();
         $items = ($perPage > 0)
             ? $this->collection->slice(($page - 1) * $perPage, $perPage)->values()
