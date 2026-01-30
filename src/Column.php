@@ -18,8 +18,6 @@ class Column
 
     public bool $averageable = false;
 
-    public string $align = '';
-
     public string $style = '';
 
     public ?\Closure $closure = null;
@@ -65,13 +63,6 @@ class Column
     public function actionable(bool $actionable = true): Column
     {
         $this->actionable = $actionable;
-
-        return $this;
-    }
-
-    public function align(string $align): Column
-    {
-        $this->align = $align;
 
         return $this;
     }

@@ -105,10 +105,9 @@
                                 <th @class([
                                     'border px-2 py-3 font-bold text-gray-600 tracking-wider whitespace-nowrap',
                                     'cursor-pointer' => $column->sortable,
-                                    'min-w-[160px]' => $column->align,
                                     $column->style,
                                 ]) tabindex="0" rowspan="1" colspan="1" wire:click="handleSortOrder('{{ $column->field }}', `{{ $column->sortable }}`)">
-                                    <div @class(['flex items-center', $column->align])>
+                                    <div class="flex items-center">
                                         <span>{{ $column->title }}</span>
                                         @if ($column->sortable === true && $column->actionable === false)
                                             <div @class([
@@ -232,7 +231,6 @@
                                     <td @class([
                                         'border px-2 py-3 font-bold text-gray-700',
                                         $column->style,
-                                        $column->align ? 'text-' . $column->align : '',
                                     ])>
                                         @php
                                             $hasSum = $column->summable && isset($this->columnSums[$column->field]);
