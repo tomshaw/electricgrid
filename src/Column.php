@@ -18,7 +18,7 @@ class Column
 
     public bool $averageable = false;
 
-    public string $style = '';
+    public string $styles = '';
 
     public ?\Closure $closure = null;
 
@@ -67,9 +67,9 @@ class Column
         return $this;
     }
 
-    public function style(string $style): Column
+    public function styles(string|array $styles): Column
     {
-        $this->style = $style;
+        $this->styles = is_array($styles) ? implode(' ', $styles) : $styles;
 
         return $this;
     }
