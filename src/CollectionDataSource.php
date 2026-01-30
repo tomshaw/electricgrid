@@ -97,6 +97,11 @@ class CollectionDataSource
         return collect($columns)->mapWithKeys(fn ($column) => [$column->field => $column->closure ?? $this->createDefaultClosure($column->field)]);
     }
 
+    public function transformColumnsForExport(array $columns): Collection
+    {
+        return collect($columns)->mapWithKeys(fn ($column) => [$column->field => $column->exportClosure ?? $this->createDefaultClosure($column->field)]);
+    }
+
     public function transformCollection(Collection $results, Collection $columns): Collection
     {
         return $results->map(fn ($row) => (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {

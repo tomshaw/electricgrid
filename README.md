@@ -119,6 +119,7 @@ class OrdersTable extends Component
                 ->callback(function (Model $model) {
                     return view('livewire.tables.users-customer', ['model' => $model]);
                 })
+                ->exportCallback(fn (Model $model) => $model->name)
                 ->searchable()
                 ->sortable()
                 ->exportable(),
@@ -392,6 +393,61 @@ Here's an example of how to define custom styles and column widths for Excel exp
             'B' => 30,
         ];
     }
+```
+
+### Export Callbacks
+
+When using HTML callbacks for display (e.g., Blade views for badges, buttons, or formatted content), you may want different output for exports. The `exportCallback` method allows you to specify how a column's data should be formatted when exported, separate from how it's displayed in the grid.
+
+#### The Problem
+
+If you use a callback that returns HTML for display:
+
+```php
+Column::add('status', 'Status')
+    ->callback(fn (Order $order) => view('components.status-badge', ['status' => $order->status]))
+    ->exportable()
+```
+
+The exported file would contain raw HTML like `<span class="badge badge-success">Active</span>` instead of just `Active`.
+
+#### The Solution
+
+Use `exportCallback` to define export-specific formatting:
+
+```php
+Column::add('status', 'Status')
+    ->callback(fn (Order $order) => view('components.status-badge', ['status' => $order->status]))
+    ->exportCallback(fn (Order $order) => $order->status)
+    ->exportable()
+```
+
+Now the grid displays the styled badge, while exports contain the clean value.
+
+#### Behavior
+
+- **With `exportCallback` set**: Exports use the export callback
+- **Without `exportCallback`**: Exports use the raw database value
+
+This means you don't need to specify `exportCallback` if you just want the raw value - simply omit it:
+
+```php
+// Display: HTML badge | Export: raw database value
+Column::add('status', 'Status')
+    ->callback(fn (Order $order) => view('components.status-badge', ['status' => $order->status]))
+    ->exportable()
+
+// Display: formatted date | Export: custom date format
+Column::add('created_at', 'Created At')
+    ->callback(fn (Order $order) => view('components.date-display', ['date' => $order->created_at]))
+    ->exportCallback(fn (Order $order) => $order->created_at->format('Y-m-d H:i:s'))
+    ->exportable()
+
+// Display: currency format | Export: same currency format
+Column::add('total', 'Total')
+    ->callback(fn (Order $order) => number_format($order->total, 2))
+    ->exportCallback(fn (Order $order) => number_format($order->total, 2))
+    ->exportable()
 ```
 
 ### Search Input

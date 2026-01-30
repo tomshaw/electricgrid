@@ -22,6 +22,8 @@ class Column
 
     public ?\Closure $closure = null;
 
+    public ?\Closure $exportClosure = null;
+
     public function __construct(
         public string $field = '',
         public string $title = '',
@@ -91,6 +93,13 @@ class Column
     public function callback(\Closure $closure): Column
     {
         $this->closure = $closure;
+
+        return $this;
+    }
+
+    public function exportCallback(\Closure $closure): Column
+    {
+        $this->exportClosure = $closure;
 
         return $this;
     }

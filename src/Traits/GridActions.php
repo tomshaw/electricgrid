@@ -49,7 +49,7 @@ trait GridActions
                 // Filter collection by selected checkbox values
                 $dataSource->collection = $dataSource->collection->whereIn($this->checkboxField, $this->checkboxValues);
 
-                $columns = $dataSource->transformColumns($exportables->toArray());
+                $columns = $dataSource->transformColumnsForExport($exportables->toArray());
                 $collection = $dataSource->transformCollection($dataSource->collection, $columns);
             } else {
                 $dataSource = BuilderDataSource::make($builder);
@@ -57,7 +57,7 @@ trait GridActions
                 $dataSource->orderBy($this->orderBy, $this->orderDir);
                 $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
 
-                $columns = $dataSource->transformColumns($exportables->toArray());
+                $columns = $dataSource->transformColumnsForExport($exportables->toArray());
                 $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
             }
 
