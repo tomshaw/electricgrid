@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.0](https://github.com/tomshaw/electricgrid/compare/v2.0.1...v2.1.0) (2026-01-30)
+
+
+### Features
+
+* add exportCallback method and transformColumnsForExport for custom export formatting ([5c908ba](https://github.com/tomshaw/electricgrid/commit/5c908ba49f19035748cc144b8a505fe64caf3e03))
+
+
+### Bug Fixes
+
+* rename style property to styles in Column class and update references ([92da8d3](https://github.com/tomshaw/electricgrid/commit/92da8d33e6795f08522250020d75226f942de16a))
+
 ## [2.0.1](https://github.com/tomshaw/electricgrid/compare/v2.0.0...v2.0.1) (2026-01-29)
 
 
