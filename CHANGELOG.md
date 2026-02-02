@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/tomshaw/electricgrid/compare/v2.1.0...v2.1.1) (2026-02-02)
+
+
+### Miscellaneous Chores
+
+* update .gitignore to include .claude and .cursor files ([debf4ee](https://github.com/tomshaw/electricgrid/commit/debf4eec34810812429ab54f95ffdf8bbd34fa2a))
+
 ## [2.1.0](https://github.com/tomshaw/electricgrid/compare/v2.0.1...v2.1.0) (2026-01-30)
 
 
