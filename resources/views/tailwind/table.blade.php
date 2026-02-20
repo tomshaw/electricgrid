@@ -9,7 +9,7 @@
                             <path d="M11 19C6.55556 19 3 15.4444 3 11C3 6.55556 6.55556 3 11 3C15.4444 3 19 6.55556 19 11C19 15.4444 15.4444 19 11 19ZM11 5C7.53333 5 5 7.53333 5 11C5 14.4667 7.53333 17 11 17C14.4667 17 17 14.4667 17 11C17 7.53333 14.4667 5 11 5Z" fill="currentColor"></path>
                         </svg>
                     </span>
-                    <input type="text" wire:model.live.debounce.600ms="searchTerm" class="form-input ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md ps-10" placeholder="{{ __('electricgrid::locale.general.search') }}">
+                    <input type="text" wire:model.live.debounce.600ms="searchTerm" class="form-input ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md ps-10" placeholder="Search">
                 </div>
             @endif
             <div wire:loading class="hidden">
@@ -19,7 +19,7 @@
         <div class="flex items-center justify-center gap-x-2">
             @if (count($this->actions))
                 <select wire:model.live="selectedAction" class="form-select ring-0 outline-none w-[260px] text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md">
-                    <option value="">{{ __('electricgrid::locale.general.choose') }}</option>
+                    <option value="">Choose</option>
                     @foreach ($this->actions as $group => $items)
                         @if (!$group)
                             @foreach ($items as $item)
@@ -68,23 +68,23 @@
     </div>
     <div class="w-full">
         <div class="overflow-x-auto">
-            <table class="bg-white border-collapse table-auto w-full text-sm">
-                <thead>
+            <table class="{{ $this->tableStyle('table') }}">
+                <thead class="{{ $this->tableStyle('thead') }}">
                     @if ($showTableInfo || count($letterSearchColumns))
                         <tr>
-                            <td class="border p-2" rowspan="1" colspan="{{ $this->colspan }}">
+                            <td rowspan="1" colspan="{{ $this->colspan }}">
                                 <div class="flex items-center justify-between">
                                     <div>
                                         @if ($showTableInfo)
-                                            <p class="font-medium text-gray-600 leading-5">
-                                                <span>{!! __('electricgrid::locale.pagination.pagination_info', ['start' => $page->firstItem, 'end' => $page->lastItem, 'total' => $page->total]) !!}</span>
+                                            <p>
+                                                <span>Showing {{ $page->firstItem }} to {{ $page->lastItem }} of {{ $page->total }} results.</span>
                                             </p>
                                         @endif
                                     </div>
                                     @if (count($letterSearchColumns))
                                         <div class="flex items-center justify-center gap-x-1">
                                             @foreach (range('A', 'Z') as $value)
-                                                <span wire:click="handleSelectedLetter('{{ $value }}')" class="font-bold text-gray-600 hover:underline cursor-pointer {{ $value === $searchLetter ? 'text-blue-700 underline' : 'text-[#555]' }}">{{ $value }}</span>
+                                                <span wire:click="handleSelectedLetter('{{ $value }}')" class="font-bold cursor-pointer {{ $value === $searchLetter ? 'underline' : '' }}">{{ $value }}</span>
                                             @endforeach
                                         </div>
                                     @endif
@@ -92,18 +92,18 @@
                             </td>
                         </tr>
                     @endif
-                    <tr class="headers">
+                    <tr>
                         @if ($showCheckbox)
-                            <th class="border px-2 py-3 w-[50px] min-w-[50px] max-w-[50px]" rowspan="1" colspan="1">
+                            <th class="{{ $this->tableStyle('th') }}" rowspan="1" colspan="1">
                                 <div class="flex items-center justify-center">
-                                    <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600" wire.model="checkboxAll" wire:change="handleCheckAll($event.target.checked)">
+                                    <input type="checkbox" class="form-checkbox" wire.model="checkboxAll" wire:change="handleCheckAll($event.target.checked)">
                                 </div>
                             </th>
                         @endif
                         @foreach ($this->columns as $column)
                             @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
                                 <th @class([
-                                    'border px-2 py-3 font-bold text-gray-600 tracking-wider whitespace-nowrap',
+                                    $this->tableStyle('th'),
                                     'cursor-pointer' => $column->sortable,
                                     $column->styles,
                                 ]) tabindex="0" rowspan="1" colspan="1" wire:click="handleSortOrder('{{ $column->field }}', `{{ $column->sortable }}`)">
@@ -111,8 +111,7 @@
                                         <span>{{ $column->title }}</span>
                                         @if ($column->sortable === true && $column->actionable === false)
                                             <div @class([
-                                                'flex flex-col items-end justify-center w-full text-gray-300 hover:text-gray-700',
-                                                '!text-gray-700' => $orderBy === $column->field,
+                                                'flex flex-col items-end justify-center w-full',
                                             ]) title="{{ $this->orderDir }}">
                                                 @if ($orderDir === 'ASC')
                                                     <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -133,11 +132,11 @@
                     @if (count($this->filters))
                         <tr class="filters">
                             @if ($showCheckbox)
-                                <td class="border p-2"></td>
+                                <td class="{{ $this->tableStyle('td') }}"></td>
                             @endif
                             @foreach ($this->columns as $column)
                                 @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
-                                    <td @class(['border p-2 align-top'])>
+                                    <td class="{{ $this->tableStyle('td') }}">
                                         @foreach ($this->filters as $key => $filter)
                                             @if ($filter->column === $column->field)
                                                 <div class="flex flex-col items-start justify-center" wire:key="filter-{{ $column->field }}-{{ $key }}">
@@ -150,7 +149,7 @@
                                                     @endif
                                                     @if ($filter->type('FilterSelect'))
                                                         <select class="form-select w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.select.{{ $column->field }}" {!! $filter->getDataAttributes() !!}>
-                                                            <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
+                                                            <option value="-1">All</option>
                                                             @foreach ($filter->options as $value => $label)
                                                                 <option value="{{ $value }}">{{ $label }}</option>
                                                             @endforeach
@@ -158,7 +157,7 @@
                                                     @endif
                                                     @if ($filter->type('FilterMultiSelect'))
                                                         <select class="form-select-multiple w-full min-w-[140px] ring-0 outline-none text-gray-500 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.multiselect.{{ $column->field }}" {!! $filter->getDataAttributes() !!} multiple>
-                                                            <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
+                                                            <option value="-1">All</option>
                                                             @foreach ($filter->options as $value => $label)
                                                                 <option value="{{ $value }}">{{ $label }}</option>
                                                             @endforeach
@@ -166,7 +165,7 @@
                                                     @endif
                                                     @if ($filter->type('FilterBoolean'))
                                                         <select class="form-select w-full min-w-[140px] ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live.debounce.1s="filter.boolean.{{ $column->field }}" {!! $filter->getDataAttributes() !!}>
-                                                            <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
+                                                            <option value="-1">All</option>
                                                             @foreach ($filter->options as $value => $label)
                                                                 <option value="{{ $value }}">{{ $label }}</option>
                                                             @endforeach
@@ -195,13 +194,13 @@
                         </tr>
                     @endif
                 </thead>
-                <tbody>
+                <tbody class="{{ $this->tableStyle('tbody') }}">
                     @foreach ($data as $index => $row)
-                        <tr wire:key="{{ $index }}">
+                        <tr class="{{ $this->tableStyle('tr') }}" wire:key="{{ $index }}">
                             @if ($showCheckbox)
-                                <td class="border p-2 w-4">
+                                <td class="{{ $this->tableStyle('td') }}">
                                     <div class="flex items-center justify-center">
-                                        <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600" wire:model.live="checkboxValues" value="{{ $row->{$checkboxField} }}">
+                                        <input type="checkbox" class="form-checkbox" wire:model.live="checkboxValues" value="{{ $row->{$checkboxField} }}">
                                     </div>
                                 </td>
                             @endif
@@ -210,7 +209,7 @@
                                     $field = $column->field;
                                 @endphp
                                 @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
-                                    <td @class(['text-gray-600 border p-2', $column->styles])>
+                                    <td @class([$this->tableStyle('td'), $column->styles])>
                                         {!! $row->$field !!}
                                     </td>
                                 @endif
@@ -219,17 +218,15 @@
                     @endforeach
                 </tbody>
                 @if (count($this->columnSums) || count($this->columnAverages))
-                    <tfoot>
-                        <tr class="bg-gray-50 border-t-2 border-gray-200">
+                    <tfoot class="{{ $this->tableStyle('tfoot') }}">
+                        <tr class="{{ $this->tableStyle('tfoot-tr') }}">
                             @if ($showCheckbox)
-                                <td class="border px-2 py-3 font-bold text-gray-700">
-
-                                </td>
+                                <td class="{{ $this->tableStyle('tfoot-td') }}"></td>
                             @endif
                             @foreach ($this->columns as $column)
                                 @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
                                     <td @class([
-                                        'border px-2 py-3 font-bold text-gray-700',
+                                        $this->tableStyle('tfoot-td'),
                                         $column->styles,
                                     ])>
                                         @php
@@ -237,9 +234,9 @@
                                             $hasAvg = $column->averageable && isset($this->columnAverages[$column->field]);
                                         @endphp
                                         @if ($hasSum && $hasAvg)
-                                            <div class="text-sm">
+                                            <div>
                                                 <div>Sum: {{ number_format($this->columnSums[$column->field], 2) }}</div>
-                                                <div class="text-gray-600">Avg: {{ number_format($this->columnAverages[$column->field], 2) }}</div>
+                                                <div>Avg: {{ number_format($this->columnAverages[$column->field], 2) }}</div>
                                             </div>
                                         @elseif ($hasSum)
                                             {{ number_format($this->columnSums[$column->field], 2) }}
@@ -262,7 +259,7 @@
         @if ($this->shouldShowPerPageSelector())
             <select class="form-select ring-0 outline-none text-gray-600 border border-gray-300 hover:border-gray-400 hover:ring-0 focus:ring-0 rounded-md" wire:model.live="perPage">
                 @if ($this->shouldShowAllOption())
-                    <option value="-1">{{ __('electricgrid::locale.general.all') }}</option>
+                    <option value="-1">All</option>
                 @endif
                 @foreach ($this->getAvailablePerPageValues() as $value)
                     <option value="{{ $value }}">{{ $value }}</option>

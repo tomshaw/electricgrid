@@ -22,7 +22,6 @@ class ElectricGridServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadViews();
-        $this->loadTranslations();
         $this->registerLivewireComponents();
         $this->registerBladeComponents();
         $this->registerPublishableResources();
@@ -44,14 +43,6 @@ class ElectricGridServiceProvider extends ServiceProvider
     protected function loadViews(): void
     {
         $this->loadViewsFrom(__DIR__.'/../../resources/views', $this->packageName);
-    }
-
-    /**
-     * Load translations.
-     */
-    protected function loadTranslations(): void
-    {
-        $this->loadTranslationsFrom(__DIR__.'/../../resources/lang', $this->packageName);
     }
 
     /**
@@ -83,9 +74,6 @@ class ElectricGridServiceProvider extends ServiceProvider
             $this->publishes([
                 __DIR__.'/../../resources/views' => resource_path('views/vendor/'.$this->packageName),
             ], $this->packageName.'.views');
-            $this->publishes([
-                __DIR__.'/../../resources/lang' => resource_path('lang/vendor/'.$this->packageName),
-            ], $this->packageName.'.lang');
         }
     }
 

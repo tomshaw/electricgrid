@@ -61,6 +61,8 @@ class Component extends BaseComponent
 
     public array $hiddenColumns = [];
 
+    public array $tableStyles = [];
+
     const ORDER_ASC = 'ASC';
 
     const ORDER_DESC = 'DESC';
@@ -287,6 +289,15 @@ class Component extends BaseComponent
             self::ORDER_ASC => 'Ascending',
             self::ORDER_DESC => 'Descending',
         ];
+    }
+
+    public function tableStyle(string $element): string
+    {
+        if (! empty($this->tableStyles[$element])) {
+            return $this->tableStyles[$element];
+        }
+
+        return config("electricgrid.table_styles.{$element}", '');
     }
 
     public function toggleOrderDirection(): void

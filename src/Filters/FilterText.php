@@ -12,6 +12,6 @@ class FilterText extends FilterBase
     {
         parent::__construct($column);
 
-        $this->placeholder(__('electricgrid::locale.general.search'));
+        $this->placeholder('Search');
     }
 }

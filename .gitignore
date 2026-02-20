@@ -13,4 +13,7 @@ vendor
 node_modules
 .php-cs-fixer.cache
 .claude
+.codex
 .cursor
+.gemini
+.opencode

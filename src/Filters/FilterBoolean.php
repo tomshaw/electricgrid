@@ -13,8 +13,8 @@ class FilterBoolean extends FilterBase
         parent::__construct($column);
 
         $this->options = [
-            'true' => __('electricgrid::locale.general.yes'),
-            'false' => __('electricgrid::locale.general.no'),
+            'true' => 'Yes',
+            'false' => 'No',
         ];
     }
 }

@@ -13,8 +13,8 @@ class FilterNumber extends FilterBase
         parent::__construct($column);
 
         $this->placeholders = [
-            'min' => __('electricgrid::locale.range.min'),
-            'max' => __('electricgrid::locale.range.max'),
+            'min' => 'Min',
+            'max' => 'Max',
         ];
     }
 }
