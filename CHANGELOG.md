@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.0](https://github.com/tomshaw/electricgrid/compare/v2.1.2...v2.2.0) (2026-02-20)
+
+
+### Features
+
+* enhance builder method to support in-memory data sources and update related components ([40a1634](https://github.com/tomshaw/electricgrid/commit/40a163448086006fec00f7f1fc3a30238ce7cfc8))
+
+
+### Bug Fixes
+
+* update badge logos in README to use GitHub branding ([eeccc4d](https://github.com/tomshaw/electricgrid/commit/eeccc4db4253aba6781ad2ae6589f641dd078da4))
+* update badge styles in README for consistency with GitHub branding ([702d795](https://github.com/tomshaw/electricgrid/commit/702d795523e8ef1c84f0024223ca9003da47e8d8))
+
 ## [2.1.2](https://github.com/tomshaw/electricgrid/compare/v2.1.1...v2.1.2) (2026-02-20)
 
 
