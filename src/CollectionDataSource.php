@@ -13,11 +13,17 @@ class CollectionDataSource
     public $computedColumns = [];
 
     public function __construct(
-        public DatabaseCollection $collection,
+        public Collection $collection,
     ) {}
 
-    public static function make(DatabaseCollection $collection): self
+    public static function make(DatabaseCollection|Collection|array $data): self
     {
+        if (is_array($data)) {
+            $data = collect($data)->map(fn ($item) => is_array($item) ? (object) $item : $item);
+        }
+
+        $collection = $data instanceof DatabaseCollection ? $data->toBase() : $data;
+
         return new self($collection);
     }
 

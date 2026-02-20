@@ -3,6 +3,7 @@
 namespace TomShaw\ElectricGrid;
 
 use Illuminate\Database\Eloquent\{Builder, Collection as DatabaseCollection};
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
 use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
@@ -134,11 +135,11 @@ class Component extends BaseComponent
     }
 
     /**
-     * Return an Eloquent Builder instance for database queries or a DatabaseCollection for in-memory data.
+     * Return an Eloquent Builder for database queries, or a DatabaseCollection, Collection, or array for in-memory data.
      *
-     * @return Builder|DatabaseCollection
+     * @return Builder|DatabaseCollection|Collection|array
      */
-    public function builder(): Builder|DatabaseCollection
+    public function builder(): Builder|DatabaseCollection|Collection|array
     {
         throw RequiredMethodHandler::make('builder');
     }
@@ -158,7 +159,7 @@ class Component extends BaseComponent
         return [];
     }
 
-    public function getBuilderProperty(): Builder|DatabaseCollection
+    public function getBuilderProperty(): Builder|DatabaseCollection|Collection|array
     {
         return $this->builder();
     }
@@ -240,26 +241,7 @@ class Component extends BaseComponent
         $builder = $this->builder();
         $aggregates = [];
 
-        if ($builder instanceof DatabaseCollection) {
-            $dataSource = CollectionDataSource::make($builder);
-            $dataSource->filter($this->filter);
-
-            if (! empty($summableColumns)) {
-                $sums = [];
-                foreach ($summableColumns as $field) {
-                    $sums[$field] = $dataSource->sum($field);
-                }
-                $aggregates['sums'] = $sums;
-            }
-
-            if (! empty($averageableColumns)) {
-                $averages = [];
-                foreach ($averageableColumns as $field) {
-                    $averages[$field] = $dataSource->avg($field);
-                }
-                $aggregates['averages'] = $averages;
-            }
-        } else {
+        if ($builder instanceof Builder) {
             $dataSource = BuilderDataSource::make($builder);
             $dataSource->filter($this->filter);
 
@@ -275,6 +257,25 @@ class Component extends BaseComponent
                 $averages = [];
                 foreach ($averageableColumns as $field) {
                     $averages[$field] = $dataSource->query->avg($field);
+                }
+                $aggregates['averages'] = $averages;
+            }
+        } else {
+            $dataSource = CollectionDataSource::make($builder);
+            $dataSource->filter($this->filter);
+
+            if (! empty($summableColumns)) {
+                $sums = [];
+                foreach ($summableColumns as $field) {
+                    $sums[$field] = $dataSource->sum($field);
+                }
+                $aggregates['sums'] = $sums;
+            }
+
+            if (! empty($averageableColumns)) {
+                $averages = [];
+                foreach ($averageableColumns as $field) {
+                    $averages[$field] = $dataSource->avg($field);
                 }
                 $aggregates['averages'] = $averages;
             }
@@ -311,9 +312,11 @@ class Component extends BaseComponent
 
         if ($checked) {
             $builder = $this->builder();
-            $this->checkboxValues = $builder instanceof DatabaseCollection
-                ? $builder->pluck($this->checkboxField)->all()
-                : $builder->pluck($this->checkboxField)->all();
+            if (is_array($builder)) {
+                $this->checkboxValues = collect($builder)->pluck($this->checkboxField)->all();
+            } else {
+                $this->checkboxValues = $builder->pluck($this->checkboxField)->all();
+            }
         } else {
             $this->checkboxValues = [];
         }
@@ -357,19 +360,17 @@ class Component extends BaseComponent
         return once(function () {
             $builder = $this->builder();
 
-            if ($builder instanceof DatabaseCollection) {
-                $dataSource = CollectionDataSource::make($builder);
-            } else {
+            if ($builder instanceof Builder) {
                 $dataSource = BuilderDataSource::make($builder);
+                $dataSource->filter($this->filter);
+
+                return $dataSource->query->count();
             }
 
+            $dataSource = CollectionDataSource::make($builder);
             $dataSource->filter($this->filter);
 
-            if ($builder instanceof DatabaseCollection) {
-                return $dataSource->collection->count();
-            }
-
-            return $dataSource->query->count();
+            return $dataSource->collection->count();
         });
     }
 
@@ -424,10 +425,10 @@ class Component extends BaseComponent
     {
         $builder = $this->builder();
 
-        if ($builder instanceof DatabaseCollection) {
-            $dataSource = CollectionDataSource::make($builder);
-        } else {
+        if ($builder instanceof Builder) {
             $dataSource = BuilderDataSource::make($builder);
+        } else {
+            $dataSource = CollectionDataSource::make($builder);
         }
 
         $dataSource->addComputedColumns($this->computedColumns);

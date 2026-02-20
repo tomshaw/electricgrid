@@ -73,23 +73,60 @@ Add the component to your blade template where you plan to use it.
 
 ### The Builder Method.
 
-Populating your table is done by using the `builder` method.
+Populating your table is done by using the `builder` method. It supports both database queries and in-memory data sources.
 
-> The builder method must return an instance of `Illuminate\Database\Eloquent\Builder`.
+> The builder method can return an Eloquent `Builder` for database queries, or a `DatabaseCollection`, `Collection`, or `array` for in-memory data.
+
+#### Eloquent Builder
+
+Return an Eloquent `Builder` for standard database-backed tables with full query support:
 
 ```php
 use Illuminate\Database\Eloquent\Builder;
 use TomShaw\ElectricGrid\Component;
-use App\Models\Order;
+use App\Models\User;
 
-class OrdersTable extends Component
+class UsersTable extends Component
 {
     public array $computedColumns = ['posts_count'];
-    
+
     public function builder(): Builder
     {
         return User::with(['roles', 'profile'])->withCount('posts');
     }
+}
+```
+
+#### Collection & Array Data Sources
+
+Return a `DatabaseCollection`, `Collection`, or plain `array` to power tables with in-memory data. This is useful for displaying data from APIs, config files, or any non-database source. All standard features including sorting, filtering, pagination, and exports work with collection data sources.
+
+```php
+use Illuminate\Support\Collection;
+use TomShaw\ElectricGrid\Component;
+
+class ProductsTable extends Component
+{
+    public function builder(): Collection
+    {
+        return collect([
+            ['id' => 1, 'name' => 'Widget', 'price' => 9.99],
+            ['id' => 2, 'name' => 'Gadget', 'price' => 24.99],
+            ['id' => 3, 'name' => 'Gizmo', 'price' => 14.99],
+        ]);
+    }
+}
+```
+
+You can also return a plain array:
+
+```php
+public function builder(): array
+{
+    return [
+        ['id' => 1, 'name' => 'Widget', 'price' => 9.99],
+        ['id' => 2, 'name' => 'Gadget', 'price' => 24.99],
+    ];
 }
 ```
 
