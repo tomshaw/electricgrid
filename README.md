@@ -3,9 +3,9 @@
 A powerful Livewire data table package. A great choice for projects that require a data table solution.
 
 ![GitHub Workflow Status](https://img.shields.io/github/actions/workflow/status/tomshaw/electricgrid/run-tests.yml?branch=master&style=flat-square&label=tests)
-![issues](https://img.shields.io/github/issues/tomshaw/electricgrid?style=flat&logo=appveyor)
-![forks](https://img.shields.io/github/forks/tomshaw/electricgrid?style=flat&logo=appveyor)
-![stars](https://img.shields.io/github/stars/tomshaw/electricgrid?style=flat&logo=appveyor)
+![issues](https://img.shields.io/github/issues/tomshaw/electricgrid?style=flat&logo=github)
+![forks](https://img.shields.io/github/forks/tomshaw/electricgrid?style=flat&logo=github)
+![stars](https://img.shields.io/github/stars/tomshaw/electricgrid?style=flat&logo=github)
 [![GitHub license](https://img.shields.io/github/license/tomshaw/electricgrid)](https://github.com/tomshaw/electricgrid/blob/master/LICENSE)
 
 ## Features
