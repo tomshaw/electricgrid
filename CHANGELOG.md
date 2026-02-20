@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/tomshaw/electricgrid/compare/v2.1.1...v2.1.2) (2026-02-20)
+
+
+### Bug Fixes
+
+* update issue templates and remove unused files; enhance table styling in components ([38847bd](https://github.com/tomshaw/electricgrid/commit/38847bd2130b1a859602a7791fa72aa9ac1a9999))
+
 ## [2.1.1](https://github.com/tomshaw/electricgrid/compare/v2.1.0...v2.1.1) (2026-02-02)
 
 
