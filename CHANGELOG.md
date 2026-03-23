@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.3.0](https://github.com/tomshaw/electricgrid/compare/v2.2.0...v2.3.0) (2026-03-23)
+
+
+### Features
+
+* update composer.json to support Laravel 13 and Orchestra Testbench 12 ([3e4317b](https://github.com/tomshaw/electricgrid/commit/3e4317bd5f2e78a4c443a7151bdb69566e779e48))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump actions/cache from 4 to 5 ([f698909](https://github.com/tomshaw/electricgrid/commit/f698909d50df5cb5097606d301e3e8304d9b7c50))
+* **deps:** bump actions/cache from 4 to 5 ([561bb16](https://github.com/tomshaw/electricgrid/commit/561bb16759c3fcc3f6ac8aed1a5384e1f69f261d))
+
 ## [2.2.0](https://github.com/tomshaw/electricgrid/compare/v2.1.2...v2.2.0) (2026-02-20)
 
 
