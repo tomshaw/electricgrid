@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.3.1](https://github.com/tomshaw/electricgrid/compare/v2.3.0...v2.3.1) (2026-03-23)
+
+
+### Bug Fixes
+
+* upgrade actions/checkout and actions/cache to v5, and update git-auto-commit-action to v7 in workflow files ([8f1acb2](https://github.com/tomshaw/electricgrid/commit/8f1acb2ad1514e9a69a041bc8cb49e20a66df15c))
+
 ## [2.3.0](https://github.com/tomshaw/electricgrid/compare/v2.2.0...v2.3.0) (2026-03-23)
 
 
