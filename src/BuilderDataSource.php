@@ -4,6 +4,7 @@ namespace TomShaw\ElectricGrid;
 
 use DateTime;
 use Exception;
+use Illuminate\Contracts\View\{Factory, View};
 use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne, MorphMany, MorphOne, MorphTo, MorphToMany, Relation};
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -193,7 +194,7 @@ class BuilderDataSource
         return $results->map(fn ($row) => (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
             $value = $column($row);
             // Render View objects to strings
-            if ($value instanceof \Illuminate\Contracts\View\View || $value instanceof \Illuminate\Contracts\View\Factory) {
+            if ($value instanceof View || $value instanceof Factory) {
                 $value = $value->render();
             }
 

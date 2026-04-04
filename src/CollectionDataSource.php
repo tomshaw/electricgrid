@@ -3,6 +3,7 @@
 namespace TomShaw\ElectricGrid;
 
 use DateTime;
+use Illuminate\Contracts\View\{Factory, View};
 use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
 use Illuminate\Pagination\{LengthAwarePaginator, Paginator};
 use Illuminate\Support\Collection;
@@ -113,7 +114,7 @@ class CollectionDataSource
         return $results->map(fn ($row) => (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
             $value = $column($row);
             // Render View objects to strings
-            if ($value instanceof \Illuminate\Contracts\View\View || $value instanceof \Illuminate\Contracts\View\Factory) {
+            if ($value instanceof View || $value instanceof Factory) {
                 $value = $value->render();
             }
 
