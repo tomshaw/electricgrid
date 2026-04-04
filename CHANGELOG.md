@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/tomshaw/electricgrid/compare/v2.4.0...v2.5.0) (2026-04-04)
+
+
+### Features
+
+* apply pint code style fixes ([73d3880](https://github.com/tomshaw/electricgrid/commit/73d388022be022268d400ebbe5d73f4bccf435d1))
+
 ## [2.4.0](https://github.com/tomshaw/electricgrid/compare/v2.3.1...v2.4.0) (2026-04-04)
 
 
