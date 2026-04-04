@@ -5,11 +5,9 @@ namespace TomShaw\ElectricGrid\Providers;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
-use TomShaw\ElectricGrid\Assets\Scripts;
-use TomShaw\ElectricGrid\Assets\Styles;
+use TomShaw\ElectricGrid\Assets\{Scripts, Styles};
 use TomShaw\ElectricGrid\Component;
-use TomShaw\ElectricGrid\Console\Commands\InstallCommand;
-use TomShaw\ElectricGrid\Console\Commands\UpdateCommand;
+use TomShaw\ElectricGrid\Console\Commands\{InstallCommand, UpdateCommand};
 
 class ElectricGridServiceProvider extends ServiceProvider
 {

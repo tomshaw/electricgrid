@@ -4,8 +4,7 @@ namespace TomShaw\ElectricGrid\Tests\Components;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use TomShaw\ElectricGrid\Column;
-use TomShaw\ElectricGrid\Component;
+use TomShaw\ElectricGrid\{Column, Component};
 use TomShaw\ElectricGrid\Filters\Filter;
 use TomShaw\ElectricGrid\Tests\Models\TestModel;
 

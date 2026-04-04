@@ -2,14 +2,11 @@
 
 namespace TomShaw\ElectricGrid;
 
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
+use Illuminate\Database\Eloquent\{Builder, Collection as DatabaseCollection};
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
-use Livewire\Component as BaseComponent;
-use Livewire\WithPagination;
-use TomShaw\ElectricGrid\Exceptions\DuplicateActionsHandler;
-use TomShaw\ElectricGrid\Exceptions\RequiredMethodHandler;
+use Livewire\{Component as BaseComponent, WithPagination};
+use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
 use TomShaw\ElectricGrid\Traits\GridActions;
 
 class Component extends BaseComponent
