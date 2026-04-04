@@ -6,7 +6,9 @@ use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use TomShaw\ElectricGrid\{BuilderDataSource, CollectionDataSource, DataExport};
+use TomShaw\ElectricGrid\BuilderDataSource;
+use TomShaw\ElectricGrid\CollectionDataSource;
+use TomShaw\ElectricGrid\DataExport;
 
 trait GridActions
 {

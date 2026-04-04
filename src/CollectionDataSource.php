@@ -4,9 +4,11 @@ namespace TomShaw\ElectricGrid;
 
 use DateTime;
 use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
-use Illuminate\Pagination\{LengthAwarePaginator, Paginator};
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler};
+use TomShaw\ElectricGrid\Exceptions\InvalidDateFormatHandler;
+use TomShaw\ElectricGrid\Exceptions\InvalidDateTypeHandler;
 
 class CollectionDataSource
 {
