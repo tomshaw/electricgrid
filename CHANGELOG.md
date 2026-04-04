@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.4.0](https://github.com/tomshaw/electricgrid/compare/v2.3.1...v2.4.0) (2026-04-04)
+
+
+### Features
+
+* apply pint code style fixes and update linting workflow ([f84ef9d](https://github.com/tomshaw/electricgrid/commit/f84ef9d385184d10758ace32d799d2a0faa7f4ea))
+* fix pint workflow to use project config and revert incorrect style changes ([fccd0eb](https://github.com/tomshaw/electricgrid/commit/fccd0eb8299da882d205fc95cd0f7fc3fffdf1fc))
+* standardize CI workflows and update dependencies for Laravel 13 ([4d01025](https://github.com/tomshaw/electricgrid/commit/4d01025e5074d5ef936d255d23fdb5da6d1ff7f1))
+* use project pint version in CI instead of external action ([a23f45a](https://github.com/tomshaw/electricgrid/commit/a23f45a52e26f310dcb3e3597b65d7ec40461a18))
+
 ## [2.3.1](https://github.com/tomshaw/electricgrid/compare/v2.3.0...v2.3.1) (2026-03-23)
 
 
