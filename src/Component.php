@@ -351,10 +351,12 @@ class Component extends BaseComponent
     public function handleToggleColumns(string $field): void
     {
         if (in_array($field, $this->hiddenColumns)) {
-            $this->hiddenColumns = array_diff($this->hiddenColumns, [$field]);
+            $this->hiddenColumns = array_values(array_diff($this->hiddenColumns, [$field]));
         } else {
             $this->hiddenColumns[] = $field;
         }
+
+        $this->saveSessionState();
     }
 
     protected function getTotalRecords(): int
