@@ -40,12 +40,12 @@
             @if ($showToggleColumns)
                 <div class="relative" x-data="{ open: false }">
                     <button @click="open = !open" type="button"
-                            class="inline-flex items-center px-2.5 py-1.5 rounded-md bg-gray-800 dark:bg-gray-200 border border-transparent font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-6 w-6">
+                            class="inline-flex items-center p-2.5 rounded-md bg-gray-800 dark:bg-gray-200 border border-transparent font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6C7.25 6 3 9.5 3 12s4.25 6 9 6 9-2.5 9-6-4.25-6-9-6zm0 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
                         </svg>
                     </button>
-                    <div x-show="open" @click.away="open = false" role="tooltip" class="absolute z-10 inline-block w-64 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800 right-full mr-3 transform translate-y-[-40%] top-1/2">
+                    <div x-show="open" x-transition @click.away="open = false" class="absolute z-10 w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800 right-0 top-full mt-2">
                         <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
                             <h3 class="font-semibold text-gray-900 dark:text-white">Toggle Columns</h3>
                         </div>
