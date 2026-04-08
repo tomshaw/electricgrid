@@ -199,7 +199,11 @@ class Component extends BaseComponent
 
     public function getColspanProperty(): int
     {
-        $visibleColumns = collect($this->columns)->filter->visible->pluck('field')->toArray();
+        $visibleColumns = collect($this->columns)
+            ->filter->visible
+            ->reject(fn ($column) => in_array($column->field, $this->hiddenColumns))
+            ->pluck('field')
+            ->toArray();
 
         $colspan = count($visibleColumns);
 
