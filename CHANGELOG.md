@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.6.1](https://github.com/tomshaw/electricgrid/compare/v2.6.0...v2.6.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* improve toggle columns button and tooltip styling ([cb7e831](https://github.com/tomshaw/electricgrid/commit/cb7e83190d8cc1fab5df55089212cd69f1d92a62))
+
 ## [2.6.0](https://github.com/tomshaw/electricgrid/compare/v2.5.0...v2.6.0) (2026-04-08)
 
 
