@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.0](https://github.com/tomshaw/electricgrid/compare/v2.5.0...v2.6.0) (2026-04-08)
+
+
+### Features
+
+* enhance getColspanProperty to exclude hidden columns ([374e777](https://github.com/tomshaw/electricgrid/commit/374e777bb01ddeb0b49787729334f20954b072c6))
+* update handleToggleColumns to save session state after toggling columns ([a5ef774](https://github.com/tomshaw/electricgrid/commit/a5ef774cc9b40b8b3cef1561e8b2425c5bfcff53))
+
 ## [2.5.0](https://github.com/tomshaw/electricgrid/compare/v2.4.0...v2.5.0) (2026-04-04)
 
 
