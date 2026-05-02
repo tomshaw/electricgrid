@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.6.2](https://github.com/tomshaw/electricgrid/compare/v2.6.1...v2.6.2) (2026-05-02)
+
+
+### Bug Fixes
+
+* update version constraints for maatwebsite/excel and phpoffice/phpspreadsheet ([debdd21](https://github.com/tomshaw/electricgrid/commit/debdd214190d734a44ff38237a4e9bf50ed22a25))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump googleapis/release-please-action from 4 to 5 ([cd2b611](https://github.com/tomshaw/electricgrid/commit/cd2b611a5cf4b8b1430d758b97260eb3a7e0b326))
+* **deps:** bump googleapis/release-please-action from 4 to 5 ([9fcac97](https://github.com/tomshaw/electricgrid/commit/9fcac97482dd5774eacabfafc29648559bd92919))
+
 ## [2.6.1](https://github.com/tomshaw/electricgrid/compare/v2.6.0...v2.6.1) (2026-04-08)
 
 
