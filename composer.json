@@ -25,8 +25,8 @@
         "illuminate/support": "^13.0",
         "laravel/framework": "^13.0",
         "livewire/livewire": "^4.0",
-        "maatwebsite/excel": "^3.1",
-        "phpoffice/phpspreadsheet": "^1.29|^2.0"
+        "maatwebsite/excel": "^3.1|^4.0",
+        "phpoffice/phpspreadsheet": "^1.29|^2.0|^5.3"
     },
     "require-dev": {
         "larastan/larastan": "^3.0",
