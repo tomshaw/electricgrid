@@ -91,10 +91,10 @@ class CollectionDataSource
         );
     }
 
-    public function transform(LengthAwarePaginator $paginator, array $columns): LengthAwarePaginator
+    public function transform(LengthAwarePaginator $paginator, array $columns, ?\Closure $rowClick = null): LengthAwarePaginator
     {
         $transformedColumns = $this->transformColumns($columns);
-        $transformedCollection = $this->transformCollection($paginator->getCollection(), $transformedColumns);
+        $transformedCollection = $this->transformCollection($paginator->getCollection(), $transformedColumns, $rowClick);
 
         return $paginator->setCollection($transformedCollection);
     }
@@ -109,17 +109,25 @@ class CollectionDataSource
         return collect($columns)->mapWithKeys(fn ($column) => [$column->field => $column->exportClosure ?? $this->createDefaultClosure($column->field)]);
     }
 
-    public function transformCollection(Collection $results, Collection $columns): Collection
+    public function transformCollection(Collection $results, Collection $columns, ?\Closure $rowClick = null): Collection
     {
-        return $results->map(fn ($row) => (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
-            $value = $column($row);
-            // Render View objects to strings
-            if ($value instanceof View || $value instanceof Factory) {
-                $value = $value->render();
+        return $results->map(function ($row) use ($columns, $rowClick) {
+            $transformed = (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
+                $value = $column($row);
+                // Render View objects to strings
+                if ($value instanceof View || $value instanceof Factory) {
+                    $value = $value->render();
+                }
+
+                return [$columnName => $value];
+            })->toArray();
+
+            if ($rowClick) {
+                $transformed->__route = $rowClick($row);
             }
 
-            return [$columnName => $value];
-        })->toArray());
+            return $transformed;
+        });
     }
 
     private function createDefaultClosure(string $field): \Closure

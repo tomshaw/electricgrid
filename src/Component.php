@@ -157,6 +157,11 @@ class Component extends BaseComponent
         return [];
     }
 
+    public function rowClick(): ?\Closure
+    {
+        return null;
+    }
+
     public function getBuilderProperty(): Builder|DatabaseCollection|Collection|array
     {
         return $this->builder();
@@ -443,7 +448,7 @@ class Component extends BaseComponent
 
         $paginator = $dataSource->paginate($this->perPage);
 
-        $paginator = $dataSource->transform($paginator, $this->columns);
+        $paginator = $dataSource->transform($paginator, $this->columns, $this->rowClick());
 
         $page = new \stdClass;
         $page->firstItem = $paginator->firstItem();

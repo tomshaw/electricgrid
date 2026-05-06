@@ -196,9 +196,12 @@
                 </thead>
                 <tbody class="{{ $this->tableStyle('tbody') }}">
                     @foreach ($data as $index => $row)
-                        <tr class="{{ $this->tableStyle('tr') }}" wire:key="{{ $index }}">
+                        @php $rowHref = $row->__route ?? null; @endphp
+                        <tr @class([$this->tableStyle('tr'), 'cursor-pointer' => $rowHref])
+                            @if ($rowHref) x-on:click="window.location.href='{{ $rowHref }}'" @endif
+                            wire:key="{{ $index }}">
                             @if ($showCheckbox)
-                                <td class="{{ $this->tableStyle('td') }}">
+                                <td class="{{ $this->tableStyle('td') }}" @if ($rowHref) x-on:click.stop @endif>
                                     <div class="flex items-center justify-center">
                                         <input type="checkbox" class="form-checkbox" wire:model.live="checkboxValues" value="{{ $row->{$checkboxField} }}">
                                     </div>
