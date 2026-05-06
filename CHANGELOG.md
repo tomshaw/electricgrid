@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.7.0](https://github.com/tomshaw/electricgrid/compare/v2.6.2...v2.7.0) (2026-05-06)
+
+
+### Features
+
+* add row click functionality to table rows and update data source transformations ([806568c](https://github.com/tomshaw/electricgrid/commit/806568c4b31646cd1df2e7f91c41b1d1cede4630))
+
+
+### Bug Fixes
+
+* update README to include clickable rows functionality and examples ([f1798d9](https://github.com/tomshaw/electricgrid/commit/f1798d9f4b1ec918e5fc1eae872584775b1ebfe1))
+
 ## [2.6.2](https://github.com/tomshaw/electricgrid/compare/v2.6.1...v2.6.2) (2026-05-02)
 
 
