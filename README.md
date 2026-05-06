@@ -28,9 +28,11 @@ A powerful Livewire data table package. A great choice for projects that require
 
 9. **Smart Pagination**: Intelligent per-page controls that automatically hide when unnecessary and filter options based on dataset size.
 
-10. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+10. **Clickable Rows**: Send users to a route when a row is clicked, with full access to the row's model and relations.
 
-11. **Testing**: Provides a command for running tests to ensure everything works as expected.
+11. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+
+12. **Testing**: Provides a command for running tests to ensure everything works as expected.
 
 ## Installation
 
@@ -356,6 +358,53 @@ class OrdersTable extends Component
     }
 }
 ```
+
+### Clickable Rows.
+
+Override the `rowClick()` method on your component to make rows navigate to a destination URL when clicked. The closure receives the original model (or row object), so you have full access to attributes and relations — same ergonomics as `Column::callback()`.
+
+```php
+use TomShaw\ElectricGrid\{Component, Column};
+use App\Models\Order;
+
+class OrdersTable extends Component
+{
+    public function builder(): Builder
+    {
+        return Order::query()->with('customer');
+    }
+
+    public function rowClick(): ?\Closure
+    {
+        return fn (Order $order) => route('orders.show', $order);
+    }
+}
+```
+
+**Multiple route parameters and relations** work because the closure receives the model directly — eager-load anything you reference, the same way you would for a column callback:
+
+```php
+public function rowClick(): ?\Closure
+{
+    return fn (Order $order) => route('teams.orders.show', [
+        'team' => $order->team,
+        'order' => $order,
+    ]);
+}
+```
+
+**Skip rows conditionally** by returning `null` for any row that should not be clickable. Those rows render without a click handler or pointer cursor:
+
+```php
+public function rowClick(): ?\Closure
+{
+    return fn (Order $order) => $order->archived
+        ? null
+        : route('orders.show', $order);
+}
+```
+
+> Clicks on the row's checkbox cell are stopped from propagating, so mass-action selection still works normally on clickable rows.
 
 ### Table Exports.
 
