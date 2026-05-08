@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.7.1](https://github.com/tomshaw/electricgrid/compare/v2.7.0...v2.7.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* improve checkbox value handling in GridActions trait; add ExportActionTest for export functionality ([acc0088](https://github.com/tomshaw/electricgrid/commit/acc0088b800c9bf6d9cb980e7002b911b3e7dde1))
+
 ## [2.7.0](https://github.com/tomshaw/electricgrid/compare/v2.6.2...v2.7.0) (2026-05-06)
 
 
