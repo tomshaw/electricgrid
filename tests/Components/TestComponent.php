@@ -4,7 +4,7 @@ namespace TomShaw\ElectricGrid\Tests\Components;
 
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use TomShaw\ElectricGrid\{Column, Component};
+use TomShaw\ElectricGrid\{Action, Column, Component};
 use TomShaw\ElectricGrid\Filters\Filter;
 use TomShaw\ElectricGrid\Tests\Models\TestModel;
 
@@ -71,5 +71,14 @@ class TestComponent extends Component
     public function statusOptions(): array
     {
         return ['New', 'Completed', 'Cancelled'];
+    }
+
+    public function actions(): array
+    {
+        return [
+            Action::groupBy('Export', fn () => [
+                Action::make('export-xlsx', __('Excel'))->export('export.xlsx'),
+            ]),
+        ];
     }
 }

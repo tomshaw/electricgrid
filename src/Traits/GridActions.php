@@ -16,7 +16,7 @@ trait GridActions
     {
         $where = collect($this->actions())->flatten()->where('field', $this->selectedAction);
 
-        if ($where->isEmpty() || empty($this->checkboxValues)) {
+        if ($where->isEmpty()) {
             return null;
         }
 
@@ -46,8 +46,9 @@ trait GridActions
                 $dataSource->filter($this->filter);
                 $dataSource->orderBy($this->orderBy, $this->orderDir);
 
-                // Filter collection by selected checkbox values
-                $dataSource->collection = $dataSource->collection->whereIn($this->checkboxField, $this->checkboxValues);
+                if (! empty($this->checkboxValues)) {
+                    $dataSource->collection = $dataSource->collection->whereIn($this->checkboxField, $this->checkboxValues);
+                }
 
                 $columns = $dataSource->transformColumnsForExport($exportables->toArray());
                 $collection = $dataSource->transformCollection($dataSource->collection, $columns);
@@ -55,13 +56,20 @@ trait GridActions
                 $dataSource = BuilderDataSource::make($builder);
                 $dataSource->filter($this->filter);
                 $dataSource->orderBy($this->orderBy, $this->orderDir);
-                $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
+
+                if (! empty($this->checkboxValues)) {
+                    $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
+                }
 
                 $columns = $dataSource->transformColumnsForExport($exportables->toArray());
                 $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
             }
 
             return $this->export($collection, $action);
+        }
+
+        if (empty($this->checkboxValues)) {
+            return null;
         }
 
         if ($action->has('callable') && is_callable($action->get('callable'))) {
