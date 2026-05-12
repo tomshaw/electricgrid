@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.0](https://github.com/tomshaw/electricgrid/compare/v2.7.1...v2.8.0) (2026-05-12)
+
+
+### Features
+
+* implement infinite scroll functionality with IntersectionObserver and releated tests ([95ace4c](https://github.com/tomshaw/electricgrid/commit/95ace4ca09fd783c1cf765a01a3cb1981b36bc8b))
+
 ## [2.7.1](https://github.com/tomshaw/electricgrid/compare/v2.7.0...v2.7.1) (2026-05-08)
 
 
