@@ -219,6 +219,13 @@
                             @endforeach
                         </tr>
                     @endforeach
+                    @if ($infiniteScroll && $data->total() > $data->count())
+                        <tr wire:key="electricgrid-infinite-scroll" x-data="electricGridInfiniteScroll">
+                            <td colspan="{{ $this->colspan }}" class="text-center py-3 text-sm text-gray-500" wire:loading.delay>
+                                Loading…
+                            </td>
+                        </tr>
+                    @endif
                 </tbody>
                 @if (count($this->columnSums) || count($this->columnAverages))
                     <tfoot class="{{ $this->tableStyle('tfoot') }}">
@@ -256,7 +263,7 @@
         </div>
     </div>
     <div class="flex justify-between items-center py-4">
-        @if ($showPagination && method_exists($data, 'links'))
+        @if ($showPagination && ! $infiniteScroll && method_exists($data, 'links'))
             {!! $data->links('electricgrid::tailwind.pagination') !!}
         @endif
         @if ($this->shouldShowPerPageSelector())

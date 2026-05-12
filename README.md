@@ -28,11 +28,13 @@ A powerful Livewire data table package. A great choice for projects that require
 
 9. **Smart Pagination**: Intelligent per-page controls that automatically hide when unnecessary and filter options based on dataset size.
 
-10. **Clickable Rows**: Send users to a route when a row is clicked, with full access to the row's model and relations.
+10. **Infinite Scroll**: Opt-in IntersectionObserver-driven "load more" mode that grows the result window as the user scrolls.
 
-11. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+11. **Clickable Rows**: Send users to a route when a row is clicked, with full access to the row's model and relations.
 
-12. **Testing**: Provides a command for running tests to ensure everything works as expected.
+12. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+
+13. **Testing**: Provides a command for running tests to ensure everything works as expected.
 
 ## Installation
 
@@ -641,9 +643,58 @@ class OrdersTable extends Component
 }
 ```
 
+### Infinite Scroll
+
+Infinite scroll replaces the paginator with a "load more" pattern: a sentinel row at the bottom of the table uses an `IntersectionObserver` to call `loadMore()` as the user approaches the end of the list, growing the result window in `perPage`-sized chunks.
+
+#### Enabling Infinite Scroll
+
+Set the `$infiniteScroll` property on your component:
+
+```php
+class OrdersTable extends Component
+{
+    public bool $infiniteScroll = true;
+    public int $perPage = 25;  // Chunk size loaded per scroll
+}
+```
+
+When enabled, the pagination links are hidden and the sentinel row appears whenever more rows remain to load.
+
+#### How It Works
+
+`perPage` controls the chunk size. Each call to `loadMore()` increments a `$loadedPages` counter and the grid re-queries with `perPage * loadedPages` rows from the top of the result set. All existing filters, sorting, search, column aggregates, and `rowClick` callbacks continue to work unchanged.
+
+#### Automatic Resets
+
+The result window resets back to a single chunk whenever the user changes:
+
+- Search term (`searchTerm`)
+- Letter search (`searchLetter`)
+- Sort column or direction
+- Per-page chunk size (`perPage`)
+- Session state via `clearSessionState()`
+
+This prevents stale rows from a previous filter combining with new results.
+
+#### Asset Requirements
+
+Infinite scroll uses an Alpine.js component registered by the package's `@electricgridScripts` directive. Make sure that directive is present in your layout (it is part of the standard installation):
+
+```html
+@electricgridStyles
+@electricgridScripts
+```
+
+#### Notes
+
+- Infinite scroll and the standard paginator are mutually exclusive — the pager is hidden automatically when `$infiniteScroll = true`.
+- The per-page selector is still respected as the chunk size for each load.
+- Re-querying grows linearly (`LIMIT perPage * n`), which is efficient for indexed `orderBy` columns. For very large result sets with heavy joins, prefer keeping the standard paginator.
+
 ## Requirements
 
-The package is compatible with Laravel 12+ and PHP 8.5.
+The package is compatible with Laravel 13+ and PHP 8.5.
 
 ## Testing
 

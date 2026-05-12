@@ -30,6 +30,10 @@ class Component extends BaseComponent
 
     public bool $persistFilters = false;
 
+    public bool $infiniteScroll = false;
+
+    public int $loadedPages = 1;
+
     public array $searchTermColumns = [];
 
     public array $letterSearchColumns = [];
@@ -127,11 +131,30 @@ class Component extends BaseComponent
         $this->searchLetter = '';
         $this->hiddenColumns = [];
         $this->resetPage();
+        $this->resetInfiniteScroll();
     }
 
     public function updated($_property): void
     {
+        if (in_array($_property, ['perPage', 'infiniteScroll'], true)) {
+            $this->resetInfiniteScroll();
+        }
+
         $this->saveSessionState();
+    }
+
+    public function loadMore(): void
+    {
+        if (! $this->infiniteScroll) {
+            return;
+        }
+
+        $this->loadedPages++;
+    }
+
+    protected function resetInfiniteScroll(): void
+    {
+        $this->loadedPages = 1;
     }
 
     /**
@@ -180,6 +203,7 @@ class Component extends BaseComponent
     public function updatedSearchTerm(): void
     {
         $this->resetPage();
+        $this->resetInfiniteScroll();
 
         $this->filter = array_merge($this->filter, ['search_term' => array_fill_keys($this->searchTermColumns, $this->searchTerm)]);
     }
@@ -187,6 +211,7 @@ class Component extends BaseComponent
     public function updatedSearchLetter(): void
     {
         $this->resetPage();
+        $this->resetInfiniteScroll();
     }
 
     public function getActionsProperty(): array
@@ -336,6 +361,7 @@ class Component extends BaseComponent
         }
 
         $this->resetPage();
+        $this->resetInfiniteScroll();
 
         $this->toggleOrderDirection();
 
@@ -446,7 +472,11 @@ class Component extends BaseComponent
 
         $dataSource->orderBy($this->orderBy, $this->orderDir);
 
-        $paginator = $dataSource->paginate($this->perPage);
+        $effectivePerPage = $this->infiniteScroll
+            ? $this->perPage * $this->loadedPages
+            : $this->perPage;
+
+        $paginator = $dataSource->paginate($effectivePerPage);
 
         $paginator = $dataSource->transform($paginator, $this->columns, $this->rowClick());
 
