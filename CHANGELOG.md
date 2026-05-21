@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.8.1](https://github.com/tomshaw/electricgrid/compare/v2.8.0...v2.8.1) (2026-05-21)
+
+
+### Bug Fixes
+
+* add type hint for updated method parameter and save session state on letter search ([aab5691](https://github.com/tomshaw/electricgrid/commit/aab5691e990524d13a054216ba6ea87abd0ef39a))
+
 ## [2.8.0](https://github.com/tomshaw/electricgrid/compare/v2.7.1...v2.8.0) (2026-05-12)
 
 
