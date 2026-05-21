@@ -134,7 +134,7 @@ class Component extends BaseComponent
         $this->resetInfiniteScroll();
     }
 
-    public function updated($_property): void
+    public function updated(string $_property): void
     {
         if (in_array($_property, ['perPage', 'infiniteScroll'], true)) {
             $this->resetInfiniteScroll();
@@ -377,6 +377,8 @@ class Component extends BaseComponent
             $this->searchLetter = $selectedLetter;
             $this->filter = array_merge($this->filter, ['search_letter' => array_fill_keys($this->letterSearchColumns, $selectedLetter)]);
         }
+
+        $this->saveSessionState();
     }
 
     public function handleToggleColumns(string $field): void
