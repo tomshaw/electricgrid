@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.9.0](https://github.com/tomshaw/electricgrid/compare/v2.8.1...v2.9.0) (2026-05-25)
+
+
+### Features
+
+* add caption support for tables with customizable positioning and tests ([9ac2e3e](https://github.com/tomshaw/electricgrid/commit/9ac2e3e2073f1d3dd0f39eb6442b3bd38d8aa330))
+* add row stripe customization and corresponding tests ([4063c71](https://github.com/tomshaw/electricgrid/commit/4063c717921f1a3490623f385d5abc8656a09685))
+* enhance data export functionality with customizable styles and tests ([4f3a602](https://github.com/tomshaw/electricgrid/commit/4f3a6020fdc0e42fe38656a0f82e07a66c09c3fe))
+* implement customizable row hover colors and add tests ([985b067](https://github.com/tomshaw/electricgrid/commit/985b067bd83e21f8c6c3abf77644a0cf00662f84))
+
 ## [2.8.1](https://github.com/tomshaw/electricgrid/compare/v2.8.0...v2.8.1) (2026-05-21)
 
 
