@@ -70,6 +70,14 @@ class Component extends BaseComponent
 
     public ?string $rowHoverColorDark = null;
 
+    public ?string $rowStripeOdd = null;
+
+    public ?string $rowStripeEven = null;
+
+    public ?string $rowStripeOddDark = null;
+
+    public ?string $rowStripeEvenDark = null;
+
     const ORDER_ASC = 'ASC';
 
     const ORDER_DESC = 'DESC';
@@ -334,18 +342,34 @@ class Component extends BaseComponent
         return $this;
     }
 
+    public function rowStripes(?string $odd = null, ?string $even = null, ?string $oddDark = null, ?string $evenDark = null): static
+    {
+        $this->rowStripeOdd = $odd;
+        $this->rowStripeEven = $even;
+        $this->rowStripeOddDark = $oddDark;
+        $this->rowStripeEvenDark = $evenDark;
+
+        return $this;
+    }
+
     public function wrapperStyle(): string
     {
         $vars = [];
 
-        $hover = $this->sanitizeHexColor($this->rowHoverColor);
-        if ($hover !== null) {
-            $vars[] = "--eg-row-hover: {$hover}";
-        }
+        $properties = [
+            '--eg-row-hover' => $this->rowHoverColor,
+            '--eg-row-hover-dark' => $this->rowHoverColorDark,
+            '--eg-row-odd' => $this->rowStripeOdd,
+            '--eg-row-even' => $this->rowStripeEven,
+            '--eg-row-odd-dark' => $this->rowStripeOddDark,
+            '--eg-row-even-dark' => $this->rowStripeEvenDark,
+        ];
 
-        $hoverDark = $this->sanitizeHexColor($this->rowHoverColorDark);
-        if ($hoverDark !== null) {
-            $vars[] = "--eg-row-hover-dark: {$hoverDark}";
+        foreach ($properties as $name => $value) {
+            $color = $this->sanitizeHexColor($value);
+            if ($color !== null) {
+                $vars[] = "{$name}: {$color}";
+            }
         }
 
         return implode('; ', $vars);

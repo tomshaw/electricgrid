@@ -28,6 +28,26 @@ Table Filters Background
     }
 
 /* ==========================================================================
+Row Stripes
+========================================================================== */
+
+    .electricgrid tbody tr:nth-child(odd) {
+        background-color: var(--eg-row-odd, transparent);
+    }
+
+    .electricgrid tbody tr:nth-child(even) {
+        background-color: var(--eg-row-even, transparent);
+    }
+
+    .dark .electricgrid tbody tr:nth-child(odd) {
+        background-color: var(--eg-row-odd-dark, transparent);
+    }
+
+    .dark .electricgrid tbody tr:nth-child(even) {
+        background-color: var(--eg-row-even-dark, transparent);
+    }
+
+/* ==========================================================================
 Row Hover
 ========================================================================== */
 
