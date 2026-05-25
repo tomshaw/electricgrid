@@ -31,12 +31,6 @@ parameters:
 			path: src/Component.php
 
 		-
-			message: '#^Method TomShaw\\ElectricGrid\\Component\:\:export\(\) should return Illuminate\\Http\\Response\|Symfony\\Component\\HttpFoundation\\BinaryFileResponse but returns Symfony\\Component\\HttpFoundation\\Response\.$#'
-			identifier: return.type
-			count: 1
-			path: src/Component.php
-
-		-
 			message: '#^Instanceof between Illuminate\\Database\\Eloquent\\Relations\\Relation and Illuminate\\Database\\Eloquent\\Relations\\MorphTo will always evaluate to false\.$#'
 			identifier: instanceof.alwaysFalse
 			count: 1
