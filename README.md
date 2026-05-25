@@ -32,9 +32,15 @@ A powerful Livewire data table package. A great choice for projects that require
 
 11. **Clickable Rows**: Send users to a route when a row is clicked, with full access to the row's model and relations.
 
-12. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+12. **Row Hover**: Set custom hover background colors for light and dark mode.
 
-13. **Testing**: Provides a command for running tests to ensure everything works as expected.
+13. **Row Stripes**: Apply zebra striping with independent odd, even, and dark-mode colors.
+
+14. **Table Caption**: Add an accessible caption above or below the table.
+
+15. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+
+16. **Testing**: Provides a command for running tests to ensure everything works as expected.
 
 ## Installation
 
@@ -408,9 +414,64 @@ public function rowClick(): ?\Closure
 
 > Clicks on the row's checkbox cell are stopped from propagating, so mass-action selection still works normally on clickable rows.
 
+### Row Hover.
+
+Set a custom row hover color with `rowHover()` from the `setup()` hook. Pass a light-mode color, an optional dark-mode color, or both:
+
+```php
+use TomShaw\ElectricGrid\Component;
+
+class OrdersTable extends Component
+{
+    protected function setup(): void
+    {
+        $this->rowHover('#fee2e2', '#7f1d1d');
+    }
+}
+```
+
+Colors must be hex — `#fff`, `#ffffff`, or 8-digit `#ffffff80` (with alpha). Any other value is ignored to prevent style injection. When unset, rows fall back to the theme defaults (`#f9fafb` light, `rgba(255, 255, 255, 0.05)` dark).
+
+### Row Stripes.
+
+Apply zebra striping with `rowStripes()`. Each band — odd and even — takes its own light and dark color, all optional:
+
+```php
+protected function setup(): void
+{
+    // Tint every other row
+    $this->rowStripes(even: '#f9fafb');
+
+    // Full control: odd, even, oddDark, evenDark
+    $this->rowStripes('#ffffff', '#f3f4f6', '#1f2937', '#111827');
+}
+```
+
+Striping is opt-in — omitted bands stay transparent. The same hex validation as `rowHover()` applies, and [row hover](#row-hover) always takes visual precedence over the stripe color.
+
+### Table Caption.
+
+Add a `<caption>` element with `caption()`. The optional second argument places it above (`'top'`, the default) or below (`'bottom'`) the table:
+
+```php
+protected function setup(): void
+{
+    $this->caption('Q2 sales by region');
+
+    // Rendered below the table
+    $this->caption('Figures in USD', 'bottom');
+}
+```
+
+Caption text is HTML-escaped on render. Pass an empty or `null` value to render no caption.
+
+> Positioning uses the Tailwind `caption-top` / `caption-bottom` utilities. If they are not already in your compiled CSS, run `npm run build` (or `npm run dev`) so the caption renders on the correct side. The hover and stripe colors are inlined and need no build step.
+
 ### Table Exports.
 
-Tables can be exported in the following formats `xlsx`, `csv`, `pdf`, `html`. The type of export is decided by `Extension-based format determination`. If you supply a file name of `SalesOrders.xlsx` an Excel spreadsheet will be generated.
+Tables can be exported in the following formats `xlsx`, `csv`, `html`, `pdf`. The type of export is decided by `Extension-based format determination`. If you supply a file name of `SalesOrders.xlsx` an Excel spreadsheet will be generated.
+
+> Exports are powered directly by [PhpSpreadsheet](https://phpspreadsheet.readthedocs.io). The `xlsx`, `csv`, and `html` formats work out of the box. PDF export additionally requires a renderer — install `mpdf/mpdf` (`composer require mpdf/mpdf`).
 
 ```php
 use TomShaw\ElectricGrid\{Component, Column, Filter, Action};

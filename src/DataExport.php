@@ -3,15 +3,13 @@
 namespace TomShaw\ElectricGrid;
 
 use Illuminate\Support\Collection;
-use Maatwebsite\Excel\Concerns\{Exportable, FromCollection, ShouldAutoSize, WithColumnWidths, WithHeadings, WithStyles};
-use Maatwebsite\Excel\Facades\Excel;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\{IOFactory, Spreadsheet};
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Symfony\Component\HttpFoundation\{BinaryFileResponse, Response};
+use Symfony\Component\HttpFoundation\{BinaryFileResponse, ResponseHeaderBag};
 
-class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, WithHeadings, WithStyles
+class DataExport
 {
-    use Exportable;
-
     public string $fileName = 'DataExport.xlsx';
 
     public array $headings = [];
@@ -41,7 +39,7 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
         return $this;
     }
 
-    public function setFileName($fileName): self
+    public function setFileName(string $fileName): self
     {
         $this->fileName = $fileName;
 
@@ -53,7 +51,7 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
         return $this->fileName;
     }
 
-    public function setColumnWidths($columnWidths): self
+    public function setColumnWidths(array $columnWidths): self
     {
         $this->columnWidths = $columnWidths;
 
@@ -65,12 +63,7 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
         return $this->columnWidths;
     }
 
-    public function columnWidths(): array
-    {
-        return $this->getColumnWidths();
-    }
-
-    public function setStyles($styles): self
+    public function setStyles(array $styles): self
     {
         $this->styles = $styles;
 
@@ -82,13 +75,94 @@ class DataExport implements FromCollection, ShouldAutoSize, WithColumnWidths, Wi
         return $this->styles;
     }
 
-    public function styles(Worksheet $sheet): array
+    public function spreadsheet(): Spreadsheet
     {
-        return $this->getStyles();
+        $spreadsheet = new Spreadsheet;
+
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $rows = [];
+
+        if (! empty($this->headings)) {
+            $rows[] = array_values($this->headings);
+        }
+
+        foreach ($this->collection as $row) {
+            $rows[] = array_values((array) $row);
+        }
+
+        $sheet->fromArray($rows, null, 'A1');
+
+        $this->applyColumnDimensions($sheet);
+        $this->applyStyles($sheet);
+
+        return $spreadsheet;
     }
 
-    public function download(): BinaryFileResponse|Response
+    public function download(): BinaryFileResponse
     {
-        return Excel::download($this, $this->getFileName());
+        $writer = IOFactory::createWriter($this->spreadsheet(), $this->writerType());
+
+        $temporaryPath = tempnam(sys_get_temp_dir(), 'electricgrid_');
+
+        $writer->save($temporaryPath);
+
+        $response = new BinaryFileResponse($temporaryPath);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $this->fileName);
+        $response->headers->set('Content-Type', $this->contentType());
+        $response->deleteFileAfterSend(true);
+
+        return $response;
+    }
+
+    protected function applyColumnDimensions(Worksheet $sheet): void
+    {
+        $highestColumnIndex = Coordinate::columnIndexFromString($sheet->getHighestColumn());
+
+        for ($index = 1; $index <= $highestColumnIndex; $index++) {
+            $sheet->getColumnDimension(Coordinate::stringFromColumnIndex($index))->setAutoSize(true);
+        }
+
+        foreach ($this->columnWidths as $column => $width) {
+            $dimension = $sheet->getColumnDimension((string) $column);
+            $dimension->setAutoSize(false);
+            $dimension->setWidth((float) $width);
+        }
+    }
+
+    protected function applyStyles(Worksheet $sheet): void
+    {
+        foreach ($this->styles as $cell => $style) {
+            $sheet->getStyle((string) $cell)->applyFromArray($style);
+        }
+    }
+
+    protected function extension(): string
+    {
+        return strtolower(pathinfo($this->fileName, PATHINFO_EXTENSION));
+    }
+
+    protected function writerType(): string
+    {
+        return match ($this->extension()) {
+            'csv' => 'Csv',
+            'html', 'htm' => 'Html',
+            'xls' => 'Xls',
+            'ods' => 'Ods',
+            'pdf' => 'Mpdf',
+            default => 'Xlsx',
+        };
+    }
+
+    protected function contentType(): string
+    {
+        return match ($this->extension()) {
+            'csv' => 'text/csv',
+            'html', 'htm' => 'text/html',
+            'xls' => 'application/vnd.ms-excel',
+            'ods' => 'application/vnd.oasis.opendocument.spreadsheet',
+            'pdf' => 'application/pdf',
+            default => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        };
     }
 }
