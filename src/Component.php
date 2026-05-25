@@ -78,6 +78,10 @@ class Component extends BaseComponent
 
     public ?string $rowStripeEvenDark = null;
 
+    public ?string $captionText = null;
+
+    public string $captionSide = 'top';
+
     const ORDER_ASC = 'ASC';
 
     const ORDER_DESC = 'DESC';
@@ -348,6 +352,14 @@ class Component extends BaseComponent
         $this->rowStripeEven = $even;
         $this->rowStripeOddDark = $oddDark;
         $this->rowStripeEvenDark = $evenDark;
+
+        return $this;
+    }
+
+    public function caption(?string $text = null, string $side = 'top'): static
+    {
+        $this->captionText = $text;
+        $this->captionSide = $side === 'bottom' ? 'bottom' : 'top';
 
         return $this;
     }

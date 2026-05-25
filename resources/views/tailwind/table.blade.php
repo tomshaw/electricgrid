@@ -69,6 +69,13 @@
     <div class="w-full">
         <div class="overflow-x-auto">
             <table class="w-full text-sm text-left">
+                @if (filled($captionText))
+                    <caption @class([
+                        'py-2 text-sm text-left text-gray-600',
+                        'caption-bottom' => $captionSide === 'bottom',
+                        'caption-top' => $captionSide !== 'bottom',
+                    ])>{{ $captionText }}</caption>
+                @endif
                 <thead class="border-b border-gray-200 text-gray-700">
                     @if ($showTableInfo || count($letterSearchColumns))
                         <tr>
