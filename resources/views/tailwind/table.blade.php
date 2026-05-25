@@ -1,4 +1,4 @@
-<div class="electricgrid">
+<div class="electricgrid"@if ($this->wrapperStyle()) style="{{ $this->wrapperStyle() }}"@endif>
     <div class="flex items-center justify-between w-full py-4">
         <div class="flex items-center justify-center gap-x-2">
             @if (count($searchTermColumns))
@@ -68,8 +68,8 @@
     </div>
     <div class="w-full">
         <div class="overflow-x-auto">
-            <table class="{{ $this->tableStyle('table') }}">
-                <thead class="{{ $this->tableStyle('thead') }}">
+            <table class="w-full text-sm text-left">
+                <thead class="border-b border-gray-200 text-gray-700">
                     @if ($showTableInfo || count($letterSearchColumns))
                         <tr>
                             <td rowspan="1" colspan="{{ $this->colspan }}">
@@ -94,7 +94,7 @@
                     @endif
                     <tr>
                         @if ($showCheckbox)
-                            <th class="{{ $this->tableStyle('th') }}" rowspan="1" colspan="1">
+                            <th class="px-3 py-3 font-medium tracking-wide" rowspan="1" colspan="1">
                                 <div class="flex items-center justify-center">
                                     <input type="checkbox" class="form-checkbox" wire.model="checkboxAll" wire:change="handleCheckAll($event.target.checked)">
                                 </div>
@@ -103,7 +103,7 @@
                         @foreach ($this->columns as $column)
                             @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
                                 <th @class([
-                                    $this->tableStyle('th'),
+                                    'px-3 py-3 font-medium tracking-wide',
                                     'cursor-pointer' => $column->sortable,
                                     $column->styles,
                                 ]) tabindex="0" rowspan="1" colspan="1" wire:click="handleSortOrder('{{ $column->field }}', `{{ $column->sortable }}`)">
@@ -132,11 +132,11 @@
                     @if (count($this->filters))
                         <tr class="filters">
                             @if ($showCheckbox)
-                                <td class="{{ $this->tableStyle('td') }}"></td>
+                                <td class="px-3 py-2 text-gray-600"></td>
                             @endif
                             @foreach ($this->columns as $column)
                                 @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
-                                    <td class="{{ $this->tableStyle('td') }}">
+                                    <td class="px-3 py-2 text-gray-600">
                                         @foreach ($this->filters as $key => $filter)
                                             @if ($filter->column === $column->field)
                                                 <div class="flex flex-col items-start justify-center" wire:key="filter-{{ $column->field }}-{{ $key }}">
@@ -194,14 +194,14 @@
                         </tr>
                     @endif
                 </thead>
-                <tbody class="{{ $this->tableStyle('tbody') }}">
+                <tbody class="divide-y divide-gray-200">
                     @foreach ($data as $index => $row)
                         @php $rowHref = $row->__route ?? null; @endphp
-                        <tr @class([$this->tableStyle('tr'), 'cursor-pointer' => $rowHref])
+                        <tr @class(['cursor-pointer' => $rowHref])
                             @if ($rowHref) x-on:click="window.location.href='{{ $rowHref }}'" @endif
                             wire:key="{{ $index }}">
                             @if ($showCheckbox)
-                                <td class="{{ $this->tableStyle('td') }}" @if ($rowHref) x-on:click.stop @endif>
+                                <td class="px-3 py-2 text-gray-600" @if ($rowHref) x-on:click.stop @endif>
                                     <div class="flex items-center justify-center">
                                         <input type="checkbox" class="form-checkbox" wire:model.live="checkboxValues" value="{{ $row->{$checkboxField} }}">
                                     </div>
@@ -212,7 +212,7 @@
                                     $field = $column->field;
                                 @endphp
                                 @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
-                                    <td @class([$this->tableStyle('td'), $column->styles])>
+                                    <td @class(['px-3 py-2 text-gray-600', $column->styles])>
                                         {!! $row->$field !!}
                                     </td>
                                 @endif
@@ -228,15 +228,15 @@
                     @endif
                 </tbody>
                 @if (count($this->columnSums) || count($this->columnAverages))
-                    <tfoot class="{{ $this->tableStyle('tfoot') }}">
-                        <tr class="{{ $this->tableStyle('tfoot-tr') }}">
+                    <tfoot class="border-t border-gray-200">
+                        <tr class="bg-gray-50">
                             @if ($showCheckbox)
-                                <td class="{{ $this->tableStyle('tfoot-td') }}"></td>
+                                <td class="px-3 py-2 font-semibold text-gray-700"></td>
                             @endif
                             @foreach ($this->columns as $column)
                                 @if ($column->visible && !in_array($column->field, $this->hiddenColumns))
                                     <td @class([
-                                        $this->tableStyle('tfoot-td'),
+                                        'px-3 py-2 font-semibold text-gray-700',
                                         $column->styles,
                                     ])>
                                         @php

@@ -26,4 +26,16 @@ Table Filters Background
                 transparent);
         background-size: 56.57px 56.57px;
     }
+
+/* ==========================================================================
+Row Hover
+========================================================================== */
+
+    .electricgrid tbody tr:hover {
+        background-color: var(--eg-row-hover, #f9fafb);
+    }
+
+    .dark .electricgrid tbody tr:hover {
+        background-color: var(--eg-row-hover-dark, rgba(255, 255, 255, 0.05));
+    }
 </style>

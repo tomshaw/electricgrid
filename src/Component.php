@@ -66,7 +66,9 @@ class Component extends BaseComponent
 
     public array $hiddenColumns = [];
 
-    public array $tableStyles = [];
+    public ?string $rowHoverColor = null;
+
+    public ?string $rowHoverColorDark = null;
 
     const ORDER_ASC = 'ASC';
 
@@ -324,13 +326,38 @@ class Component extends BaseComponent
         ];
     }
 
-    public function tableStyle(string $element): string
+    public function rowHover(?string $light = null, ?string $dark = null): static
     {
-        if (! empty($this->tableStyles[$element])) {
-            return $this->tableStyles[$element];
+        $this->rowHoverColor = $light;
+        $this->rowHoverColorDark = $dark;
+
+        return $this;
+    }
+
+    public function wrapperStyle(): string
+    {
+        $vars = [];
+
+        $hover = $this->sanitizeHexColor($this->rowHoverColor);
+        if ($hover !== null) {
+            $vars[] = "--eg-row-hover: {$hover}";
         }
 
-        return config("electricgrid.table_styles.{$element}", '');
+        $hoverDark = $this->sanitizeHexColor($this->rowHoverColorDark);
+        if ($hoverDark !== null) {
+            $vars[] = "--eg-row-hover-dark: {$hoverDark}";
+        }
+
+        return implode('; ', $vars);
+    }
+
+    protected function sanitizeHexColor(?string $color): ?string
+    {
+        if ($color === null) {
+            return null;
+        }
+
+        return preg_match('/^#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/', $color) === 1 ? $color : null;
     }
 
     public function toggleOrderDirection(): void
