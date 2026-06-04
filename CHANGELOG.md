@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.1](https://github.com/tomshaw/electricgrid/compare/v2.9.0...v2.9.1) (2026-06-04)
+
+
+### Bug Fixes
+
+* improve exportable column visibility logic to match grid display ([5ce963f](https://github.com/tomshaw/electricgrid/commit/5ce963f1290642b18076ab3f9e41d669c1db3d50))
+
 ## [2.9.0](https://github.com/tomshaw/electricgrid/compare/v2.8.1...v2.9.0) (2026-05-25)
 
 
