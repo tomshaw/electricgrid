@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.2](https://github.com/tomshaw/electricgrid/compare/v2.9.1...v2.9.2) (2026-06-04)
+
+
+### Bug Fixes
+
+* update badge links in README for improved visibility and accuracy ([275a50b](https://github.com/tomshaw/electricgrid/commit/275a50b20f421185f1847694e0ebec08c7a485c4))
+
 ## [2.9.1](https://github.com/tomshaw/electricgrid/compare/v2.9.0...v2.9.1) (2026-06-04)
 
 
