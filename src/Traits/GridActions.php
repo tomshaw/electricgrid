@@ -30,7 +30,10 @@ trait GridActions
             $exportables = collect($columns)
                 ->filter->exportable
                 ->reject(function ($column) use ($hiddenColumns) {
-                    return in_array($column->field, $hiddenColumns);
+                    // A column's effective visibility in the grid is "visible XOR in hiddenColumns",
+                    // because toggling a default-hidden column ($column->visible === false) reveals it.
+                    // Reject the columns that are effectively hidden so exports mirror the grid.
+                    return $column->visible === in_array($column->field, $hiddenColumns, true);
                 });
 
             if ($exportables->isEmpty()) {
