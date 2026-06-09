@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.9.3](https://github.com/tomshaw/electricgrid/compare/v2.9.2...v2.9.3) (2026-06-09)
+
+
+### Bug Fixes
+
+* persist session state after toggling order direction ([e19e4ff](https://github.com/tomshaw/electricgrid/commit/e19e4fff09e7073c29e00fdee5b011c2ad88eac3))
+
 ## [2.9.2](https://github.com/tomshaw/electricgrid/compare/v2.9.1...v2.9.2) (2026-06-04)
 
 
