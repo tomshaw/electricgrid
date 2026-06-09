@@ -429,6 +429,7 @@ class Component extends BaseComponent
         $this->toggleOrderDirection();
 
         $this->orderBy = $field;
+        $this->saveSessionState();
     }
 
     public function handleSelectedLetter($selectedLetter): void
