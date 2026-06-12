@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid\Tests\Models;
 
 use Illuminate\Database\Eloquent\Model;

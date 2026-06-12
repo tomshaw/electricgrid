@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use TomShaw\ElectricGrid\{BuilderDataSource, SortDirection};
 use TomShaw\ElectricGrid\Exceptions\InvalidModelRelationsHandler;
 use TomShaw\ElectricGrid\Tests\Models\{Author, Tag, TestModel};

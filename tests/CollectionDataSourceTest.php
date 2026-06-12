@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use TomShaw\ElectricGrid\CollectionDataSource;
 
 function collectionRows(): array
