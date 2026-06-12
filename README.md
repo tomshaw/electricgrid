@@ -3,10 +3,10 @@
 A powerful Livewire data table package. A great choice for projects that require a data table solution.
 
 [![tests](https://github.com/tomshaw/electricgrid/actions/workflows/run-tests.yml/badge.svg?branch=master)](https://github.com/tomshaw/electricgrid/actions/workflows/run-tests.yml)
-![issues](https://img.shields.io/github/issues/tomshaw/electricgrid?style=flat&logo=github&cacheSeconds=3600)
-![forks](https://img.shields.io/github/forks/tomshaw/electricgrid?style=flat&logo=github&cacheSeconds=3600)
-![stars](https://img.shields.io/github/stars/tomshaw/electricgrid?style=flat&logo=github&cacheSeconds=3600)
-[![GitHub license](https://img.shields.io/github/license/tomshaw/electricgrid?style=flat)](https://github.com/tomshaw/electricgrid/blob/master/LICENSE)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/tomshaw/electricgrid?style=flat&cacheSeconds=3600)](https://packagist.org/packages/tomshaw/electricgrid)
+[![Total Downloads](https://img.shields.io/packagist/dt/tomshaw/electricgrid?style=flat&cacheSeconds=3600)](https://packagist.org/packages/tomshaw/electricgrid)
+[![PHP Version](https://img.shields.io/packagist/dependency-v/tomshaw/electricgrid/php?style=flat&cacheSeconds=3600)](https://packagist.org/packages/tomshaw/electricgrid)
+[![License](https://img.shields.io/packagist/l/tomshaw/electricgrid?style=flat&cacheSeconds=3600)](https://github.com/tomshaw/electricgrid/blob/master/LICENSE)
 
 ## Features
 
