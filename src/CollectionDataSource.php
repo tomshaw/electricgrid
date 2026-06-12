@@ -2,16 +2,16 @@
 
 namespace TomShaw\ElectricGrid;
 
-use DateTime;
+use Closure;
 use Illuminate\Contracts\View\{Factory, View};
 use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
 use Illuminate\Pagination\{LengthAwarePaginator, Paginator};
 use Illuminate\Support\Collection;
-use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler};
+use TomShaw\ElectricGrid\Concerns\HandlesFilterValues;
 
 class CollectionDataSource
 {
-    public $computedColumns = [];
+    use HandlesFilterValues;
 
     public function __construct(
         public Collection $collection,
@@ -28,45 +28,26 @@ class CollectionDataSource
         return new self($collection);
     }
 
-    public function addComputedColumns(array $columns): void
+    public function count(): int
     {
-        foreach ($columns as $column) {
-            $this->addComputedColumn($column);
-        }
+        return $this->collection->count();
     }
 
-    public function addComputedColumn(string $columnName): void
+    public function sum(string $field): float
     {
-        $this->computedColumns[] = $columnName;
+        return (float) $this->collection->sum($field);
     }
 
-    public function isComputedColumn($column): bool
+    public function avg(string $field): float
     {
-        return in_array($column, $this->computedColumns);
+        return (float) ($this->collection->avg($field) ?? 0);
     }
 
-    public function filter(array $filters): void
+    public function orderBy(string $columnName, SortDirection|string $sortDirection): self
     {
-        foreach ($filters as $type => $values) {
-            match ($type) {
-                'text' => $this->handleText($values),
-                'number' => $this->handleNumber($values),
-                'select' => $this->handleSelect($values),
-                'multiselect' => $this->handleMultiSelect($values),
-                'boolean' => $this->handleBoolean($values),
-                'timepicker' => $this->handleTimePicker($values),
-                'datepicker' => $this->handleDatePicker($values),
-                'datetimepicker' => $this->handleDateTimePicker($values),
-                'search_term' => $this->handleSearchTerm($values),
-                'search_letter' => $this->handleSelectLetter($values),
-                default => null, // Skip unsupported filters for collections
-            };
-        }
-    }
+        $direction = SortDirection::normalize($sortDirection);
 
-    public function orderBy(string $columnName, string $sortDirection): self
-    {
-        $this->collection = $this->collection->sortBy($columnName, SORT_REGULAR, $sortDirection === 'DESC');
+        $this->collection = $this->collection->sortBy($columnName, SORT_REGULAR, $direction === SortDirection::Desc);
 
         return $this;
     }
@@ -82,7 +63,7 @@ class CollectionDataSource
         return new LengthAwarePaginator(
             $items,
             $total,
-            $perPage > 0 ? $perPage : $total,
+            $perPage > 0 ? $perPage : max($total, 1),
             $page,
             [
                 'path' => request()->url(),
@@ -91,9 +72,169 @@ class CollectionDataSource
         );
     }
 
-    public function transform(LengthAwarePaginator $paginator, array $columns, ?\Closure $rowClick = null): LengthAwarePaginator
+    public function search(string $term, array $columns): self
+    {
+        $term = trim($term);
+
+        if ($term === '' || $columns === []) {
+            return $this;
+        }
+
+        $this->collection = $this->collection->filter(function ($item) use ($term, $columns) {
+            foreach ($columns as $column) {
+                $value = data_get($item, $column);
+
+                if ($value !== null && stripos((string) $value, $term) !== false) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        return $this;
+    }
+
+    public function searchLetter(string $letter, array $columns): self
+    {
+        $letter = trim($letter);
+
+        if ($letter === '' || $columns === []) {
+            return $this;
+        }
+
+        $this->collection = $this->collection->filter(function ($item) use ($letter, $columns) {
+            foreach ($columns as $column) {
+                $value = data_get($item, $column);
+
+                if ($value !== null && stripos((string) $value, $letter) === 0) {
+                    return true;
+                }
+            }
+
+            return false;
+        });
+
+        return $this;
+    }
+
+    public function filter(array $filters): void
+    {
+        foreach ($filters as $type => $values) {
+            if (! is_array($values)) {
+                continue;
+            }
+
+            match (FilterType::tryFrom($type)) {
+                FilterType::Text => $this->applyTextFilters($values),
+                FilterType::Number => $this->applyRangeFilters($values),
+                FilterType::Select => $this->applySelectFilters($values),
+                FilterType::MultiSelect => $this->applyMultiSelectFilters($values),
+                FilterType::Boolean => $this->applyBooleanFilters($values),
+                FilterType::TimePicker => $this->applyDateTimeFilters($values, 'time'),
+                FilterType::DatePicker => $this->applyDateTimeFilters($values, 'date'),
+                FilterType::DateTimePicker => $this->applyDateTimeFilters($values, 'datetime'),
+                null => null,
+            };
+        }
+    }
+
+    private function applyTextFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $this->collection = $this->collection->filter(function ($item) use ($columnName, $value) {
+                $itemValue = data_get($item, $columnName);
+
+                return $itemValue !== null && stripos((string) $itemValue, (string) $value) !== false;
+            });
+        }
+    }
+
+    private function applyRangeFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, $this->isRangeLeaf(...)) as $columnName => $range) {
+            [$start, $end] = $this->rangeBounds($range);
+
+            if ($start === null && $end === null) {
+                continue;
+            }
+
+            $this->collection = $this->collection->filter(function ($item) use ($columnName, $start, $end) {
+                $itemValue = data_get($item, $columnName);
+
+                return $itemValue !== null
+                    && ($start === null || $itemValue >= $start)
+                    && ($end === null || $itemValue <= $end);
+            });
+        }
+    }
+
+    private function applySelectFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
+            if ($this->isIgnoredValue($value)) {
+                continue;
+            }
+
+            $this->collection = $this->collection->filter(fn ($item) => data_get($item, $columnName) == $value);
+        }
+    }
+
+    private function applyMultiSelectFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => is_array($value) && array_is_list($value)) as $columnName => $list) {
+            if ($list === [] || in_array('-1', $list) || in_array(-1, $list, true)) {
+                continue;
+            }
+
+            $this->collection = $this->collection->filter(fn ($item) => in_array(data_get($item, $columnName), $list));
+        }
+    }
+
+    private function applyBooleanFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
+            if ($this->isIgnoredValue($value)) {
+                continue;
+            }
+
+            $expected = $value === 'true';
+
+            $this->collection = $this->collection->filter(fn ($item) => (bool) data_get($item, $columnName) === $expected);
+        }
+    }
+
+    private function applyDateTimeFilters(array $values, string $type): void
+    {
+        foreach ($this->flattenColumns($values, $this->isRangeLeaf(...)) as $columnName => $range) {
+            $range = $this->normalizeDateTimeValues($range, $type);
+
+            $start = isset($range['start']) ? strtotime($range['start']) : null;
+            $end = isset($range['end']) ? strtotime($range['end']) : null;
+
+            if ($start === null && $end === null) {
+                continue;
+            }
+
+            $this->collection = $this->collection->filter(function ($item) use ($columnName, $start, $end) {
+                $itemValue = data_get($item, $columnName);
+                $timestamp = $itemValue === null ? false : strtotime((string) $itemValue);
+
+                return $timestamp !== false
+                    && ($start === null || $timestamp >= $start)
+                    && ($end === null || $timestamp <= $end);
+            });
+        }
+    }
+
+    public function transform(LengthAwarePaginator $paginator, array $columns, ?Closure $rowClick = null): LengthAwarePaginator
     {
         $transformedColumns = $this->transformColumns($columns);
+
         $transformedCollection = $this->transformCollection($paginator->getCollection(), $transformedColumns, $rowClick);
 
         return $paginator->setCollection($transformedCollection);
@@ -109,12 +250,12 @@ class CollectionDataSource
         return collect($columns)->mapWithKeys(fn ($column) => [$column->field => $column->exportClosure ?? $this->createDefaultClosure($column->field)]);
     }
 
-    public function transformCollection(Collection $results, Collection $columns, ?\Closure $rowClick = null): Collection
+    public function transformCollection(Collection $results, Collection $columns, ?Closure $rowClick = null): Collection
     {
         return $results->map(function ($row) use ($columns, $rowClick) {
             $transformed = (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
                 $value = $column($row);
-                // Render View objects to strings
+
                 if ($value instanceof View || $value instanceof Factory) {
                     $value = $value->render();
                 }
@@ -130,222 +271,8 @@ class CollectionDataSource
         });
     }
 
-    private function createDefaultClosure(string $field): \Closure
+    private function createDefaultClosure(string $field): Closure
     {
-        if (strpos($field, '.')) {
-            [$relation, $field] = explode('.', $field, 2);
-
-            return fn ($model) => $model->$relation ? $model->$relation->$field : $model->$field;
-        }
-
-        return fn ($model) => $model->$field;
-    }
-
-    private function handleSearchTerm(array $values): void
-    {
-        foreach ($values as $columnName => $searchTerm) {
-            $this->collection = $this->collection->filter(function ($item) use ($columnName, $searchTerm) {
-                $value = data_get($item, $columnName);
-
-                return stripos($value, $searchTerm) !== false;
-            });
-        }
-    }
-
-    private function handleSelectLetter(array $values): void
-    {
-        foreach ($values as $columnName => $letter) {
-            $this->collection = $this->collection->filter(function ($item) use ($columnName, $letter) {
-                $value = data_get($item, $columnName);
-
-                return stripos($value, $letter) === 0;
-            });
-        }
-    }
-
-    private function handleText(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            $this->collection = $this->collection->filter(function ($item) use ($columnName, $value) {
-                $itemValue = data_get($item, $columnName);
-
-                return stripos($itemValue, $value) !== false;
-            });
-        }
-    }
-
-    private function handleNumber(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (isset($value['start']) || isset($value['end'])) {
-                $this->collection = $this->collection->filter(function ($item) use ($columnName, $value) {
-                    $itemValue = data_get($item, $columnName);
-
-                    if (isset($value['start']) && ! isset($value['end'])) {
-                        return $itemValue >= $value['start'];
-                    } elseif (! isset($value['start']) && isset($value['end'])) {
-                        return $itemValue <= $value['end'];
-                    } elseif (isset($value['start']) && isset($value['end'])) {
-                        return $itemValue >= $value['start'] && $itemValue <= $value['end'];
-                    }
-
-                    return true;
-                });
-            }
-        }
-    }
-
-    private function handleSelect(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if ($value !== '-1') {
-                $this->collection = $this->collection->filter(function ($item) use ($columnName, $value) {
-                    return data_get($item, $columnName) == $value;
-                });
-            }
-        }
-    }
-
-    private function handleMultiSelect(array $values): void
-    {
-        foreach ($values as $columnName => $valueArray) {
-            if (! in_array('-1', $valueArray)) {
-                $this->collection = $this->collection->filter(function ($item) use ($columnName, $valueArray) {
-                    return in_array(data_get($item, $columnName), $valueArray);
-                });
-            }
-        }
-    }
-
-    private function handleBoolean(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if ($value !== '-1') {
-                $this->collection = $this->collection->filter(function ($item) use ($columnName, $value) {
-                    $itemValue = data_get($item, $columnName);
-
-                    return ($value === 'true') ? (bool) $itemValue : ! (bool) $itemValue;
-                });
-            }
-        }
-    }
-
-    private function handleTimePicker(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if ($this->hasStartOrEndKey($value)) {
-                $this->applyDateTimeFilter($columnName, $value, 'time');
-            }
-        }
-    }
-
-    private function handleDatePicker(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if ($this->hasStartOrEndKey($value)) {
-                $this->applyDateTimeFilter($columnName, $value, 'date');
-            }
-        }
-    }
-
-    private function handleDateTimePicker(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if ($this->hasStartOrEndKey($value)) {
-                $this->applyDateTimeFilter($columnName, $value, 'datetime');
-            }
-        }
-    }
-
-    private function applyDateTimeFilter(string $columnName, array $values, string $filterType): void
-    {
-        $values = $this->normalizeDateTimeValues($values, $filterType);
-
-        // If no valid values after normalization (cleared filters), don't apply filtering
-        if (empty($values)) {
-            return;
-        }
-
-        $this->collection = $this->collection->filter(function ($item) use ($columnName, $values) {
-            $itemValue = data_get($item, $columnName);
-
-            if ($itemValue === null) {
-                return false;
-            }
-
-            // Convert item value to timestamp for comparison
-            $itemTimestamp = strtotime($itemValue);
-
-            if ($itemTimestamp === false) {
-                return false;
-            }
-
-            if (isset($values['start']) && ! isset($values['end'])) {
-                $startTimestamp = strtotime($values['start']);
-
-                return $itemTimestamp >= $startTimestamp;
-            } elseif (! isset($values['start']) && isset($values['end'])) {
-                $endTimestamp = strtotime($values['end']);
-
-                return $itemTimestamp <= $endTimestamp;
-            } elseif (isset($values['start']) && isset($values['end'])) {
-                $startTimestamp = strtotime($values['start']);
-                $endTimestamp = strtotime($values['end']);
-
-                return $itemTimestamp >= $startTimestamp && $itemTimestamp <= $endTimestamp;
-            }
-
-            return true;
-        });
-    }
-
-    private function normalizeDateTimeValues(array $values, string $type): array
-    {
-        $normalizedValues = [];
-        foreach ($values as $key => $value) {
-            // Skip empty values (cleared date pickers)
-            if ($value === null || $value === '' || $value === '-1') {
-                continue;
-            }
-
-            switch ($type) {
-                case 'time':
-                    $date = DateTime::createFromFormat('H:i', $value);
-                    $format = 'H:i:s';
-                    break;
-                case 'date':
-                    $date = DateTime::createFromFormat('Y-m-d', $value);
-                    $format = 'Y-m-d';
-                    break;
-                case 'datetime':
-                    $date = DateTime::createFromFormat('Y-m-d\TH:i', $value);
-                    $format = 'Y-m-d H:i:s';
-                    break;
-                default:
-                    throw InvalidDateTypeHandler::make($type);
-            }
-            if ($date !== false) {
-                $normalizedValues[$key] = $date->format($format);
-            } else {
-                throw InvalidDateFormatHandler::make($key, $value);
-            }
-        }
-
-        return $normalizedValues;
-    }
-
-    private function hasStartOrEndKey(array $value): bool
-    {
-        return isset($value['start']) || isset($value['end']);
-    }
-
-    public function sum(string $field): float
-    {
-        return $this->collection->sum($field);
-    }
-
-    public function avg(string $field): float
-    {
-        return $this->collection->avg($field) ?? 0;
+        return fn ($model) => data_get($model, $field);
     }
 }

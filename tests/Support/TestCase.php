@@ -20,12 +20,33 @@ class TestCase extends Orchestra
 
         $this->registerLivewireComponents();
 
+        Schema::create('authors', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->string('email')->nullable();
+            $table->timestamps();
+        });
+
         Schema::create('test_models', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('email')->nullable();
             $table->tinyInteger('status')->default(0);
             $table->boolean('invoiced')->default(false);
+            $table->foreignId('author_id')->nullable();
             $table->timestamps();
+        });
+
+        Schema::create('tags', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('tag_test_model', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('tag_id');
+            $table->foreignId('test_model_id');
         });
     }
 

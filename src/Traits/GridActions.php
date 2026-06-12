@@ -2,11 +2,10 @@
 
 namespace TomShaw\ElectricGrid\Traits;
 
-use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use TomShaw\ElectricGrid\{BuilderDataSource, CollectionDataSource, DataExport};
+use TomShaw\ElectricGrid\{CollectionDataSource, DataExport};
 
 trait GridActions
 {
@@ -42,13 +41,10 @@ trait GridActions
 
             $action->put('headings', $exportables->pluck('title')->toArray());
 
-            $builder = $this->builder();
+            $dataSource = clone $this->dataSource();
+            $dataSource->orderBy($this->orderBy, $this->orderDir);
 
-            if ($builder instanceof DatabaseCollection) {
-                $dataSource = CollectionDataSource::make($builder);
-                $dataSource->filter($this->filter);
-                $dataSource->orderBy($this->orderBy, $this->orderDir);
-
+            if ($dataSource instanceof CollectionDataSource) {
                 if (! empty($this->checkboxValues)) {
                     $dataSource->collection = $dataSource->collection->whereIn($this->checkboxField, $this->checkboxValues);
                 }
@@ -56,12 +52,8 @@ trait GridActions
                 $columns = $dataSource->transformColumnsForExport($exportables->toArray());
                 $collection = $dataSource->transformCollection($dataSource->collection, $columns);
             } else {
-                $dataSource = BuilderDataSource::make($builder);
-                $dataSource->filter($this->filter);
-                $dataSource->orderBy($this->orderBy, $this->orderDir);
-
                 if (! empty($this->checkboxValues)) {
-                    $dataSource->query->whereIn("{$dataSource->query->from}.{$this->checkboxField}", $this->checkboxValues);
+                    $dataSource->query->whereIn($dataSource->query->qualifyColumn($this->checkboxField), $this->checkboxValues);
                 }
 
                 $columns = $dataSource->transformColumnsForExport($exportables->toArray());

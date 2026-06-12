@@ -2,175 +2,298 @@
 
 namespace TomShaw\ElectricGrid;
 
-use DateTime;
-use Exception;
+use Closure;
 use Illuminate\Contracts\View\{Factory, View};
-use Illuminate\Database\Eloquent\{Builder, Model};
-use Illuminate\Database\Eloquent\Relations\{BelongsTo, BelongsToMany, HasMany, HasOne, MorphMany, MorphOne, MorphTo, MorphToMany, Relation};
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\{MorphTo, Relation};
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\{DB, Schema};
-use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler, InvalidFilterHandler, InvalidModelRelationsHandler};
+use TomShaw\ElectricGrid\Concerns\HandlesFilterValues;
+use TomShaw\ElectricGrid\Exceptions\{InvalidFilterHandler, InvalidModelRelationsHandler};
 
 class BuilderDataSource
 {
-    public $modelRelationTables = [];
+    use HandlesFilterValues;
 
-    public $modelRelationFillables = [];
-
-    public $modelRelationColumnListing = [];
-
-    public $computedColumns = [];
-
-    private const IGNORE_VALUE = -1;
+    private const LIKE_ESCAPE = '!';
 
     public function __construct(
         public Builder $query,
-    ) {
-        $relationships = $this->getRelationships();
-        $modelInstance = $this->getModelInstance();
-
-        try {
-            $this->modelRelationTables = $this->getModelRelationTables($relationships, $modelInstance);
-            $this->modelRelationFillables = $this->getModelRelationFillables($relationships, $modelInstance);
-            $this->modelRelationColumnListing = $this->getModelRelationColumnListing($relationships, $modelInstance);
-        } catch (Exception $e) {
-            throw InvalidModelRelationsHandler::make($e->getMessage());
-        }
-    }
+    ) {}
 
     public static function make(Builder $query): self
     {
         return new self($query);
     }
 
-    private function getModelRelationTables(array $relationships, $modelInstance): array
+    public function __clone()
     {
-        $modelRelationTables = [];
-        foreach ($relationships as $relationship) {
-            $relatedModel = $modelInstance->$relationship()->getRelated();
-            $tableName = $relatedModel->getTable();
-            $modelRelationTables[$relationship] = $tableName;
-        }
-
-        return $modelRelationTables;
+        $this->query = clone $this->query;
     }
 
-    private function getModelRelationFillables(array $relationships, $modelInstance): array
+    public function count(): int
     {
-        $modelRelationFillables = [];
-        foreach ($relationships as $relationship) {
-            $relatedModel = $modelInstance->$relationship()->getRelated();
-            $modelRelationFillables[$relationship] = $relatedModel->getFillable();
-        }
-
-        return $modelRelationFillables;
+        return $this->query->count();
     }
 
-    private function getModelRelationColumnListing(array $relationships, $modelInstance): array
+    public function sum(string $field): float
     {
-        $modelRelationColumnListing = [];
-        foreach ($relationships as $relationship) {
-            $relatedModel = $modelInstance->$relationship()->getRelated();
-            $tableName = $relatedModel->getTable();
-            $modelRelationColumnListing[$relationship] = DB::getSchemaBuilder()->getColumnListing($tableName);
-        }
-
-        return $modelRelationColumnListing;
+        return (float) $this->query->sum($field);
     }
 
-    private function getTableName(): string
+    public function avg(string $field): float
     {
-        return $this->getModelInstance()->getTable();
-    }
-
-    private function getModelInstance(): Model
-    {
-        return $this->query->getModel();
-    }
-
-    private function getRelationships(): array
-    {
-        $eagerLoad = $this->query->getEagerLoads();
-
-        return array_keys($eagerLoad);
-    }
-
-    private function getRelationColumnListing(string $column): ?string
-    {
-        foreach ($this->modelRelationColumnListing as $relation => $fields) {
-            if (in_array($column, $fields)) {
-                return $relation;
-            }
-        }
-
-        return null;
-    }
-
-    public function isDirectRelation(Relation $relation): bool
-    {
-        return $relation instanceof BelongsTo || $relation instanceof HasOne || $relation instanceof HasMany || $relation instanceof MorphOne || $relation instanceof MorphMany || $relation instanceof MorphTo;
-    }
-
-    public function isManyToManyRelation(Relation $relation): bool
-    {
-        return $relation instanceof BelongsToMany || $relation instanceof MorphToMany;
-    }
-
-    private function resolveTableNames($columnName): ?string
-    {
-        $tableName = $this->getTableName();
-
-        if (Schema::hasColumn($tableName, $columnName)) {
-            return $tableName.'.'.$columnName;
-        }
-
-        $joins = $this->query->getQuery()->joins;
-
-        if ($joins) {
-            foreach ($joins as $join) {
-                if (Schema::hasColumn($join->table, $columnName)) {
-                    return $join->table.'.'.$columnName;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public function addComputedColumns(array $columns): void
-    {
-        foreach ($columns as $column) {
-            $this->addComputedColumn($column);
-        }
-    }
-
-    public function addComputedColumn(string $columnName): void
-    {
-        $this->computedColumns[] = $columnName;
-    }
-
-    public function isComputedColumn($column): bool
-    {
-        return in_array($column, $this->computedColumns);
-    }
-
-    private function parseColumnString(string $columnString): array
-    {
-        $parts = explode('.', $columnString);
-
-        $relation = $parts[0] ?? null;
-        $column = $parts[1] ?? null;
-
-        return [$relation, $column];
+        return (float) ($this->query->avg($field) ?? 0);
     }
 
     public function paginate(int $perPage = 20): LengthAwarePaginator
     {
-        return $this->query->paginate(($perPage > 0) ? $perPage : $this->query->count());
+        return $this->query->paginate($perPage > 0 ? $perPage : max($this->query->count(), 1));
     }
 
-    public function transform(LengthAwarePaginator $paginator, array $columns, ?\Closure $rowClick = null): LengthAwarePaginator
+    public function orderBy(string $columnName, SortDirection|string $sortDirection): self
+    {
+        $direction = SortDirection::normalize($sortDirection);
+
+        [$relation, $column] = $this->splitColumn($columnName);
+
+        if ($relation === null) {
+            $target = $this->isComputedColumn($column) ? $column : $this->query->qualifyColumn($column);
+            $this->query->orderBy($target, $direction->value);
+
+            return $this;
+        }
+
+        $this->query->orderBy($this->relationOrderSubquery($relation, $column, $direction), $direction->value);
+
+        return $this;
+    }
+
+    /**
+     * Build a correlated subquery selecting one related value, so relation
+     * sorting never joins and therefore never duplicates parent rows.
+     */
+    private function relationOrderSubquery(string $relationName, string $column, SortDirection $direction): Builder
+    {
+        if (str_contains($relationName, '.')) {
+            throw InvalidModelRelationsHandler::make("Sorting through nested relations is not supported: `{$relationName}.{$column}`.");
+        }
+
+        $model = $this->query->getModel();
+
+        if (! method_exists($model, $relationName)) {
+            throw InvalidModelRelationsHandler::make("Relation `{$relationName}` is not defined on `".$model::class.'`.');
+        }
+
+        $relation = $model->{$relationName}();
+
+        if (! $relation instanceof Relation || $relation instanceof MorphTo) {
+            throw InvalidModelRelationsHandler::make("Relation `{$relationName}` cannot be used for sorting.");
+        }
+
+        $related = $relation->getRelated();
+
+        return $relation
+            ->getRelationExistenceQuery($related->newQueryWithoutRelationships(), $this->query)
+            ->select($related->qualifyColumn($column))
+            ->orderBy($related->qualifyColumn($column), $direction->value)
+            ->limit(1);
+    }
+
+    public function search(string $term, array $columns): self
+    {
+        $term = trim($term);
+
+        if ($term === '' || $columns === []) {
+            return $this;
+        }
+
+        $this->applyGroupedLike($columns, '%'.$this->escapeLike($term).'%');
+
+        return $this;
+    }
+
+    public function searchLetter(string $letter, array $columns): self
+    {
+        $letter = trim($letter);
+
+        if ($letter === '' || $columns === []) {
+            return $this;
+        }
+
+        $this->applyGroupedLike($columns, $this->escapeLike($letter).'%');
+
+        return $this;
+    }
+
+    private function applyGroupedLike(array $columns, string $pattern): void
+    {
+        $this->query->where(function (Builder $query) use ($columns, $pattern) {
+            foreach ($columns as $columnName) {
+                [$relation, $column] = $this->splitColumn($columnName);
+
+                if ($relation === null) {
+                    $this->whereLikePattern($query, $query->qualifyColumn($column), $pattern, or: true);
+                } else {
+                    $query->orWhereHas($relation, fn (Builder $related) => $this->whereLikePattern($related, $related->qualifyColumn($column), $pattern));
+                }
+            }
+        });
+    }
+
+    private function whereLikePattern(Builder $query, string $column, string $pattern, bool $or = false): void
+    {
+        $grammar = $query->getQuery()->getGrammar();
+        $sql = $grammar->wrap($column)." like ? escape '".self::LIKE_ESCAPE."'";
+
+        $or ? $query->orWhereRaw($sql, [$pattern]) : $query->whereRaw($sql, [$pattern]);
+    }
+
+    private function escapeLike(string $value): string
+    {
+        return str_replace(
+            [self::LIKE_ESCAPE, '%', '_'],
+            [self::LIKE_ESCAPE.self::LIKE_ESCAPE, self::LIKE_ESCAPE.'%', self::LIKE_ESCAPE.'_'],
+            $value
+        );
+    }
+
+    public function filter(array $filters): void
+    {
+        foreach ($filters as $type => $values) {
+            if (in_array($type, ['search_term', 'search_letter'], true) || ! is_array($values)) {
+                continue;
+            }
+
+            match (FilterType::tryFrom($type)) {
+                FilterType::Text => $this->applyTextFilters($values),
+                FilterType::Number => $this->applyRangeFilters($values),
+                FilterType::Select => $this->applySelectFilters($values),
+                FilterType::MultiSelect => $this->applyMultiSelectFilters($values),
+                FilterType::Boolean => $this->applyBooleanFilters($values),
+                FilterType::TimePicker => $this->applyDateTimeFilters($values, 'time'),
+                FilterType::DatePicker => $this->applyDateTimeFilters($values, 'date'),
+                FilterType::DateTimePicker => $this->applyDateTimeFilters($values, 'datetime'),
+                null => throw InvalidFilterHandler::make($type),
+            };
+        }
+    }
+
+    /**
+     * Apply a constraint to a base, computed, or dotted relation column.
+     * The dotted path is the source of truth: everything before the last
+     * dot is treated as a (possibly nested) relation path.
+     */
+    private function applyToColumn(string $columnName, Closure $constraint): void
+    {
+        [$relation, $column] = $this->splitColumn($columnName);
+
+        if ($relation === null) {
+            $constraint($this->query, $this->isComputedColumn($column) ? $column : $this->query->qualifyColumn($column));
+        } else {
+            $this->query->whereHas($relation, fn (Builder $query) => $constraint($query, $query->qualifyColumn($column)));
+        }
+    }
+
+    private function applyTextFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
+            if ($value === null || $value === '') {
+                continue;
+            }
+
+            $pattern = '%'.$this->escapeLike((string) $value).'%';
+
+            $this->applyToColumn($columnName, fn (Builder $query, string $column) => $this->whereLikePattern($query, $column, $pattern));
+        }
+    }
+
+    private function applyRangeFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, $this->isRangeLeaf(...)) as $columnName => $range) {
+            [$start, $end] = $this->rangeBounds($range);
+
+            if ($start === null && $end === null) {
+                continue;
+            }
+
+            if ($this->isComputedColumn($columnName)) {
+                if (empty($this->query->getQuery()->groups)) {
+                    $this->query->groupBy($this->query->qualifyColumn($this->query->getModel()->getKeyName()));
+                }
+
+                $this->applyRange($this->query, $columnName, $start, $end, having: true);
+
+                continue;
+            }
+
+            $this->applyToColumn($columnName, fn (Builder $query, string $column) => $this->applyRange($query, $column, $start, $end));
+        }
+    }
+
+    private function applyRange(Builder $query, string $column, mixed $start, mixed $end, bool $having = false): void
+    {
+        $method = $having ? 'having' : 'where';
+
+        if ($start !== null) {
+            $query->{$method}($column, '>=', $start);
+        }
+
+        if ($end !== null) {
+            $query->{$method}($column, '<=', $end);
+        }
+    }
+
+    private function applySelectFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
+            if ($this->isIgnoredValue($value)) {
+                continue;
+            }
+
+            $this->applyToColumn($columnName, fn (Builder $query, string $column) => $query->where($column, $value));
+        }
+    }
+
+    private function applyMultiSelectFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => is_array($value) && array_is_list($value)) as $columnName => $list) {
+            if ($list === [] || in_array('-1', $list) || in_array(-1, $list, true)) {
+                continue;
+            }
+
+            $this->applyToColumn($columnName, fn (Builder $query, string $column) => $query->whereIn($column, $list));
+        }
+    }
+
+    private function applyBooleanFilters(array $values): void
+    {
+        foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
+            if ($this->isIgnoredValue($value)) {
+                continue;
+            }
+
+            $this->applyToColumn($columnName, fn (Builder $query, string $column) => $query->where($column, $value === 'true' ? 1 : 0));
+        }
+    }
+
+    private function applyDateTimeFilters(array $values, string $type): void
+    {
+        foreach ($this->flattenColumns($values, $this->isRangeLeaf(...)) as $columnName => $range) {
+            $range = $this->normalizeDateTimeValues($range, $type);
+
+            $start = $range['start'] ?? null;
+            $end = $range['end'] ?? null;
+
+            if ($start === null && $end === null) {
+                continue;
+            }
+
+            $this->applyToColumn($columnName, fn (Builder $query, string $column) => $this->applyRange($query, $column, $start, $end));
+        }
+    }
+
+    public function transform(LengthAwarePaginator $paginator, array $columns, ?Closure $rowClick = null): LengthAwarePaginator
     {
         $transformedColumns = $this->transformColumns($columns);
 
@@ -189,12 +312,12 @@ class BuilderDataSource
         return collect($columns)->mapWithKeys(fn ($column) => [$column->field => $column->exportClosure ?? $this->createDefaultClosure($column->field)]);
     }
 
-    public function transformCollection(Collection $results, Collection $columns, ?\Closure $rowClick = null): Collection
+    public function transformCollection(Collection $results, Collection $columns, ?Closure $rowClick = null): Collection
     {
         return $results->map(function ($row) use ($columns, $rowClick) {
             $transformed = (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
                 $value = $column($row);
-                // Render View objects to strings
+
                 if ($value instanceof View || $value instanceof Factory) {
                     $value = $value->render();
                 }
@@ -210,400 +333,8 @@ class BuilderDataSource
         });
     }
 
-    private function createDefaultClosure(string $field): \Closure
+    private function createDefaultClosure(string $field): Closure
     {
-        if (strpos($field, '.')) {
-            [$relation, $field] = $this->parseColumnString($field);
-
-            return fn ($model) => $model->$relation ? $model->$relation->$field : $model->$field;
-        }
-
-        return fn ($model) => $model->$field;
-    }
-
-    private function normalizeDateTimeValues(array $values, string $type): array
-    {
-        $normalizedValues = [];
-        foreach ($values as $key => $value) {
-            switch ($type) {
-                case 'time':
-                    $date = DateTime::createFromFormat('H:i', $value);
-                    $format = 'H:i:s';
-                    break;
-                case 'date':
-                    $date = DateTime::createFromFormat('Y-m-d', $value);
-                    $format = 'Y-m-d';
-                    break;
-                case 'datetime':
-                    $date = DateTime::createFromFormat('Y-m-d\TH:i', $value);
-                    $format = 'Y-m-d H:i:s';
-                    break;
-                default:
-                    throw InvalidDateTypeHandler::make($type);
-            }
-            if ($date !== false) {
-                $normalizedValues[$key] = $date->format($format);
-            } else {
-                throw InvalidDateFormatHandler::make($key, $value);
-            }
-        }
-
-        return $normalizedValues;
-    }
-
-    private function hasStartOrEndKey(array $value): bool
-    {
-        return isset($value['start']) || isset($value['end']);
-    }
-
-    public function orderBy(string $columnName, string $sortDirection): self
-    {
-        if (strpos($columnName, '.')) {
-            [, $columnName] = $this->parseColumnString($columnName);
-            $this->orderByWithRelation($columnName, $sortDirection);
-        } else {
-            $qualifiedColumnName = $this->resolveTableNames($columnName);
-            if ($qualifiedColumnName) {
-                $this->query->orderBy($qualifiedColumnName, $sortDirection);
-            } else {
-                $this->query->orderBy($columnName, $sortDirection);
-            }
-        }
-
-        return $this;
-    }
-
-    private function orderByWithRelation(string $columnName, string $sortDirection): void
-    {
-        foreach ($this->modelRelationColumnListing as $relation => $fields) {
-            if (in_array($columnName, $fields)) {
-                $tableName = $this->getTableName();
-                $relationQuery = $this->query->getModel()->$relation();
-
-                // Added to not modify the result set
-                $this->query->select("$tableName.*");
-
-                if ($this->isDirectRelation($relationQuery)) {
-                    $this->orderByDirectRelation($relationQuery, $tableName, $columnName, $sortDirection);
-                } elseif ($this->isManyToManyRelation($relationQuery)) {
-                    $this->orderByManyToManyRelation($relationQuery, $tableName, $relation, $columnName, $sortDirection);
-                }
-
-                return;
-            }
-        }
-    }
-
-    private function orderByDirectRelation($relationQuery, string $tableName, string $columnName, string $sortDirection): void
-    {
-        $relatedTable = $relationQuery->getRelated()->getTable();
-        $foreignKey = $relationQuery->getForeignKeyName();
-        $ownerKey = $relationQuery instanceof BelongsTo ? $relationQuery->getOwnerKeyName() : $relationQuery->getQualifiedParentKeyName();
-
-        if ($relationQuery instanceof BelongsTo) {
-            $this->query->join($relatedTable, "$tableName.$foreignKey", '=', "$relatedTable.$ownerKey");
-        } else { // HasOne or HasMany
-            $this->query->join($relatedTable, $ownerKey, '=', "$relatedTable.$foreignKey");
-        }
-
-        $this->query->orderBy("$relatedTable.$columnName", $sortDirection);
-    }
-
-    private function orderByManyToManyRelation($relationQuery, string $tableName, string $relation, string $columnName, string $sortDirection): void
-    {
-        $pivotTable = $relationQuery->getTable();
-        $relatedTable = $this->modelRelationTables[$relation];
-        $foreignKey = $relationQuery->getQualifiedForeignPivotKeyName();
-        $relatedKey = $relationQuery->getRelatedPivotKeyName();
-
-        $this->query->join($pivotTable, "$tableName.id", '=', $foreignKey)
-            ->join($relatedTable, "$pivotTable.$relatedKey", '=', "$relatedTable.id")
-            ->orderBy("$relatedTable.$columnName", $sortDirection);
-    }
-
-    public function filter(array $filters): void
-    {
-        foreach ($filters as $type => $values) {
-            match ($type) {
-                'text' => $this->handleText($values),
-                'number' => $this->handleNumber($values),
-                'select' => $this->handleSelect($values),
-                'multiselect' => $this->handleMultiSelect($values),
-                'boolean' => $this->handleBoolean($values),
-                'timepicker' => $this->handleTimePicker($values),
-                'datepicker' => $this->handleDatePicker($values),
-                'datetimepicker' => $this->handleDateTimePicker($values),
-                'search_term' => $this->handleSearchTerm($values),
-                'search_letter' => $this->handleSelectLetter($values),
-                default => throw InvalidFilterHandler::make($type),
-            };
-        }
-    }
-
-    private function handleSearchTerm(array $values): self
-    {
-        foreach ($values as $columnName => $searchTerm) {
-            if (strpos($columnName, '.')) {
-                [$relation, $subColumnName] = $this->parseColumnString($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $searchTerm) {
-                        $query->where($subColumnName, 'like', '%'.$searchTerm.'%');
-                    });
-                }
-            } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($qualifiedColumnName) {
-                    $this->query->where($qualifiedColumnName, 'like', '%'.$searchTerm.'%');
-                } else {
-                    $this->query->where($columnName, 'like', '%'.$searchTerm.'%');
-                }
-            }
-        }
-
-        return $this;
-    }
-
-    private function handleSelectLetter(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (strpos($columnName, '.')) {
-                [$relation, $subColumnName] = $this->parseColumnString($columnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $value) {
-                        $query->where($subColumnName, 'like', $value.'%');
-                    });
-                }
-            } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($qualifiedColumnName) {
-                    $this->query->where($qualifiedColumnName, 'like', $value.'%');
-                } else {
-                    $this->query->where($columnName, 'like', $value.'%');
-                }
-            }
-        }
-    }
-
-    private function handleText(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                $this->handleTextRelation($value);
-            } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                $this->query->where($qualifiedColumnName, 'like', '%'.$value.'%');
-            }
-        }
-    }
-
-    private function handleTextRelation(array $values): void
-    {
-        foreach ($values as $subColumnName => $subValue) {
-            $relation = $this->getRelationColumnListing($subColumnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                    $query->where($subColumnName, 'like', '%'.$subValue.'%');
-                });
-            }
-        }
-    }
-
-    private function handleNumber(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (! $this->hasStartOrEndKey($value)) {
-                $this->handleNumberRelation($value);
-            } else {
-                $qualifiedColumnName = $this->resolveTableNames($columnName);
-                if ($qualifiedColumnName) {
-                    $this->applyWhereConditions($this->query, $qualifiedColumnName, $value);
-                } else {
-                    if ($this->isComputedColumn($columnName)) {
-                        $this->applyWhereHavingConditions($this->query, $columnName, $value);
-                    } else {
-                        $this->applyWhereConditions($this->query, $columnName, $value);
-                    }
-                }
-            }
-        }
-    }
-
-    private function handleNumberRelation(array $values): void
-    {
-        foreach ($values as $subColumnName => $subValue) {
-            $relation = $this->getRelationColumnListing($subColumnName);
-            if ($relation !== null) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                    $this->applyWhereConditions($query, $subColumnName, $subValue);
-                });
-            }
-        }
-    }
-
-    private function handleSelect(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                $this->handleSelectRelation($value);
-            } else {
-                if ($value !== strval(self::IGNORE_VALUE)) {
-                    $qualifiedColumnName = $this->resolveTableNames($columnName);
-                    if ($qualifiedColumnName) {
-                        $this->query->where($qualifiedColumnName, $value);
-                    } else {
-                        $this->query->where($columnName, $value);
-                    }
-                }
-            }
-        }
-    }
-
-    private function handleSelectRelation(array $values): void
-    {
-        foreach ($values as $subColumnName => $subValue) {
-            $relation = $this->getRelationColumnListing($subColumnName);
-            if ($relation !== null && $subValue !== strval(self::IGNORE_VALUE)) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                    $query->where($subColumnName, '=', $subValue);
-                });
-            }
-        }
-    }
-
-    private function handleMultiSelect(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                $this->handleMultiSelectRelation($value);
-            } else {
-                if ($value !== strval(self::IGNORE_VALUE)) {
-                    $qualifiedColumnName = $this->resolveTableNames($columnName);
-                    if ($qualifiedColumnName) {
-                        $this->query->whereIn($qualifiedColumnName, $value);
-                    } else {
-                        $this->query->whereIn($columnName, $value);
-                    }
-                }
-            }
-        }
-    }
-
-    private function handleMultiSelectRelation(array $values): void
-    {
-        foreach ($values as $subColumnName => $subValue) {
-            if ($subValue[0] !== strval(self::IGNORE_VALUE)) {
-                $relation = $this->getRelationColumnListing($subColumnName);
-                if ($relation !== null) {
-                    $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                        $query->whereIn($subColumnName, $subValue);
-                    });
-                }
-            }
-        }
-    }
-
-    private function handleBoolean(array $values): void
-    {
-        foreach ($values as $columnName => $value) {
-            if (is_array($value)) {
-                $this->handleBooleanRelation($value);
-            } else {
-                if ($value !== strval(self::IGNORE_VALUE)) {
-                    $qualifiedColumnName = $this->resolveTableNames($columnName);
-                    if ($qualifiedColumnName) {
-                        $this->query->where($qualifiedColumnName, $value === 'true' ? 1 : 0);
-                    } else {
-                        $this->query->where($columnName, $value === 'true' ? 1 : 0);
-                    }
-                }
-            }
-        }
-    }
-
-    private function handleBooleanRelation(array $values): void
-    {
-        foreach ($values as $subColumnName => $subValue) {
-            $relation = $this->getRelationColumnListing($subColumnName);
-            if ($relation !== null && $subValue !== strval(self::IGNORE_VALUE)) {
-                $this->query->whereHas($relation, function ($query) use ($subColumnName, $subValue) {
-                    $query->where($subColumnName, $subValue === 'true' ? 1 : 0);
-                });
-            }
-        }
-    }
-
-    private function handleTimePicker(array $values): void
-    {
-        foreach ($values as $key => $value) {
-            if ($this->hasStartOrEndKey($value)) {
-                $this->applyDateTimeFilter($key, $value, 'time');
-            } else {
-                foreach ($value as $columnName => $columnValue) {
-                    $this->applyDateTimeFilter("{$key}.{$columnName}", $columnValue, 'time');
-                }
-            }
-        }
-    }
-
-    private function handleDatePicker(array $values): void
-    {
-        foreach ($values as $key => $value) {
-            if ($this->hasStartOrEndKey($value)) {
-                $this->applyDateTimeFilter($key, $value, 'date');
-            } else {
-                foreach ($value as $columnName => $columnValue) {
-                    $this->applyDateTimeFilter("{$key}.{$columnName}", $columnValue, 'date');
-                }
-            }
-        }
-    }
-
-    private function handleDateTimePicker(array $values): void
-    {
-        foreach ($values as $key => $value) {
-            if ($this->hasStartOrEndKey($value)) {
-                $this->applyDateTimeFilter($key, $value, 'datetime');
-            } else {
-                foreach ($value as $columnName => $columnValue) {
-                    $this->applyDateTimeFilter("{$key}.{$columnName}", $columnValue, 'datetime');
-                }
-            }
-        }
-    }
-
-    private function applyDateTimeFilter(string $key, array $values, string $filterType): void
-    {
-        $values = $this->normalizeDateTimeValues($values, $filterType);
-
-        if (strpos($key, '.') !== false) {
-            [$relation, $columnName] = explode('.', $key);
-            $this->query->whereHas($relation, function ($query) use ($columnName, $values) {
-                $this->applyWhereConditions($query, $columnName, $values);
-            });
-        } else {
-            $this->applyWhereConditions($this->query, $key, $values);
-        }
-    }
-
-    private function applyWhereConditions($query, string $columnName, array $values): void
-    {
-        if (isset($values['start']) && ! isset($values['end'])) {
-            $query->where($columnName, '>=', $values['start']);
-        } elseif (! isset($values['start']) && isset($values['end'])) {
-            $query->where($columnName, '<=', $values['end']);
-        } elseif (isset($values['start']) && isset($values['end'])) {
-            $query->whereBetween($columnName, [$values['start'], $values['end']]);
-        }
-    }
-
-    private function applyWhereHavingConditions($query, string $columnName, array $values): void
-    {
-        if (isset($values['start']) && ! isset($values['end'])) {
-            $query->having($columnName, '>=', $values['start']);
-        } elseif (! isset($values['start']) && isset($values['end'])) {
-            $query->having($columnName, '<=', $values['end']);
-        } elseif (isset($values['start']) && isset($values['end'])) {
-            $query->having($columnName, '>=', $values['start'])->having($columnName, '<=', $values['end']);
-        }
+        return fn ($model) => data_get($model, $field);
     }
 }

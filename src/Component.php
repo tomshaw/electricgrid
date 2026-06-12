@@ -86,6 +86,8 @@ class Component extends BaseComponent
 
     const ORDER_DESC = 'DESC';
 
+    protected BuilderDataSource|CollectionDataSource|null $memoizedDataSource = null;
+
     public function mount()
     {
         $this->loadSessionState();
@@ -110,7 +112,7 @@ class Component extends BaseComponent
 
         $state = session($this->getSessionKey(), []);
 
-        $this->filter = $state['filter'] ?? [];
+        $this->filter = array_diff_key($state['filter'] ?? [], ['search_term' => null, 'search_letter' => null]);
         $this->searchTerm = $state['searchTerm'] ?? '';
         $this->searchLetter = $state['searchLetter'] ?? '';
         $this->perPage = $state['perPage'] ?? $this->perPage;
@@ -218,8 +220,6 @@ class Component extends BaseComponent
     {
         $this->resetPage();
         $this->resetInfiniteScroll();
-
-        $this->filter = array_merge($this->filter, ['search_term' => array_fill_keys($this->searchTermColumns, $this->searchTerm)]);
     }
 
     public function updatedSearchLetter(): void
@@ -270,61 +270,26 @@ class Component extends BaseComponent
 
     public function getColumnAggregatesProperty(): array
     {
-        $summableColumns = collect($this->getColumnsProperty())
-            ->filter(fn ($column) => $column->summable && $column->visible && ! in_array($column->field, $this->hiddenColumns))
-            ->pluck('field')
-            ->toArray();
+        $visibleColumns = collect($this->getColumnsProperty())
+            ->filter(fn ($column) => $column->visible && ! in_array($column->field, $this->hiddenColumns));
 
-        $averageableColumns = collect($this->getColumnsProperty())
-            ->filter(fn ($column) => $column->averageable && $column->visible && ! in_array($column->field, $this->hiddenColumns))
-            ->pluck('field')
-            ->toArray();
+        $summableColumns = $visibleColumns->filter(fn ($column) => $column->summable)->pluck('field');
+        $averageableColumns = $visibleColumns->filter(fn ($column) => $column->averageable)->pluck('field');
 
-        if (empty($summableColumns) && empty($averageableColumns)) {
+        if ($summableColumns->isEmpty() && $averageableColumns->isEmpty()) {
             return [];
         }
 
-        $builder = $this->builder();
+        $dataSource = clone $this->dataSource();
+
         $aggregates = [];
 
-        if ($builder instanceof Builder) {
-            $dataSource = BuilderDataSource::make($builder);
-            $dataSource->filter($this->filter);
+        if ($summableColumns->isNotEmpty()) {
+            $aggregates['sums'] = $summableColumns->mapWithKeys(fn ($field) => [$field => $dataSource->sum($field)])->toArray();
+        }
 
-            if (! empty($summableColumns)) {
-                $sums = [];
-                foreach ($summableColumns as $field) {
-                    $sums[$field] = $dataSource->query->sum($field);
-                }
-                $aggregates['sums'] = $sums;
-            }
-
-            if (! empty($averageableColumns)) {
-                $averages = [];
-                foreach ($averageableColumns as $field) {
-                    $averages[$field] = $dataSource->query->avg($field);
-                }
-                $aggregates['averages'] = $averages;
-            }
-        } else {
-            $dataSource = CollectionDataSource::make($builder);
-            $dataSource->filter($this->filter);
-
-            if (! empty($summableColumns)) {
-                $sums = [];
-                foreach ($summableColumns as $field) {
-                    $sums[$field] = $dataSource->sum($field);
-                }
-                $aggregates['sums'] = $sums;
-            }
-
-            if (! empty($averageableColumns)) {
-                $averages = [];
-                foreach ($averageableColumns as $field) {
-                    $averages[$field] = $dataSource->avg($field);
-                }
-                $aggregates['averages'] = $averages;
-            }
+        if ($averageableColumns->isNotEmpty()) {
+            $aggregates['averages'] = $averageableColumns->mapWithKeys(fn ($field) => [$field => $dataSource->avg($field)])->toArray();
         }
 
         return $aggregates;
@@ -426,7 +391,11 @@ class Component extends BaseComponent
         $this->resetPage();
         $this->resetInfiniteScroll();
 
-        $this->toggleOrderDirection();
+        if ($this->orderBy === $field) {
+            $this->toggleOrderDirection();
+        } else {
+            $this->orderDir = self::ORDER_ASC;
+        }
 
         $this->orderBy = $field;
         $this->saveSessionState();
@@ -434,13 +403,10 @@ class Component extends BaseComponent
 
     public function handleSelectedLetter($selectedLetter): void
     {
-        if ($this->searchLetter === $selectedLetter) {
-            $this->searchLetter = '';
-            $this->filter = array_diff_key($this->filter, ['search_letter' => '']);
-        } else {
-            $this->searchLetter = $selectedLetter;
-            $this->filter = array_merge($this->filter, ['search_letter' => array_fill_keys($this->letterSearchColumns, $selectedLetter)]);
-        }
+        $this->resetPage();
+        $this->resetInfiniteScroll();
+
+        $this->searchLetter = $this->searchLetter === $selectedLetter ? '' : $selectedLetter;
 
         $this->saveSessionState();
     }
@@ -456,23 +422,34 @@ class Component extends BaseComponent
         $this->saveSessionState();
     }
 
+    /**
+     * Build the filtered and searched data source once per request;
+     * consumers clone it before mutating (ordering, pagination, aggregates).
+     */
+    protected function dataSource(): BuilderDataSource|CollectionDataSource
+    {
+        return $this->memoizedDataSource ??= $this->makeDataSource();
+    }
+
+    protected function makeDataSource(): BuilderDataSource|CollectionDataSource
+    {
+        $builder = $this->builder();
+
+        $dataSource = $builder instanceof Builder
+            ? BuilderDataSource::make($builder)
+            : CollectionDataSource::make($builder);
+
+        $dataSource->addComputedColumns($this->computedColumns);
+        $dataSource->filter($this->filter);
+        $dataSource->search($this->searchTerm, $this->searchTermColumns);
+        $dataSource->searchLetter($this->searchLetter, $this->letterSearchColumns);
+
+        return $dataSource;
+    }
+
     protected function getTotalRecords(): int
     {
-        return once(function () {
-            $builder = $this->builder();
-
-            if ($builder instanceof Builder) {
-                $dataSource = BuilderDataSource::make($builder);
-                $dataSource->filter($this->filter);
-
-                return $dataSource->query->count();
-            }
-
-            $dataSource = CollectionDataSource::make($builder);
-            $dataSource->filter($this->filter);
-
-            return $dataSource->collection->count();
-        });
+        return once(fn () => (clone $this->dataSource())->count());
     }
 
     public function shouldShowPerPageSelector(): bool
@@ -524,17 +501,7 @@ class Component extends BaseComponent
 
     public function render(): View
     {
-        $builder = $this->builder();
-
-        if ($builder instanceof Builder) {
-            $dataSource = BuilderDataSource::make($builder);
-        } else {
-            $dataSource = CollectionDataSource::make($builder);
-        }
-
-        $dataSource->addComputedColumns($this->computedColumns);
-
-        $dataSource->filter($this->filter);
+        $dataSource = clone $this->dataSource();
 
         $dataSource->orderBy($this->orderBy, $this->orderDir);
 
