@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.10.0](https://github.com/tomshaw/electricgrid/compare/v2.9.3...v2.10.0) (2026-06-12)
+
+
+### Features
+
+* Add strict types and type hints across multiple files for improved type safety ([41aa6bf](https://github.com/tomshaw/electricgrid/commit/41aa6bf6142b60a03fa8607a19f1aa18a4eb775e))
+* Enable strict types across multiple files for improved type safety ([3cb223d](https://github.com/tomshaw/electricgrid/commit/3cb223de28bcf99a05090e6410681c55646fe5ce))
+* Implement filtering and sorting capabilities for data sources ([4d3a419](https://github.com/tomshaw/electricgrid/commit/4d3a419ccf64118116c86caa21c6cac5411e5039))
+
+
+### Miscellaneous Chores
+
+* Remove unused phpstan baseline file and related configurations ([8dab988](https://github.com/tomshaw/electricgrid/commit/8dab988cae820ad86d83934221f8ab2ea1c621e4))
+* Update README badges for improved visibility and accuracy ([62d34c8](https://github.com/tomshaw/electricgrid/commit/62d34c86ab04d738809976f07402353b5ec5b865))
+
 ## [2.9.3](https://github.com/tomshaw/electricgrid/compare/v2.9.2...v2.9.3) (2026-06-09)
 
 
