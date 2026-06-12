@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -26,7 +28,7 @@ class InstallCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->comment('Publishing Electric Grid Config...');
         $this->callSilent('vendor:publish', ['--tag' => 'electricgrid.config']);

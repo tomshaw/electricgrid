@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid\Traits;
 
 use Illuminate\Http\Response;
@@ -9,7 +11,7 @@ use TomShaw\ElectricGrid\{CollectionDataSource, DataExport};
 
 trait GridActions
 {
-    public string $selectedAction;
+    public string $selectedAction = '';
 
     public function handleSelectedAction(): Response|BinaryFileResponse|null
     {

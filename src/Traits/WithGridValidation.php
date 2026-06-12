@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid\Traits;
 
 use TomShaw\ElectricGrid\Exceptions\RequiredColumnsHandler;

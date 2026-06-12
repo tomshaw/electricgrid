@@ -1,6 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid;
+
+use Illuminate\Support\Collection;
 
 class Action
 {
@@ -14,7 +18,7 @@ class Action
 
     public array $columnWidths = [];
 
-    public \Closure $callable;
+    public ?\Closure $callable = null;
 
     public function __construct(
         public string $field,
@@ -33,7 +37,7 @@ class Action
         return $this;
     }
 
-    public static function groupBy(string $group, \Closure $actions): mixed
+    public static function groupBy(string $group, \Closure $actions): Collection
     {
         return collect($actions())->each(fn ($item) => $item->group = $group);
     }

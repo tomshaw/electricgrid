@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid;
 
 use Illuminate\Database\Eloquent\{Builder, Collection as DatabaseCollection};
@@ -88,7 +90,7 @@ class Component extends BaseComponent
 
     protected BuilderDataSource|CollectionDataSource|null $memoizedDataSource = null;
 
-    public function mount()
+    public function mount(): void
     {
         $this->loadSessionState();
 
@@ -382,7 +384,7 @@ class Component extends BaseComponent
         }
     }
 
-    public function handleSortOrder($field, $sortable): void
+    public function handleSortOrder(string $field, bool|string $sortable): void
     {
         if (! $sortable) {
             return;
@@ -401,7 +403,7 @@ class Component extends BaseComponent
         $this->saveSessionState();
     }
 
-    public function handleSelectedLetter($selectedLetter): void
+    public function handleSelectedLetter(string $selectedLetter): void
     {
         $this->resetPage();
         $this->resetInfiniteScroll();

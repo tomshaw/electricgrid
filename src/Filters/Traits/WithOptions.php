@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid\Filters\Traits;
 
 trait WithOptions
@@ -7,7 +9,7 @@ trait WithOptions
     /**
      * The options for the filter.
      */
-    public array $options;
+    public array $options = [];
 
     /**
      * Set the options for the filter.

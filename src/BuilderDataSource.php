@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid;
 
 use Closure;
@@ -26,7 +28,7 @@ class BuilderDataSource
         return new self($query);
     }
 
-    public function __clone()
+    public function __clone(): void
     {
         $this->query = clone $this->query;
     }
@@ -231,7 +233,7 @@ class BuilderDataSource
         }
     }
 
-    private function applyRange(Builder $query, string $column, mixed $start, mixed $end, bool $having = false): void
+    private function applyRange(Builder $query, string $column, int|float|string|null $start, int|float|string|null $end, bool $having = false): void
     {
         $method = $having ? 'having' : 'where';
 

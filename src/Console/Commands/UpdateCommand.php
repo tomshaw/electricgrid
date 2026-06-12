@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace TomShaw\ElectricGrid\Console\Commands;
 
 use Illuminate\Console\Command;
@@ -26,7 +28,7 @@ class UpdateCommand extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         $this->info('This will overwrite Electric Grid (config, views, translations).');
 
