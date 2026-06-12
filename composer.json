@@ -49,7 +49,6 @@
     },
     "scripts": {
         "analyse": "vendor/bin/phpstan analyse --ansi --memory-limit=-1",
-        "baseline": "vendor/bin/phpstan analyse --ansi --memory-limit=-1 --generate-baseline",
         "format": "vendor/bin/pint --config pint.json",
         "test": "vendor/bin/pest",
         "test-coverage": "vendor/bin/pest --coverage"
