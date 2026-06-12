@@ -13,6 +13,9 @@ trait HandlesFilterValues
     /** @var array<int, string> */
     public array $computedColumns = [];
 
+    /**
+     * @param  array<int, string>  $columns
+     */
     public function addComputedColumns(array $columns): void
     {
         foreach ($columns as $column) {
@@ -49,6 +52,8 @@ trait HandlesFilterValues
     /**
      * Flatten nested wire payloads into dotted column paths, stopping at filter value leaves.
      *
+     * @param  array<array-key, mixed>  $values
+     * @param  Closure(mixed): bool  $isLeaf
      * @return array<string, mixed>
      */
     protected function flattenColumns(array $values, Closure $isLeaf, string $prefix = ''): array
@@ -74,11 +79,18 @@ trait HandlesFilterValues
     }
 
     /**
-     * @return array{0: mixed, 1: mixed}
+     * @param  array<array-key, mixed>  $range
+     * @return array{0: int|float|string|null, 1: int|float|string|null}
      */
     protected function rangeBounds(array $range): array
     {
-        $normalize = fn (mixed $value): mixed => ($value === '' || $value === null) ? null : $value;
+        $normalize = function (mixed $value): int|float|string|null {
+            if ($value === '' || ! (is_int($value) || is_float($value) || is_string($value))) {
+                return null;
+            }
+
+            return $value;
+        };
 
         return [$normalize($range['start'] ?? null), $normalize($range['end'] ?? null)];
     }
@@ -89,6 +101,19 @@ trait HandlesFilterValues
     }
 
     /**
+     * Coerce a filter or row value to a string for comparison, or null when it has no string form.
+     */
+    protected function stringValue(mixed $value): ?string
+    {
+        if (is_scalar($value) || $value instanceof \Stringable) {
+            return (string) $value;
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $values
      * @return array{start?: string, end?: string}
      */
     protected function normalizeDateTimeValues(array $values, string $type): array
@@ -107,7 +132,9 @@ trait HandlesFilterValues
                 continue;
             }
 
-            $date = DateTime::createFromFormat($inputFormat, (string) $value);
+            $value = $this->stringValue($value);
+
+            $date = $value === null ? false : DateTime::createFromFormat($inputFormat, $value);
 
             if ($date === false) {
                 throw InvalidDateFormatHandler::make((string) $key, (string) $value);

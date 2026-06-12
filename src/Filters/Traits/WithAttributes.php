@@ -8,6 +8,8 @@ trait WithAttributes
 {
     /**
      * The attributes for the filter.
+     *
+     * @var array<string, string>
      */
     public array $attributes = [];
 

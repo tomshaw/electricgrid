@@ -7,7 +7,7 @@ namespace TomShaw\ElectricGrid\Traits;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use TomShaw\ElectricGrid\{CollectionDataSource, DataExport};
+use TomShaw\ElectricGrid\{Action, CollectionDataSource, Column, DataExport};
 
 trait GridActions
 {
@@ -15,22 +15,21 @@ trait GridActions
 
     public function handleSelectedAction(): Response|BinaryFileResponse|null
     {
-        $where = collect($this->actions())->flatten()->where('field', $this->selectedAction);
+        /** @var Collection<int, Action> $actions */
+        $actions = collect($this->actions())->flatten();
 
-        if ($where->isEmpty()) {
+        $action = $actions->first(fn (Action $action) => $action->field === $this->selectedAction);
+
+        if ($action === null) {
             return null;
         }
 
-        $action = collect((array) $where->first());
-
-        $columns = $this->columns();
-
-        if ($action->get('isExport')) {
+        if ($action->isExport) {
             $hiddenColumns = array_filter($this->hiddenColumns);
 
-            $exportables = collect($columns)
-                ->filter->exportable
-                ->reject(function ($column) use ($hiddenColumns) {
+            $exportables = collect($this->columns())
+                ->filter(fn (Column $column) => $column->exportable)
+                ->reject(function (Column $column) use ($hiddenColumns) {
                     // A column's effective visibility in the grid is "visible XOR in hiddenColumns",
                     // because toggling a default-hidden column ($column->visible === false) reveals it.
                     // Reject the columns that are effectively hidden so exports mirror the grid.
@@ -41,7 +40,7 @@ trait GridActions
                 return null;
             }
 
-            $action->put('headings', $exportables->pluck('title')->toArray());
+            $headings = $exportables->map(fn (Column $column) => $column->title)->values()->all();
 
             $dataSource = clone $this->dataSource();
             $dataSource->orderBy($this->orderBy, $this->orderDir);
@@ -51,43 +50,46 @@ trait GridActions
                     $dataSource->collection = $dataSource->collection->whereIn($this->checkboxField, $this->checkboxValues);
                 }
 
-                $columns = $dataSource->transformColumnsForExport($exportables->toArray());
+                $columns = $dataSource->transformColumnsForExport($exportables->values()->all());
                 $collection = $dataSource->transformCollection($dataSource->collection, $columns);
             } else {
                 if (! empty($this->checkboxValues)) {
                     $dataSource->query->whereIn($dataSource->query->qualifyColumn($this->checkboxField), $this->checkboxValues);
                 }
 
-                $columns = $dataSource->transformColumnsForExport($exportables->toArray());
+                $columns = $dataSource->transformColumnsForExport($exportables->values()->all());
                 $collection = $dataSource->transformCollection($dataSource->query->get(), $columns);
             }
 
-            return $this->export($collection, $action);
+            return $this->export($collection, $action, $headings);
         }
 
         if (empty($this->checkboxValues)) {
             return null;
         }
 
-        if ($action->has('callable') && is_callable($action->get('callable'))) {
-            $callable = $action->get('callable');
-            $callable($this->selectedAction, $this->checkboxValues);
+        if ($action->callable !== null) {
+            ($action->callable)($this->selectedAction, $this->checkboxValues);
         }
 
         return null;
     }
 
-    public function export(Collection $collection, Collection $action): Response|BinaryFileResponse
+    /**
+     * @param  Collection<int, \stdClass>  $collection
+     * @param  array<int, string>  $headings
+     */
+    public function export(Collection $collection, Action $action, array $headings): Response|BinaryFileResponse
     {
         $export = new DataExport($collection);
 
-        $export->setHeadings($action->get('headings'));
+        $export->setHeadings($headings);
 
-        $export->setFileName($action->get('fileName'));
+        $export->setFileName($action->fileName);
 
-        $export->setStyles($action->get('styles'));
+        $export->setStyles($action->styles);
 
-        $export->setColumnWidths($action->get('columnWidths'));
+        $export->setColumnWidths($action->columnWidths);
 
         return $export->download();
     }

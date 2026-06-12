@@ -6,6 +6,7 @@ namespace TomShaw\ElectricGrid;
 
 use Closure;
 
+/** @phpstan-consistent-constructor */
 class Column
 {
     public protected(set) bool $visible = true;
@@ -73,6 +74,9 @@ class Column
         return $this;
     }
 
+    /**
+     * @param  string|array<int, string>  $styles
+     */
     public function styles(string|array $styles): static
     {
         $this->styles = is_array($styles) ? implode(' ', $styles) : $styles;

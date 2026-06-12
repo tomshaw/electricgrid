@@ -13,6 +13,8 @@ trait WithPlaceholder
 
     /**
      * The placeholders for the filter.
+     *
+     * @var array<string, string>
      */
     public array $placeholders = [
         'min' => 'Min',

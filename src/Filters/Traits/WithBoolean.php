@@ -8,6 +8,8 @@ trait WithBoolean
 {
     /**
      * The options for the boolean filter.
+     *
+     * @var array<string, string>
      */
     public array $options = [
         'true' => 'Yes',

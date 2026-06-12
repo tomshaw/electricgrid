@@ -11,6 +11,7 @@ class Styles extends Component
 {
     public function render(): View
     {
+        // @phpstan-ignore argument.type (namespaced package views are registered at runtime)
         return view('electricgrid::assets.styles');
     }
 }

@@ -6,8 +6,12 @@ namespace TomShaw\ElectricGrid\Exceptions;
 
 use InvalidArgumentException;
 
+/** @phpstan-consistent-constructor */
 class DuplicateActionsHandler extends InvalidArgumentException
 {
+    /**
+     * @param  array<int, string>  $duplicateMassActions
+     */
     public static function make(array $duplicateMassActions): self
     {
         return new static('Unable to process the following duplicated mass actions: '.implode(', ', $duplicateMassActions));

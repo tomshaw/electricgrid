@@ -4,13 +4,16 @@ declare(strict_types=1);
 
 namespace TomShaw\ElectricGrid;
 
-use Illuminate\Database\Eloquent\{Builder, Collection as DatabaseCollection};
+use Illuminate\Database\Eloquent\{Builder, Collection as DatabaseCollection, Model};
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
 use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
 use TomShaw\ElectricGrid\Traits\GridActions;
 
+/**
+ * @property-read array{sums?: array<string, float>, averages?: array<string, float>} $columnAggregates
+ */
 class Component extends BaseComponent
 {
     use GridActions;
@@ -18,6 +21,7 @@ class Component extends BaseComponent
 
     public string $theme = 'tailwind';
 
+    /** @var array<string, mixed> */
     public array $filter = [];
 
     public bool $showCheckbox = true;
@@ -36,10 +40,13 @@ class Component extends BaseComponent
 
     public int $loadedPages = 1;
 
+    /** @var array<int, string> */
     public array $searchTermColumns = [];
 
+    /** @var array<int, string> */
     public array $letterSearchColumns = [];
 
+    /** @var array<int, string> */
     public array $computedColumns = [];
 
     public string $searchTerm = '';
@@ -48,6 +55,7 @@ class Component extends BaseComponent
 
     public int $perPage = 15;
 
+    /** @var array<int, int> */
     public array $perPageValues = [15, 30, 50, 100];
 
     public bool $showAllOption = true;
@@ -58,14 +66,17 @@ class Component extends BaseComponent
 
     public string $orderDir = self::ORDER_ASC;
 
+    /** @var array<string, string> */
     public array $orderDirValues = [];
 
     public bool $checkboxAll = false;
 
+    /** @var array<int, mixed> */
     public array $checkboxValues = [];
 
     public string $checkboxField = 'id';
 
+    /** @var array<int, string> */
     public array $hiddenColumns = [];
 
     public ?string $rowHoverColor = null;
@@ -112,15 +123,27 @@ class Component extends BaseComponent
             return;
         }
 
-        $state = session($this->getSessionKey(), []);
+        $state = session($this->getSessionKey());
 
-        $this->filter = array_diff_key($state['filter'] ?? [], ['search_term' => null, 'search_letter' => null]);
-        $this->searchTerm = $state['searchTerm'] ?? '';
-        $this->searchLetter = $state['searchLetter'] ?? '';
-        $this->perPage = $state['perPage'] ?? $this->perPage;
-        $this->orderBy = $state['orderBy'] ?? $this->orderBy;
-        $this->orderDir = $state['orderDir'] ?? $this->orderDir;
-        $this->hiddenColumns = $state['hiddenColumns'] ?? [];
+        if (! is_array($state)) {
+            return;
+        }
+
+        $filter = is_array($state['filter'] ?? null) ? $state['filter'] : [];
+
+        $this->filter = array_diff_key(
+            array_filter($filter, fn ($key) => is_string($key), ARRAY_FILTER_USE_KEY),
+            ['search_term' => null, 'search_letter' => null]
+        );
+
+        $this->searchTerm = is_string($state['searchTerm'] ?? null) ? $state['searchTerm'] : '';
+        $this->searchLetter = is_string($state['searchLetter'] ?? null) ? $state['searchLetter'] : '';
+        $this->perPage = is_int($state['perPage'] ?? null) ? $state['perPage'] : $this->perPage;
+        $this->orderBy = is_string($state['orderBy'] ?? null) ? $state['orderBy'] : $this->orderBy;
+        $this->orderDir = is_string($state['orderDir'] ?? null) ? $state['orderDir'] : $this->orderDir;
+
+        $hiddenColumns = is_array($state['hiddenColumns'] ?? null) ? $state['hiddenColumns'] : [];
+        $this->hiddenColumns = array_values(array_filter($hiddenColumns, fn ($column) => is_string($column)));
     }
 
     protected function saveSessionState(): void
@@ -177,22 +200,33 @@ class Component extends BaseComponent
 
     /**
      * Return an Eloquent Builder for database queries, or a DatabaseCollection, Collection, or array for in-memory data.
+     *
+     * @return Builder<covariant Model>|DatabaseCollection<int, covariant Model>|Collection<int, covariant mixed>|array<array-key, mixed>
      */
     public function builder(): Builder|DatabaseCollection|Collection|array
     {
         throw RequiredMethodHandler::make('builder');
     }
 
+    /**
+     * @return array<int, Column>
+     */
     public function columns(): array
     {
         throw RequiredMethodHandler::make('columns');
     }
 
+    /**
+     * @return array<int, Filters\FilterBase>
+     */
     public function filters(): array
     {
         return [];
     }
 
+    /**
+     * @return array<int, Action|Collection<int, Action>>
+     */
     public function actions(): array
     {
         return [];
@@ -203,16 +237,25 @@ class Component extends BaseComponent
         return null;
     }
 
+    /**
+     * @return Builder<covariant Model>|DatabaseCollection<int, covariant Model>|Collection<int, covariant mixed>|array<array-key, mixed>
+     */
     public function getBuilderProperty(): Builder|DatabaseCollection|Collection|array
     {
         return $this->builder();
     }
 
+    /**
+     * @return array<int, Column>
+     */
     public function getColumnsProperty(): array
     {
         return $this->columns();
     }
 
+    /**
+     * @return array<int, Filters\FilterBase>
+     */
     public function getFiltersProperty(): array
     {
         return $this->filters();
@@ -230,28 +273,33 @@ class Component extends BaseComponent
         $this->resetInfiniteScroll();
     }
 
+    /**
+     * @return array<int|string, array<int, Action>>
+     */
     public function getActionsProperty(): array
     {
+        /** @var Collection<int, Action> $items */
         $items = collect($this->actions())->flatten();
 
-        $duplicates = $items->pluck('field')->duplicates();
+        $duplicates = $items->map(fn (Action $item) => $item->field)->duplicates();
 
         if ($duplicates->count()) {
-            throw DuplicateActionsHandler::make($duplicates->toArray());
+            throw DuplicateActionsHandler::make($duplicates->all());
         }
 
-        return collect($items)->groupBy(fn ($item) => $item->group, true)->toArray();
+        return $items
+            ->groupBy(fn (Action $item) => $item->group, true)
+            ->map(fn (Collection $group) => $group->all())
+            ->all();
     }
 
     public function getColspanProperty(): int
     {
-        $visibleColumns = collect($this->columns)
-            ->filter->visible
-            ->reject(fn ($column) => in_array($column->field, $this->hiddenColumns))
-            ->pluck('field')
-            ->toArray();
+        $visibleColumns = collect($this->getColumnsProperty())
+            ->filter(fn (Column $column) => $column->visible)
+            ->reject(fn (Column $column) => in_array($column->field, $this->hiddenColumns));
 
-        $colspan = count($visibleColumns);
+        $colspan = $visibleColumns->count();
 
         if ($this->showCheckbox) {
             $colspan++;
@@ -260,23 +308,32 @@ class Component extends BaseComponent
         return $colspan;
     }
 
+    /**
+     * @return array<string, float>
+     */
     public function getColumnSumsProperty(): array
     {
         return $this->columnAggregates['sums'] ?? [];
     }
 
+    /**
+     * @return array<string, float>
+     */
     public function getColumnAveragesProperty(): array
     {
         return $this->columnAggregates['averages'] ?? [];
     }
 
+    /**
+     * @return array{sums?: array<string, float>, averages?: array<string, float>}
+     */
     public function getColumnAggregatesProperty(): array
     {
         $visibleColumns = collect($this->getColumnsProperty())
-            ->filter(fn ($column) => $column->visible && ! in_array($column->field, $this->hiddenColumns));
+            ->filter(fn (Column $column) => $column->visible && ! in_array($column->field, $this->hiddenColumns));
 
-        $summableColumns = $visibleColumns->filter(fn ($column) => $column->summable)->pluck('field');
-        $averageableColumns = $visibleColumns->filter(fn ($column) => $column->averageable)->pluck('field');
+        $summableColumns = $visibleColumns->filter(fn (Column $column) => $column->summable)->map(fn (Column $column) => $column->field);
+        $averageableColumns = $visibleColumns->filter(fn (Column $column) => $column->averageable)->map(fn (Column $column) => $column->field);
 
         if ($summableColumns->isEmpty() && $averageableColumns->isEmpty()) {
             return [];
@@ -287,16 +344,19 @@ class Component extends BaseComponent
         $aggregates = [];
 
         if ($summableColumns->isNotEmpty()) {
-            $aggregates['sums'] = $summableColumns->mapWithKeys(fn ($field) => [$field => $dataSource->sum($field)])->toArray();
+            $aggregates['sums'] = $summableColumns->mapWithKeys(fn (string $field) => [$field => $dataSource->sum($field)])->all();
         }
 
         if ($averageableColumns->isNotEmpty()) {
-            $aggregates['averages'] = $averageableColumns->mapWithKeys(fn ($field) => [$field => $dataSource->avg($field)])->toArray();
+            $aggregates['averages'] = $averageableColumns->mapWithKeys(fn (string $field) => [$field => $dataSource->avg($field)])->all();
         }
 
         return $aggregates;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getOrderDirValues(): array
     {
         return [
@@ -375,9 +435,9 @@ class Component extends BaseComponent
         if ($checked) {
             $builder = $this->builder();
             if (is_array($builder)) {
-                $this->checkboxValues = collect($builder)->pluck($this->checkboxField)->all();
+                $this->checkboxValues = collect($builder)->pluck($this->checkboxField)->values()->all();
             } else {
-                $this->checkboxValues = $builder->pluck($this->checkboxField)->all();
+                $this->checkboxValues = $builder->pluck($this->checkboxField)->values()->all();
             }
         } else {
             $this->checkboxValues = [];
@@ -463,7 +523,7 @@ class Component extends BaseComponent
         $totalRecords = $this->getTotalRecords();
 
         // Hide if there are no records
-        if ($totalRecords === 0) {
+        if ($totalRecords === 0 || $this->perPageValues === []) {
             return false;
         }
 
@@ -476,6 +536,9 @@ class Component extends BaseComponent
         return true;
     }
 
+    /**
+     * @return array<int, int>
+     */
     public function getAvailablePerPageValues(): array
     {
         $totalRecords = $this->getTotalRecords();
@@ -513,13 +576,14 @@ class Component extends BaseComponent
 
         $paginator = $dataSource->paginate($effectivePerPage);
 
-        $paginator = $dataSource->transform($paginator, $this->columns, $this->rowClick());
+        $paginator = $dataSource->transform($paginator, $this->getColumnsProperty(), $this->rowClick());
 
         $page = new \stdClass;
         $page->firstItem = $paginator->firstItem();
         $page->lastItem = $paginator->lastItem();
         $page->total = $paginator->total();
 
+        // @phpstan-ignore argument.type (the theme-based view name can only be resolved at runtime)
         return view('electricgrid::'.$this->theme.'.table', [
             'data' => $paginator,
             'page' => $page,

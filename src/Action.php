@@ -6,6 +6,7 @@ namespace TomShaw\ElectricGrid;
 
 use Illuminate\Support\Collection;
 
+/** @phpstan-consistent-constructor */
 class Action
 {
     public string $group = '';
@@ -14,8 +15,10 @@ class Action
 
     public bool $isExport = false;
 
+    /** @var array<string, array<string, mixed>> */
     public array $styles = [];
 
+    /** @var array<string, float|int> */
     public array $columnWidths = [];
 
     public ?\Closure $callable = null;
@@ -37,9 +40,13 @@ class Action
         return $this;
     }
 
+    /**
+     * @param  \Closure(): array<int, self>  $actions
+     * @return Collection<int, self>
+     */
     public static function groupBy(string $group, \Closure $actions): Collection
     {
-        return collect($actions())->each(fn ($item) => $item->group = $group);
+        return collect($actions())->each(fn (self $item) => $item->group = $group);
     }
 
     public function export(string $fileName): self
@@ -51,6 +58,9 @@ class Action
         return $this;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $styles
+     */
     public function styles(array $styles): self
     {
         $this->styles = $styles;
@@ -58,6 +68,9 @@ class Action
         return $this;
     }
 
+    /**
+     * @param  array<string, float|int>  $columnWidths
+     */
     public function columnWidths(array $columnWidths): self
     {
         $this->columnWidths = $columnWidths;

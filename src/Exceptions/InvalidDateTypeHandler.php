@@ -6,6 +6,7 @@ namespace TomShaw\ElectricGrid\Exceptions;
 
 use InvalidArgumentException;
 
+/** @phpstan-consistent-constructor */
 class InvalidDateTypeHandler extends InvalidArgumentException
 {
     public static function make(string $type): self

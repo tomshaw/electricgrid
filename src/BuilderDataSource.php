@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace TomShaw\ElectricGrid;
 
 use Closure;
-use Illuminate\Contracts\View\{Factory, View};
-use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Relations\{MorphTo, Relation};
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
@@ -19,10 +19,16 @@ class BuilderDataSource
 
     private const LIKE_ESCAPE = '!';
 
+    /**
+     * @param  Builder<covariant Model>  $query
+     */
     public function __construct(
         public Builder $query,
     ) {}
 
+    /**
+     * @param  Builder<covariant Model>  $query
+     */
     public static function make(Builder $query): self
     {
         return new self($query);
@@ -48,6 +54,9 @@ class BuilderDataSource
         return (float) ($this->query->avg($field) ?? 0);
     }
 
+    /**
+     * @return LengthAwarePaginator<int, Model>
+     */
     public function paginate(int $perPage = 20): LengthAwarePaginator
     {
         return $this->query->paginate($perPage > 0 ? $perPage : max($this->query->count(), 1));
@@ -74,6 +83,8 @@ class BuilderDataSource
     /**
      * Build a correlated subquery selecting one related value, so relation
      * sorting never joins and therefore never duplicates parent rows.
+     *
+     * @return Builder<covariant Model>
      */
     private function relationOrderSubquery(string $relationName, string $column, SortDirection $direction): Builder
     {
@@ -95,13 +106,19 @@ class BuilderDataSource
 
         $related = $relation->getRelated();
 
+        /** @var Builder<Model> $parentQuery */
+        $parentQuery = $this->query;
+
         return $relation
-            ->getRelationExistenceQuery($related->newQueryWithoutRelationships(), $this->query)
+            ->getRelationExistenceQuery($related->newQueryWithoutRelationships(), $parentQuery)
             ->select($related->qualifyColumn($column))
             ->orderBy($related->qualifyColumn($column), $direction->value)
             ->limit(1);
     }
 
+    /**
+     * @param  array<int, string>  $columns
+     */
     public function search(string $term, array $columns): self
     {
         $term = trim($term);
@@ -115,6 +132,9 @@ class BuilderDataSource
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $columns
+     */
     public function searchLetter(string $letter, array $columns): self
     {
         $letter = trim($letter);
@@ -128,6 +148,9 @@ class BuilderDataSource
         return $this;
     }
 
+    /**
+     * @param  array<int, string>  $columns
+     */
     private function applyGroupedLike(array $columns, string $pattern): void
     {
         $this->query->where(function (Builder $query) use ($columns, $pattern) {
@@ -143,12 +166,16 @@ class BuilderDataSource
         });
     }
 
+    /**
+     * @param  Builder<covariant Model>  $query
+     */
     private function whereLikePattern(Builder $query, string $column, string $pattern, bool $or = false): void
     {
         $grammar = $query->getQuery()->getGrammar();
         $sql = $grammar->wrap($column)." like ? escape '".self::LIKE_ESCAPE."'";
 
-        $or ? $query->orWhereRaw($sql, [$pattern]) : $query->whereRaw($sql, [$pattern]);
+        // @phpstan-ignore argument.type (the column name is grammar-quoted and the pattern is a bound parameter)
+        $query->whereRaw($sql, [$pattern], $or ? 'or' : 'and');
     }
 
     private function escapeLike(string $value): string
@@ -160,6 +187,9 @@ class BuilderDataSource
         );
     }
 
+    /**
+     * @param  array<array-key, mixed>  $filters
+     */
     public function filter(array $filters): void
     {
         foreach ($filters as $type => $values) {
@@ -197,22 +227,34 @@ class BuilderDataSource
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     */
     private function applyTextFilters(array $values): void
     {
         foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
+            $value = $this->stringValue($value);
+
             if ($value === null || $value === '') {
                 continue;
             }
 
-            $pattern = '%'.$this->escapeLike((string) $value).'%';
+            $pattern = '%'.$this->escapeLike($value).'%';
 
             $this->applyToColumn($columnName, fn (Builder $query, string $column) => $this->whereLikePattern($query, $column, $pattern));
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     */
     private function applyRangeFilters(array $values): void
     {
         foreach ($this->flattenColumns($values, $this->isRangeLeaf(...)) as $columnName => $range) {
+            if (! is_array($range)) {
+                continue;
+            }
+
             [$start, $end] = $this->rangeBounds($range);
 
             if ($start === null && $end === null) {
@@ -233,6 +275,9 @@ class BuilderDataSource
         }
     }
 
+    /**
+     * @param  Builder<covariant Model>  $query
+     */
     private function applyRange(Builder $query, string $column, int|float|string|null $start, int|float|string|null $end, bool $having = false): void
     {
         $method = $having ? 'having' : 'where';
@@ -246,6 +291,9 @@ class BuilderDataSource
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     */
     private function applySelectFilters(array $values): void
     {
         foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
@@ -257,10 +305,13 @@ class BuilderDataSource
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     */
     private function applyMultiSelectFilters(array $values): void
     {
         foreach ($this->flattenColumns($values, fn ($value) => is_array($value) && array_is_list($value)) as $columnName => $list) {
-            if ($list === [] || in_array('-1', $list) || in_array(-1, $list, true)) {
+            if (! is_array($list) || $list === [] || in_array('-1', $list) || in_array(-1, $list, true)) {
                 continue;
             }
 
@@ -268,6 +319,9 @@ class BuilderDataSource
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     */
     private function applyBooleanFilters(array $values): void
     {
         foreach ($this->flattenColumns($values, fn ($value) => ! is_array($value)) as $columnName => $value) {
@@ -279,9 +333,16 @@ class BuilderDataSource
         }
     }
 
+    /**
+     * @param  array<array-key, mixed>  $values
+     */
     private function applyDateTimeFilters(array $values, string $type): void
     {
         foreach ($this->flattenColumns($values, $this->isRangeLeaf(...)) as $columnName => $range) {
+            if (! is_array($range)) {
+                continue;
+            }
+
             $range = $this->normalizeDateTimeValues($range, $type);
 
             $start = $range['start'] ?? null;
@@ -295,32 +356,51 @@ class BuilderDataSource
         }
     }
 
+    /**
+     * @param  LengthAwarePaginator<int, covariant mixed>  $paginator
+     * @param  array<int, Column>  $columns
+     * @return LengthAwarePaginator<int, covariant mixed>
+     */
     public function transform(LengthAwarePaginator $paginator, array $columns, ?Closure $rowClick = null): LengthAwarePaginator
     {
         $transformedColumns = $this->transformColumns($columns);
 
+        /** @var Collection<int, mixed> $transformedCollection */
         $transformedCollection = $this->transformCollection($paginator->getCollection(), $transformedColumns, $rowClick);
 
         return $paginator->setCollection($transformedCollection);
     }
 
+    /**
+     * @param  array<int, Column>  $columns
+     * @return Collection<string, Closure>
+     */
     public function transformColumns(array $columns): Collection
     {
-        return collect($columns)->mapWithKeys(fn ($column) => [$column->field => $column->closure ?? $this->createDefaultClosure($column->field)]);
+        return collect($columns)->mapWithKeys(fn (Column $column) => [$column->field => $column->closure ?? $this->createDefaultClosure($column->field)]);
     }
 
+    /**
+     * @param  array<int, Column>  $columns
+     * @return Collection<string, Closure>
+     */
     public function transformColumnsForExport(array $columns): Collection
     {
-        return collect($columns)->mapWithKeys(fn ($column) => [$column->field => $column->exportClosure ?? $this->createDefaultClosure($column->field)]);
+        return collect($columns)->mapWithKeys(fn (Column $column) => [$column->field => $column->exportClosure ?? $this->createDefaultClosure($column->field)]);
     }
 
+    /**
+     * @param  Collection<int, covariant mixed>  $results
+     * @param  Collection<string, Closure>  $columns
+     * @return Collection<int, \stdClass>
+     */
     public function transformCollection(Collection $results, Collection $columns, ?Closure $rowClick = null): Collection
     {
         return $results->map(function ($row) use ($columns, $rowClick) {
-            $transformed = (object) $columns->mapWithKeys(function ($column, $columnName) use ($row) {
+            $transformed = (object) $columns->mapWithKeys(function (Closure $column, string $columnName) use ($row) {
                 $value = $column($row);
 
-                if ($value instanceof View || $value instanceof Factory) {
+                if ($value instanceof View) {
                     $value = $value->render();
                 }
 

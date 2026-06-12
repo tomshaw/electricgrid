@@ -14,26 +14,41 @@ class DataExport
 {
     public string $fileName = 'DataExport.xlsx';
 
+    /** @var array<int, string> */
     public array $headings = [];
 
+    /** @var array<string, array<string, mixed>> */
     public array $styles = [];
 
+    /** @var array<string, float|int> */
     public array $columnWidths = [];
 
+    /**
+     * @param  Collection<int, covariant mixed>  $collection
+     */
     public function __construct(
         public Collection $collection
     ) {}
 
+    /**
+     * @return Collection<int, covariant mixed>
+     */
     public function collection(): Collection
     {
         return $this->collection;
     }
 
+    /**
+     * @return array<int, string>
+     */
     public function headings(): array
     {
         return $this->headings;
     }
 
+    /**
+     * @param  array<int, string>  $headings
+     */
     public function setHeadings(array $headings): self
     {
         $this->headings = $headings;
@@ -53,6 +68,9 @@ class DataExport
         return $this->fileName;
     }
 
+    /**
+     * @param  array<string, float|int>  $columnWidths
+     */
     public function setColumnWidths(array $columnWidths): self
     {
         $this->columnWidths = $columnWidths;
@@ -60,11 +78,17 @@ class DataExport
         return $this;
     }
 
+    /**
+     * @return array<string, float|int>
+     */
     public function getColumnWidths(): array
     {
         return $this->columnWidths;
     }
 
+    /**
+     * @param  array<string, array<string, mixed>>  $styles
+     */
     public function setStyles(array $styles): self
     {
         $this->styles = $styles;
@@ -72,6 +96,9 @@ class DataExport
         return $this;
     }
 
+    /**
+     * @return array<string, array<string, mixed>>
+     */
     public function getStyles(): array
     {
         return $this->styles;
@@ -126,7 +153,7 @@ class DataExport
         }
 
         foreach ($this->columnWidths as $column => $width) {
-            $dimension = $sheet->getColumnDimension((string) $column);
+            $dimension = $sheet->getColumnDimension($column);
             $dimension->setAutoSize(false);
             $dimension->setWidth((float) $width);
         }
@@ -135,7 +162,7 @@ class DataExport
     protected function applyStyles(Worksheet $sheet): void
     {
         foreach ($this->styles as $cell => $style) {
-            $sheet->getStyle((string) $cell)->applyFromArray($style);
+            $sheet->getStyle($cell)->applyFromArray($style);
         }
     }
 

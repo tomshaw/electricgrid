@@ -92,6 +92,43 @@ it('loads persisted state from session on mount', function () {
     expect($component->get('hiddenColumns'))->toBe(['invoiced']);
 });
 
+// Test that malformed session state falls back to defaults instead of corrupting typed properties
+it('ignores malformed persisted state on mount', function () {
+    session()->put('electricgrid.'.TestComponent::class, [
+        'filter' => 'not-an-array',
+        'searchTerm' => ['not-a-string'],
+        'searchLetter' => 42,
+        'perPage' => 'fifty',
+        'orderBy' => null,
+        'orderDir' => false,
+        'hiddenColumns' => ['invoiced', 123, null],
+    ]);
+
+    $component = Livewire::test(TestComponent::class, ['persistFilters' => true]);
+
+    $component->assertSuccessful();
+
+    expect($component->get('searchTerm'))->toBe('');
+    expect($component->get('searchLetter'))->toBe('');
+    expect($component->get('perPage'))->toBe(15);
+    expect($component->get('orderBy'))->toBe('id');
+    expect($component->get('orderDir'))->toBe('ASC');
+    expect($component->get('filter'))->toBe([]);
+    expect($component->get('hiddenColumns'))->toBe(['invoiced']);
+});
+
+// Test that non-array session state is ignored entirely
+it('ignores non-array persisted state on mount', function () {
+    session()->put('electricgrid.'.TestComponent::class, 'corrupted');
+
+    $component = Livewire::test(TestComponent::class, ['persistFilters' => true]);
+
+    $component->assertSuccessful();
+
+    expect($component->get('searchTerm'))->toBe('');
+    expect($component->get('perPage'))->toBe(15);
+});
+
 // Test that clearSessionState() clears the session and resets properties
 it('clears session state when clearSessionState is called', function () {
     $component = Livewire::test(TestComponent::class);
