@@ -7,7 +7,7 @@ namespace TomShaw\ElectricGrid;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\{Builder, Model};
-use Illuminate\Database\Eloquent\Relations\{MorphTo, Relation};
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOne, HasOneThrough, MorphOne, MorphTo, Relation};
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use TomShaw\ElectricGrid\Concerns\HandlesFilterValues;
@@ -82,38 +82,61 @@ class BuilderDataSource
 
     /**
      * Build a correlated subquery selecting one related value, so relation
-     * sorting never joins and therefore never duplicates parent rows.
+     * sorting never joins and therefore never duplicates parent rows. The
+     * dotted path is walked one relation at a time, nesting a scalar subquery
+     * per hop so arbitrarily deep to-one paths can be sorted.
      *
      * @return Builder<covariant Model>
      */
-    private function relationOrderSubquery(string $relationName, string $column, SortDirection $direction): Builder
+    private function relationOrderSubquery(string $relationPath, string $column, SortDirection $direction): Builder
     {
-        if (str_contains($relationName, '.')) {
-            throw InvalidModelRelationsHandler::make("Sorting through nested relations is not supported: `{$relationName}.{$column}`.");
+        /** @var Builder<Model> $parentQuery */
+        $parentQuery = $this->query;
+
+        return $this->buildRelationOrderSubquery($this->query->getModel(), $parentQuery, explode('.', $relationPath), $column, $direction);
+    }
+
+    /**
+     * @param  Builder<Model>  $parentQuery
+     * @param  non-empty-array<int, string>  $segments
+     * @return Builder<covariant Model>
+     */
+    private function buildRelationOrderSubquery(Model $parentModel, Builder $parentQuery, array $segments, string $column, SortDirection $direction): Builder
+    {
+        $relationName = array_shift($segments);
+
+        if (! method_exists($parentModel, $relationName)) {
+            throw InvalidModelRelationsHandler::make("Relation `{$relationName}` is not defined on `".$parentModel::class.'`.');
         }
 
-        $model = $this->query->getModel();
+        $relation = $parentModel->{$relationName}();
 
-        if (! method_exists($model, $relationName)) {
-            throw InvalidModelRelationsHandler::make("Relation `{$relationName}` is not defined on `".$model::class.'`.');
-        }
+        $isLeaf = $segments === [];
 
-        $relation = $model->{$relationName}();
-
-        if (! $relation instanceof Relation || $relation instanceof MorphTo) {
-            throw InvalidModelRelationsHandler::make("Relation `{$relationName}` cannot be used for sorting.");
+        if ($isLeaf) {
+            if (! $relation instanceof Relation || $relation instanceof MorphTo) {
+                throw InvalidModelRelationsHandler::make("Relation `{$relationName}` cannot be used for sorting.");
+            }
+        } elseif (! $relation instanceof HasOne
+            && ! $relation instanceof BelongsTo
+            && ! $relation instanceof HasOneThrough
+            && ! $relation instanceof MorphOne) {
+            throw InvalidModelRelationsHandler::make("Relation `{$relationName}` cannot be used for sorting through a nested path.");
         }
 
         $related = $relation->getRelated();
 
-        /** @var Builder<Model> $parentQuery */
-        $parentQuery = $this->query;
+        $query = $relation->getRelationExistenceQuery($related->newQueryWithoutRelationships(), $parentQuery);
 
-        return $relation
-            ->getRelationExistenceQuery($related->newQueryWithoutRelationships(), $parentQuery)
-            ->select($related->qualifyColumn($column))
-            ->orderBy($related->qualifyColumn($column), $direction->value)
-            ->limit(1);
+        if ($isLeaf) {
+            $target = $related->qualifyColumn($column);
+
+            return $query->select($target)->orderBy($target, $direction->value)->limit(1);
+        }
+
+        $inner = $this->buildRelationOrderSubquery($related, $query, $segments, $column, $direction);
+
+        return $query->select(['__eg_sort' => $inner])->limit(1);
     }
 
     /**

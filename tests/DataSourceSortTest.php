@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use TomShaw\ElectricGrid\{BuilderDataSource, SortDirection};
 use TomShaw\ElectricGrid\Exceptions\InvalidModelRelationsHandler;
-use TomShaw\ElectricGrid\Tests\Models\{Author, Tag, TestModel};
+use TomShaw\ElectricGrid\Tests\Models\{Author, Company, Tag, TestModel};
 
 it('sorts base columns with a qualified column name', function () {
     TestModel::create(['name' => 'bravo']);
@@ -98,6 +98,26 @@ it('does not duplicate rows when sorting by a belongsToMany relation column', fu
     $dataSource->orderBy('tags.name', SortDirection::Asc);
 
     expect($dataSource->query->pluck('name')->all())->toBe(['two', 'one']);
+});
+
+it('sorts by a nested to-one relation column without joining', function () {
+    $zeta = Company::create(['name' => 'Zeta']);
+    $alpha = Company::create(['name' => 'Alpha']);
+    $mid = Company::create(['name' => 'Mid']);
+
+    $ann = Author::create(['name' => 'Ann', 'company_id' => $zeta->id]);
+    $bob = Author::create(['name' => 'Bob', 'company_id' => $alpha->id]);
+    $cid = Author::create(['name' => 'Cid', 'company_id' => $mid->id]);
+
+    TestModel::create(['name' => 'one', 'author_id' => $ann->id]);
+    TestModel::create(['name' => 'two', 'author_id' => $bob->id]);
+    TestModel::create(['name' => 'three', 'author_id' => $cid->id]);
+
+    $dataSource = BuilderDataSource::make(TestModel::query());
+    $dataSource->orderBy('author.company.name', SortDirection::Asc);
+
+    expect($dataSource->query->pluck('name')->all())->toBe(['two', 'three', 'one'])
+        ->and($dataSource->query->count())->toBe(3);
 });
 
 it('sorts computed columns without qualifying them', function () {

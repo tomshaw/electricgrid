@@ -22,10 +22,17 @@ class TestCase extends Orchestra
 
         $this->registerLivewireComponents();
 
+        Schema::create('companies', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+        });
+
         Schema::create('authors', function (Blueprint $table) {
             $table->id();
             $table->string('name');
             $table->string('email')->nullable();
+            $table->foreignId('company_id')->nullable();
             $table->timestamps();
         });
 
