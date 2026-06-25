@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.11.0](https://github.com/tomshaw/electricgrid/compare/v2.10.0...v2.11.0) (2026-06-25)
+
+
+### Features
+
+* Add support for nested relation sorting and implement Company model ([d23b007](https://github.com/tomshaw/electricgrid/commit/d23b007174ba8af2b910340165fde2ef6cf6ff02))
+
+
+### Miscellaneous Chores
+
+* **deps:** bump actions/checkout from 6 to 7 ([bb0990f](https://github.com/tomshaw/electricgrid/commit/bb0990f3c28d11e42aaee3b7c646d918e94c0c0f))
+* **deps:** bump actions/checkout from 6 to 7 ([ec15c5a](https://github.com/tomshaw/electricgrid/commit/ec15c5a7d9088360b95ef3df9117336b33625a11))
+
 ## [2.10.0](https://github.com/tomshaw/electricgrid/compare/v2.9.3...v2.10.0) (2026-06-12)
 
 
