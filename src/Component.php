@@ -123,6 +123,8 @@ class Component extends BaseComponent
             return;
         }
 
+        $defaultOrderBy = $this->orderBy;
+
         $state = session($this->getSessionKey());
 
         if (! is_array($state)) {
@@ -144,6 +146,34 @@ class Component extends BaseComponent
 
         $hiddenColumns = is_array($state['hiddenColumns'] ?? null) ? $state['hiddenColumns'] : [];
         $this->hiddenColumns = array_values(array_filter($hiddenColumns, fn ($column) => is_string($column)));
+
+        $this->pruneStaleState($defaultOrderBy);
+    }
+
+    protected function pruneStaleState(string $defaultOrderBy): void
+    {
+        $validFields = array_flip(array_map(
+            fn (Column $column): string => $column->field,
+            $this->columns()
+        ));
+
+        foreach ($this->filter as $type => $values) {
+            if (! is_array($values)) {
+                continue;
+            }
+
+            $pruned = array_intersect_key($values, $validFields);
+
+            if ($pruned === []) {
+                unset($this->filter[$type]);
+            } else {
+                $this->filter[$type] = $pruned;
+            }
+        }
+
+        if ($this->orderBy !== '' && ! isset($validFields[$this->orderBy])) {
+            $this->orderBy = $defaultOrderBy;
+        }
     }
 
     protected function saveSessionState(): void
