@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace TomShaw\ElectricGrid\Tests;
 
 use Livewire\Livewire;
-use TomShaw\ElectricGrid\Tests\Components\TestComponent;
+use TomShaw\ElectricGrid\Tests\Components\{RelationColumnComponent, TestComponent};
 use TomShaw\ElectricGrid\Tests\Models\TestModel;
 
 beforeEach(function () {
@@ -144,6 +144,41 @@ it('prunes persisted filters for fields that are no longer defined columns', fun
     $component->assertSuccessful();
 
     expect($component->get('filter'))->toBe(['text' => ['name' => 'keep']]);
+});
+
+// Test that persisted filters on dotted relation columns survive pruning on mount.
+// Livewire stores dotted wire:model paths as nested arrays, so pruning must walk the tree.
+it('keeps persisted filters for nested relation (dotted) columns', function () {
+    session()->put('electricgrid.'.RelationColumnComponent::class, [
+        'filter' => [
+            'text' => [
+                'name' => 'flat',
+                'author' => [
+                    'name' => 'Tower',
+                    'company' => ['name' => 'Acme'],
+                ],
+                'obsolete' => 'drop',
+            ],
+        ],
+        'orderBy' => 'author.company.name',
+    ]);
+
+    $component = Livewire::test(RelationColumnComponent::class, ['persistFilters' => true]);
+
+    $component->assertSuccessful();
+
+    expect($component->get('filter'))->toBe([
+        'text' => [
+            'name' => 'flat',
+            'author' => [
+                'name' => 'Tower',
+                'company' => ['name' => 'Acme'],
+            ],
+        ],
+    ]);
+
+    // A dotted orderBy that still maps to a valid column must survive too.
+    expect($component->get('orderBy'))->toBe('author.company.name');
 });
 
 // Test that a persisted orderBy pointing at a removed column falls back to the default
