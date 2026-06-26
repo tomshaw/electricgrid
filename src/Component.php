@@ -152,7 +152,7 @@ class Component extends BaseComponent
 
     protected function pruneStaleState(string $defaultOrderBy): void
     {
-        $validFields = array_flip(array_map(
+        $validFields = array_values(array_map(
             fn (Column $column): string => $column->field,
             $this->columns()
         ));
@@ -162,7 +162,7 @@ class Component extends BaseComponent
                 continue;
             }
 
-            $pruned = array_intersect_key($values, $validFields);
+            $pruned = $this->pruneFilterBranch($values, $validFields, '');
 
             if ($pruned === []) {
                 unset($this->filter[$type]);
@@ -171,9 +171,57 @@ class Component extends BaseComponent
             }
         }
 
-        if ($this->orderBy !== '' && ! isset($validFields[$this->orderBy])) {
+        if ($this->orderBy !== '' && ! in_array($this->orderBy, $validFields, true)) {
             $this->orderBy = $defaultOrderBy;
         }
+    }
+
+    /**
+     * @param  array<array-key, mixed>  $branch
+     * @param  array<int, string>  $validFields
+     * @return array<array-key, mixed>
+     */
+    protected function pruneFilterBranch(array $branch, array $validFields, string $prefix): array
+    {
+        $kept = [];
+
+        foreach ($branch as $key => $value) {
+            $path = $prefix === '' ? (string) $key : $prefix.'.'.$key;
+
+            // Exact field match: keep the whole subtree (e.g. start/end of a range filter).
+            if (in_array($path, $validFields, true)) {
+                $kept[$key] = $value;
+
+                continue;
+            }
+
+            // Ancestor of a valid dotted field (e.g. 'project' for 'project.name'): recurse.
+            if (is_array($value) && $this->isFieldAncestor($path, $validFields)) {
+                $child = $this->pruneFilterBranch($value, $validFields, $path);
+
+                if ($child !== []) {
+                    $kept[$key] = $child;
+                }
+            }
+        }
+
+        return $kept;
+    }
+
+    /**
+     * @param  array<int, string>  $validFields
+     */
+    protected function isFieldAncestor(string $path, array $validFields): bool
+    {
+        $needle = $path.'.';
+
+        foreach ($validFields as $field) {
+            if (str_starts_with($field, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     protected function saveSessionState(): void
