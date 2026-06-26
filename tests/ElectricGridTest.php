@@ -129,6 +129,49 @@ it('ignores non-array persisted state on mount', function () {
     expect($component->get('perPage'))->toBe(15);
 });
 
+// Test that persisted filters referencing columns that no longer exist are pruned on mount
+it('prunes persisted filters for fields that are no longer defined columns', function () {
+    session()->put('electricgrid.'.TestComponent::class, [
+        'filter' => [
+            'text' => ['name' => 'keep', 'obsolete' => 'drop'],
+            'select' => ['removed' => [1, 2]],
+        ],
+        'orderBy' => 'id',
+    ]);
+
+    $component = Livewire::test(TestComponent::class, ['persistFilters' => true]);
+
+    $component->assertSuccessful();
+
+    expect($component->get('filter'))->toBe(['text' => ['name' => 'keep']]);
+});
+
+// Test that a persisted orderBy pointing at a removed column falls back to the default
+it('resets persisted orderBy to the default when its field is no longer a column', function () {
+    session()->put('electricgrid.'.TestComponent::class, [
+        'orderBy' => 'obsolete_column',
+    ]);
+
+    $component = Livewire::test(TestComponent::class, ['persistFilters' => true]);
+
+    $component->assertSuccessful();
+
+    expect($component->get('orderBy'))->toBe('id');
+});
+
+// Test that a persisted orderBy referencing a valid column survives pruning
+it('keeps a persisted orderBy when its field is still a valid column', function () {
+    session()->put('electricgrid.'.TestComponent::class, [
+        'orderBy' => 'name',
+    ]);
+
+    $component = Livewire::test(TestComponent::class, ['persistFilters' => true]);
+
+    $component->assertSuccessful();
+
+    expect($component->get('orderBy'))->toBe('name');
+});
+
 // Test that clearSessionState() clears the session and resets properties
 it('clears session state when clearSessionState is called', function () {
     $component = Livewire::test(TestComponent::class);
