@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.12.0](https://github.com/tomshaw/electricgrid/compare/v2.11.0...v2.12.0) (2026-06-26)
+
+
+### Features
+
+* Add tests for pruning persisted filters and orderBy properties on component mount ([f2681b1](https://github.com/tomshaw/electricgrid/commit/f2681b1c46e1cdc5fe8ee1943b53d6c9525cb768))
+* Implement pruneStaleState method to clean up filter and orderBy properties ([4a5425a](https://github.com/tomshaw/electricgrid/commit/4a5425ac1cc8666ead0ac222d1fcff5ccfab02e1))
+
 ## [2.11.0](https://github.com/tomshaw/electricgrid/compare/v2.10.0...v2.11.0) (2026-06-25)
 
 
