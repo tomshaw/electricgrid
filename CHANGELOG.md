@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.12.1](https://github.com/tomshaw/electricgrid/compare/v2.12.0...v2.12.1) (2026-06-26)
+
+
+### Bug Fixes
+
+* preserve persisted filters on nested relation columns ([467f5ad](https://github.com/tomshaw/electricgrid/commit/467f5ad157bddef7f73bb6c64f9b6d9c2089d95d))
+
 ## [2.12.0](https://github.com/tomshaw/electricgrid/compare/v2.11.0...v2.12.0) (2026-06-26)
 
 
