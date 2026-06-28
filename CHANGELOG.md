@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.13.0](https://github.com/tomshaw/electricgrid/compare/v2.12.1...v2.13.0) (2026-06-28)
+
+
+### Features
+
+* add SessionState trait for persisting grid state in session ([7b365ed](https://github.com/tomshaw/electricgrid/commit/7b365ed1e811dc7107d85fbbc2c07b0d8942f017))
+* add support for related columns using dot notation in grid configuration ([1e9e525](https://github.com/tomshaw/electricgrid/commit/1e9e5258d84d861cb99957250954038733e8d1ee))
+* implement GridActions trait for handling grid actions and exports ([d84a05b](https://github.com/tomshaw/electricgrid/commit/d84a05be2e591e79f458bae3b9bb2c8fd9f329e6))
+* refactor grid components to use new Concerns for computed columns, filter values, row styles, and table captions ([8ee1d07](https://github.com/tomshaw/electricgrid/commit/8ee1d077e80f6965485d582c4c844aceb4d6c9c6))
+
 ## [2.12.1](https://github.com/tomshaw/electricgrid/compare/v2.12.0...v2.12.1) (2026-06-26)
 
 
