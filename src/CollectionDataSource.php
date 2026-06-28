@@ -9,11 +9,12 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Collection as DatabaseCollection;
 use Illuminate\Pagination\{LengthAwarePaginator, Paginator};
 use Illuminate\Support\Collection;
-use TomShaw\ElectricGrid\Concerns\HandlesFilterValues;
+use TomShaw\ElectricGrid\Concerns\{ComputedColumns, FilterValues};
 
 class CollectionDataSource
 {
-    use HandlesFilterValues;
+    use ComputedColumns;
+    use FilterValues;
 
     /**
      * @param  Collection<int, mixed>  $collection

@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace TomShaw\ElectricGrid\Traits;
+namespace TomShaw\ElectricGrid\Concerns;
 
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;

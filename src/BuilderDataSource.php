@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\{Builder, Model};
 use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOne, HasOneThrough, MorphOne, MorphTo, Relation};
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use TomShaw\ElectricGrid\Concerns\HandlesFilterValues;
+use TomShaw\ElectricGrid\Concerns\{ComputedColumns, FilterValues};
 use TomShaw\ElectricGrid\Exceptions\{InvalidFilterHandler, InvalidModelRelationsHandler};
 
 class BuilderDataSource
 {
-    use HandlesFilterValues;
+    use ComputedColumns;
+    use FilterValues;
 
     private const LIKE_ESCAPE = '!';
 

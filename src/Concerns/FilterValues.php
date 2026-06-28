@@ -8,31 +8,8 @@ use Closure;
 use DateTime;
 use TomShaw\ElectricGrid\Exceptions\{InvalidDateFormatHandler, InvalidDateTypeHandler};
 
-trait HandlesFilterValues
+trait FilterValues
 {
-    /** @var array<int, string> */
-    public array $computedColumns = [];
-
-    /**
-     * @param  array<int, string>  $columns
-     */
-    public function addComputedColumns(array $columns): void
-    {
-        foreach ($columns as $column) {
-            $this->addComputedColumn($column);
-        }
-    }
-
-    public function addComputedColumn(string $columnName): void
-    {
-        $this->computedColumns[] = $columnName;
-    }
-
-    public function isComputedColumn(string $column): bool
-    {
-        return in_array($column, $this->computedColumns, true);
-    }
-
     /**
      * Split a dotted column path into its relation path and column name.
      *
