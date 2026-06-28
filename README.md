@@ -203,6 +203,38 @@ class OrdersTable extends Component
 }
 ```
 
+### Related Columns (Dot Notation)
+
+To show a value from a related model, name the column with a dot path: everything before the last dot is the relationship, the last part is the attribute. So `customer.name` means "the `name` of the `customer` relation". Nested relations work too, e.g. `customer.address.city`.
+
+```php
+public function builder(): Builder
+{
+    // Eager-load the relations you reference to avoid N+1 queries.
+    return Order::with(['customer', 'customer.address']);
+}
+
+public function columns(): array
+{
+    return [
+        Column::add('customer.name', 'Customer')
+            ->searchable()
+            ->sortable(),
+
+        Column::add('customer.address.city', 'City')
+            ->sortable(),
+    ];
+}
+```
+
+That single dot path is all the grid needs — it handles the rest for you:
+
+- **Display** walks the relation and prints the value automatically (no `callback()` required).
+- **Sorting** orders the table by the related column using a subquery, so it works even across many-to-one relations.
+- **Searching and filters** match against the related column (via a `whereHas` constraint), exactly like a normal column.
+
+Just remember to eager-load the relations in your `builder()` (as shown above) so the grid isn't running an extra query per row.
+
 ### Column Aggregates
 
 Columns support aggregate calculations that display in the table footer.
