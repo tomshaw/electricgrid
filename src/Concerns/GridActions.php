@@ -27,7 +27,7 @@ trait GridActions
         if ($action->isExport) {
             $hiddenColumns = array_filter($this->hiddenColumns);
 
-            $exportables = collect($this->columns())
+            $exportables = collect($this->exportColumnOrder ? $this->getColumnsProperty() : $this->columns())
                 ->filter(fn (Column $column) => $column->exportable)
                 ->reject(function (Column $column) use ($hiddenColumns) {
                     // A column's effective visibility in the grid is "visible XOR in hiddenColumns",

@@ -7,7 +7,7 @@ namespace TomShaw\ElectricGrid\Concerns;
 use TomShaw\ElectricGrid\Column;
 
 /**
- * Persists grid state (filters, search, ordering, paging, hidden columns) to the
+ * Persists grid state (filters, search, ordering, paging, hidden and ordered columns) to the
  * session and restores it on mount, pruning any state that no longer maps to a
  * defined column.
  *
@@ -20,6 +20,7 @@ use TomShaw\ElectricGrid\Column;
  * @property string $orderBy
  * @property string $orderDir
  * @property array<int, string> $hiddenColumns
+ * @property array<int, string> $columnOrder
  * @property bool $persistFilters
  *
  * @method array<int, Column> columns()
@@ -63,6 +64,9 @@ trait SessionState
         $hiddenColumns = is_array($state['hiddenColumns'] ?? null) ? $state['hiddenColumns'] : [];
         $this->hiddenColumns = array_values(array_filter($hiddenColumns, fn ($column) => is_string($column)));
 
+        $columnOrder = is_array($state['columnOrder'] ?? null) ? $state['columnOrder'] : [];
+        $this->columnOrder = array_values(array_filter($columnOrder, fn ($column) => is_string($column)));
+
         $this->pruneStaleState($defaultOrderBy);
     }
 
@@ -90,6 +94,8 @@ trait SessionState
         if ($this->orderBy !== '' && ! in_array($this->orderBy, $validFields, true)) {
             $this->orderBy = $defaultOrderBy;
         }
+
+        $this->columnOrder = array_values(array_intersect($this->columnOrder, $validFields));
     }
 
     /**
@@ -154,6 +160,7 @@ trait SessionState
             'orderBy' => $this->orderBy,
             'orderDir' => $this->orderDir,
             'hiddenColumns' => $this->hiddenColumns,
+            'columnOrder' => $this->columnOrder,
         ]);
     }
 
@@ -165,6 +172,7 @@ trait SessionState
         $this->searchTerm = '';
         $this->searchLetter = '';
         $this->hiddenColumns = [];
+        $this->columnOrder = [];
         $this->resetPage();
         $this->resetInfiniteScroll();
     }

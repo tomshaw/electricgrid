@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\{Builder, Collection as DatabaseCollection, Mod
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\{Component as BaseComponent, WithPagination};
-use TomShaw\ElectricGrid\Concerns\{GridActions, RowStyles, SessionState, TableCaption};
+use TomShaw\ElectricGrid\Concerns\{ColumnOrder, GridActions, RowStyles, SessionState, TableCaption};
 use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHandler};
 
 /**
@@ -16,6 +16,7 @@ use TomShaw\ElectricGrid\Exceptions\{DuplicateActionsHandler, RequiredMethodHand
  */
 class Component extends BaseComponent
 {
+    use ColumnOrder;
     use GridActions;
     use RowStyles;
     use SessionState;
@@ -174,7 +175,7 @@ class Component extends BaseComponent
      */
     public function getColumnsProperty(): array
     {
-        return $this->columns();
+        return $this->orderColumns($this->columns());
     }
 
     /**

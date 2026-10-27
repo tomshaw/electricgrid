@@ -46,19 +46,29 @@
                         </svg>
                     </button>
                     <div x-show="open" x-transition @click.away="open = false" class="absolute z-10 w-64 text-sm text-gray-500 bg-white border border-gray-200 rounded-lg shadow-sm dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800 right-0 top-full mt-2">
-                        <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
+                        <div class="flex items-center justify-between px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
                             <h3 class="font-semibold text-gray-900 dark:text-white">Toggle Columns</h3>
+                            <button type="button" wire:click="resetColumns" @disabled(empty($this->hiddenColumns) && empty($this->columnOrder)) class="text-xs font-medium text-blue-600 hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-default">
+                                Reset
+                            </button>
                         </div>
-                        <div class="p-0">
+                        <div class="p-0" wire:sort="handleColumnSort">
                             @foreach ($this->columns as $column)
-                                @if ($column->visible)
-                                    <div class="flex items-center border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200">
-                                        <label class="flex items-center space-x-3 w-full py-2 px-3">
-                                            <input type="checkbox" wire:click="handleToggleColumns('{{ $column->field }}')" {{ !in_array($column->field, $this->hiddenColumns) ? 'checked' : '' }} class="form-checkbox h-5 w-5 {{ !in_array($column->field, $this->hiddenColumns) ? 'text-blue-600' : 'text-gray-400' }}">
-                                            <span class="text-gray-900 font-medium">{{ $column->title }}</span>
-                                        </label>
-                                    </div>
-                                @endif
+                                {{-- Every column is a sort item so drop positions match the full column list. --}}
+                                <div wire:key="electricgrid-col-toggle-{{ $column->field }}" wire:sort:item="{{ $column->field }}" @class([
+                                    'flex items-center border-b border-gray-200 hover:bg-gray-100 transition-colors duration-200',
+                                    'hidden' => !$column->visible,
+                                ])>
+                                    <span wire:sort:handle class="flex items-center self-stretch pl-2 text-gray-400 cursor-grab active:cursor-grabbing hover:text-gray-600" title="Drag to reorder" aria-label="Drag to reorder {{ $column->title }}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-4 w-4">
+                                            <path d="M7 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 6a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1.5 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM16 4a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm-1.5 7.5a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3zM16 16a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"></path>
+                                        </svg>
+                                    </span>
+                                    <label class="flex items-center space-x-3 w-full py-2 px-3">
+                                        <input type="checkbox" wire:click="handleToggleColumns('{{ $column->field }}')" {{ !in_array($column->field, $this->hiddenColumns) ? 'checked' : '' }} class="form-checkbox h-5 w-5 {{ !in_array($column->field, $this->hiddenColumns) ? 'text-blue-600' : 'text-gray-400' }}">
+                                        <span class="text-gray-900 font-medium">{{ $column->title }}</span>
+                                    </label>
+                                </div>
                             @endforeach
                         </div>
                     </div>

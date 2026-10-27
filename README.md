@@ -26,21 +26,23 @@ A powerful Livewire data table package. A great choice for projects that require
 
 8. **Toggleable Columns**: Hide or show columns useful for focusing on the most relevant data.
 
-9. **Smart Pagination**: Intelligent per-page controls that automatically hide when unnecessary and filter options based on dataset size.
+9. **Column Ordering**: Users can drag columns into their own order, with optional session persistence.
 
-10. **Infinite Scroll**: Opt-in IntersectionObserver-driven "load more" mode that grows the result window as the user scrolls.
+10. **Smart Pagination**: Intelligent per-page controls that automatically hide when unnecessary and filter options based on dataset size.
 
-11. **Clickable Rows**: Send users to a route when a row is clicked, with full access to the row's model and relations.
+11. **Infinite Scroll**: Opt-in IntersectionObserver-driven "load more" mode that grows the result window as the user scrolls.
 
-12. **Row Hover**: Set custom hover background colors for light and dark mode.
+12. **Clickable Rows**: Send users to a route when a row is clicked, with full access to the row's model and relations.
 
-13. **Row Stripes**: Apply zebra striping with independent odd, even, and dark-mode colors.
+13. **Row Hover**: Set custom hover background colors for light and dark mode.
 
-14. **Table Caption**: Add an accessible caption above or below the table.
+14. **Row Stripes**: Apply zebra striping with independent odd, even, and dark-mode colors.
 
-15. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+15. **Table Caption**: Add an accessible caption above or below the table.
 
-16. **Testing**: Provides a command for running tests to ensure everything works as expected.
+16. **Themes**: Uses a single blade template under 230 lines of html making it super easy to theme.
+
+17. **Testing**: Provides a command for running tests to ensure everything works as expected.
 
 ## Installation
 
@@ -498,6 +500,36 @@ protected function setup(): void
 Caption text is HTML-escaped on render. Pass an empty or `null` value to render no caption.
 
 > Positioning uses the Tailwind `caption-top` / `caption-bottom` utilities. If they are not already in your compiled CSS, run `npm run build` (or `npm run dev`) so the caption renders on the correct side. The hover and stripe colors are inlined and need no build step.
+
+### Column Ordering.
+
+Users can drag columns into their own order using the grips in the Toggle Columns dropdown. The order is held in `$columnOrder` as a list of fields; an empty list means the order returned by `columns()`. The dropdown's Reset button calls `resetColumns()`, which restores both the default order and the default visibility.
+
+- Dragging every column back to its default position clears the custom order.
+- Stored fields that are no longer columns are skipped, and new columns appear after the column that precedes them in `columns()`.
+- With `persistFilters` enabled, the order is saved to the session with the rest of the grid state and cleared by `clearSessionState()`.
+
+Exports use the default column order. To have them follow the user's order instead:
+
+```php
+class OrdersTable extends Component
+{
+    public bool $exportColumnOrder = true;
+}
+```
+
+Custom themes can wire up their own drag handles with Livewire's `wire:sort`: put `wire:sort="handleColumnSort"` on the list, and `wire:sort:item="{{ $column->field }}"` on one element per column, in `$this->columns` order. Every column needs an item, including ones you hide, so drop positions line up with the column list.
+
+To save the order somewhere other than the session, such as per-user settings, override `saveSessionState()`. It runs after every reorder and reset:
+
+```php
+protected function saveSessionState(): void
+{
+    parent::saveSessionState();
+
+    auth()->user()->settings()->set('orders_column_order', $this->columnOrder);
+}
+```
 
 ### Table Exports.
 
