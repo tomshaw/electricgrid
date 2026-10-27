@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.14.0](https://github.com/tomshaw/electricgrid/compare/v2.13.0...v2.14.0) (2026-10-27)
+
+
+### Features
+
+* add drag-and-drop column ordering with session persistence and optional ordered exports ([7398c71](https://github.com/tomshaw/electricgrid/commit/7398c717dd43459de5be40c3d23ad41d1c6199d9))
+
 ## [2.13.0](https://github.com/tomshaw/electricgrid/compare/v2.12.1...v2.13.0) (2026-06-28)
 
 
